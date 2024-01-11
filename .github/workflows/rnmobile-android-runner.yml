@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
     test:
-        runs-on: macos-12
+        runs-on: macos-13
         if: ${{ github.repository == 'WordPress/gutenberg' || github.event_name == 'pull_request' }}
         strategy:
             matrix:
@@ -35,13 +35,6 @@ jobs:
 
             - name: Setup Node.js and install dependencies
               uses: ./.github/setup-node
-
-            - name: Restore tests setup cache
-              uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-              with:
-                  path: |
-                      ~/.appium
-                  key: ${{ runner.os }}-tests-setup-${{ hashFiles('package-lock.json') }}
 
             - name: Prepare tests setup
               run: npm run native test:e2e:setup

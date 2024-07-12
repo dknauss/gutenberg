@@ -18,14 +18,9 @@ import {
 	HeadingLevelDropdown,
 } from '@wordpress/block-editor';
 import { ToggleControl, PanelBody } from '@wordpress/components';
-import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { decodeEntities } from '@wordpress/html-entities';
 
-export default function SiteTitleEdit( {
-	attributes,
-	setAttributes,
-	insertBlocksAfter,
-} ) {
+export default function SiteTitleEdit( { attributes, setAttributes } ) {
 	const { level, levelOptions, textAlign, isLink, linkTarget } = attributes;
 	const { canUserEdit, title } = useSelect( ( select ) => {
 		const { canUser, getEntityRecord, getEditedEntityRecord } =
@@ -68,9 +63,6 @@ export default function SiteTitleEdit( {
 				onChange={ setTitle }
 				allowedFormats={ [] }
 				disableLineBreaks
-				__unstableOnSplitAtEnd={ () =>
-					insertBlocksAfter( createBlock( getDefaultBlockName() ) )
-				}
 			/>
 		</TagName>
 	) : (

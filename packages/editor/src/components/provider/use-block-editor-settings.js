@@ -133,8 +133,7 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 			} = select( coreStore );
 			const { get } = select( preferencesStore );
 			const { getBlockTypes } = select( blocksStore );
-			const { getBlocksByName, getBlockAttributes } =
-				select( blockEditorStore );
+			const { getBlocksByName } = select( blockEditorStore );
 			const siteSettings = canUser( 'read', {
 				kind: 'root',
 				name: 'site',
@@ -144,15 +143,11 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 
 			function getSectionRootBlock() {
 				if ( renderingMode === 'template-locked' ) {
-					return getBlocksByName( 'core/post-content' )?.[ 0 ] ?? '';
+					return getBlocksByName( 'core/post-content' )?.[ 0 ];
 				}
 
-				return (
-					getBlocksByName( 'core/group' ).find(
-						( clientId ) =>
-							getBlockAttributes( clientId )?.tagName === 'main'
-					) ?? ''
-				);
+				// Allow default algorithm to determine the section root block.
+				return undefined;
 			}
 
 			return {

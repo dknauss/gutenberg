@@ -20,27 +20,27 @@ export function useZoomOut( zoomOut = true ) {
 		useDispatch( blockEditorStore )
 	);
 	const { isZoomOut } = unlock( useSelect( blockEditorStore ) );
-	const programatticEnterZoomOut = useRef( null );
+	const programmaticZoomOutChange = useRef( null );
 
 	useEffect( () => {
 		const isZoomOutOnMount = isZoomOut();
 
 		return () => {
 			// We never changed modes for them, so there is nothing to do.
-			if ( programatticEnterZoomOut.current === null ) {
+			if ( programmaticZoomOutChange.current === null ) {
 				return;
 			}
 
 			// If we exited zoom out for them and they were originally in zoom out mode, enter zoom out again.
 			if (
-				programatticEnterZoomOut.current === false &&
+				programmaticZoomOutChange.current === false &&
 				isZoomOutOnMount
 			) {
 				setZoomLevel( 'auto-scaled' );
 			}
 			// We entered zoom out for them, and they were not originally in zoom out mode, so reset the zoom level.
 			else if (
-				programatticEnterZoomOut.current === true &&
+				programmaticZoomOutChange.current === true &&
 				isZoomOut() &&
 				! isZoomOutOnMount
 			) {
@@ -51,10 +51,10 @@ export function useZoomOut( zoomOut = true ) {
 
 	useEffect( () => {
 		if ( zoomOut && ! isZoomOut() ) {
-			programatticEnterZoomOut.current = true;
+			programmaticZoomOutChange.current = true;
 			setZoomLevel( 'auto-scaled' );
 		} else if ( ! zoomOut && isZoomOut() ) {
-			programatticEnterZoomOut.current = false;
+			programmaticZoomOutChange.current = false;
 			resetZoomLevel();
 		}
 	}, [ zoomOut, setZoomLevel, isZoomOut, resetZoomLevel ] );

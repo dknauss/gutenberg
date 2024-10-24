@@ -61,7 +61,7 @@ const DEFAULT_POST_BASE = {
 		field: 'date',
 		direction: 'desc',
 	},
-	fields: [ 'title', 'author', 'status' ],
+	fields: [ 'title', 'parent', 'author', 'status' ],
 	layout: defaultLayouts[ LAYOUT_LIST ].layout,
 };
 

@@ -354,6 +354,11 @@ export interface ViewTable extends ViewBase {
 		 * The density of the view.
 		 */
 		density?: Density;
+
+		/**
+		 * The field to visualize hierarchical data.
+		 */
+		hierarchical?: string;
 	};
 }
 

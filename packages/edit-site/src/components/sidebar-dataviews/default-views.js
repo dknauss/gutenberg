@@ -30,6 +30,7 @@ export const defaultLayouts = {
 	[ LAYOUT_TABLE ]: {
 		layout: {
 			primaryField: 'title',
+			hierarchical: 'parent',
 			styles: {
 				title: {
 					maxWidth: 300,
@@ -41,12 +42,14 @@ export const defaultLayouts = {
 		layout: {
 			mediaField: 'featured_media',
 			primaryField: 'title',
+			hierarchical: 'parent', // TODO: remove this
 		},
 	},
 	[ LAYOUT_LIST ]: {
 		layout: {
 			primaryField: 'title',
 			mediaField: 'featured_media',
+			hierarchical: 'parent', // TODO: remove this
 		},
 	},
 };

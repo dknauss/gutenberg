@@ -43,6 +43,7 @@ interface TableColumnFieldProps< Item > {
 	item: Item;
 	isItemClickable: ( item: Item ) => boolean;
 	onClickItem?: ( item: Item ) => void;
+	level?: number;
 }
 
 interface TableColumnCombinedProps< Item > {
@@ -59,6 +60,7 @@ interface TableColumnProps< Item > {
 	primaryField?: NormalizedField< Item >;
 	fields: NormalizedField< Item >[];
 	item: Item;
+	level?: number;
 	column: string;
 	view: ViewTableType;
 	isItemClickable: ( item: Item ) => boolean;
@@ -68,6 +70,7 @@ interface TableColumnProps< Item > {
 interface TableRowProps< Item > {
 	hasBulkActions: boolean;
 	item: Item;
+	level?: number;
 	actions: Action< Item >[];
 	fields: NormalizedField< Item >[];
 	id: string;
@@ -109,6 +112,7 @@ function TableColumn< Item >( {
 
 function TableColumnField< Item >( {
 	primaryField,
+	level,
 	item,
 	field,
 	isItemClickable,
@@ -131,6 +135,11 @@ function TableColumnField< Item >( {
 				'dataviews-view-table__primary-field': isPrimaryField,
 			} ) }
 		>
+			{ isPrimaryField && level !== undefined && (
+				<span className="dataviews-view-table__level">
+					{ '—'.repeat( level ) }
+				</span>
+			) }
 			<div { ...clickableProps }>
 				<field.render { ...{ item } } />
 			</div>
@@ -159,6 +168,7 @@ function TableColumnCombined< Item >( {
 function TableRow< Item >( {
 	hasBulkActions,
 	item,
+	level,
 	actions,
 	fields,
 	id,
@@ -247,6 +257,7 @@ function TableRow< Item >( {
 							onClickItem={ onClickItem }
 							fields={ fields }
 							item={ item }
+							level={ level }
 							column={ column }
 							view={ view }
 						/>
@@ -272,6 +283,14 @@ function TableRow< Item >( {
 		</tr>
 	);
 }
+
+const getItemLevel = ( view: ViewTableType, item: any ) => {
+	if ( ! view.layout?.hierarchical || ! view.layout?.hierarchicalSort ) {
+		return;
+	}
+
+	return item?.level;
+};
 
 function ViewTable< Item >( {
 	actions,
@@ -422,6 +441,7 @@ function ViewTable< Item >( {
 							<TableRow
 								key={ getItemId( item ) }
 								item={ item }
+								level={ getItemLevel( view, item ) }
 								hasBulkActions={ hasBulkActions }
 								actions={ actions }
 								fields={ fields }

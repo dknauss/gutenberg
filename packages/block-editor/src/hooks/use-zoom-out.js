@@ -27,9 +27,10 @@ export function useZoomOut( zoomOut = true ) {
 		const matchedZoomOutStateOnMount = zoomOut === isZoomOut();
 
 		return () => {
+			const isZoomedOut = isZoomOut();
 			// If the zoomOut state matched on mount and the current zoom state
 			// matches on unmount, then no action is needed.
-			if ( matchedZoomOutStateOnMount && isZoomOut() === zoomOut ) {
+			if ( matchedZoomOutStateOnMount && isZoomedOut === zoomOut ) {
 				return;
 			}
 
@@ -41,9 +42,11 @@ export function useZoomOut( zoomOut = true ) {
 			}
 
 			// Zoom Out mode was toggled by this hook, so we need to invert the state.
-			return isZoomOut()
-				? resetZoomLevel()
-				: setZoomLevel( 'auto-scaled' );
+			if ( isZoomedOut ) {
+				resetZoomLevel();
+			} else {
+				setZoomLevel( 'auto-scaled' );
+			}
 		};
 	}, [] );
 

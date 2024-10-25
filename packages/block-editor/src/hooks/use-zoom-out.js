@@ -21,28 +21,30 @@ export function useZoomOut( zoomOut = true ) {
 	);
 	const { isZoomOut } = unlock( useSelect( blockEditorStore ) );
 
-	const programmaticZoomOutChange = useRef( null );
+	const toggleZoomOnUnmount = useRef( null );
+
+	// Let this hook know if the zoom state was changed manually.
+	const manualIsZoomOutCheck = isZoomOut();
 
 	useEffect( () => {
-		const matchedZoomOutStateOnMount = zoomOut === isZoomOut();
+		// If the zoom state changed (isZoomOut) and it does not match the requested zoom
+		// state (zoomOut), then it means they manually changed the zoom state and we should
+		// not toggle the zoom level on unmount.
+		if ( manualIsZoomOutCheck !== zoomOut ) {
+			toggleZoomOnUnmount.current = false;
+		}
+	}, [ manualIsZoomOutCheck ] );
+	// Intentionally excluding zoomOut from the dependency array. We want to catch instances where
+	// the zoom out state changes due to user interaction and not due to the hook.
 
+	useEffect( () => {
 		return () => {
-			const isZoomedOut = isZoomOut();
-			// If the zoomOut state matched on mount and the current zoom state
-			// matches on unmount, then no action is needed.
-			if ( matchedZoomOutStateOnMount && isZoomedOut === zoomOut ) {
-				return;
-			}
-
-			// The modes matched during a hook rerender (zoomOut === isZoomOut()),
-			// so we should not invert zoom states. This catches manual zoom out
-			// changes while the hook was mounted.
-			if ( ! programmaticZoomOutChange.current ) {
+			if ( ! toggleZoomOnUnmount.current ) {
 				return;
 			}
 
 			// Zoom Out mode was toggled by this hook, so we need to invert the state.
-			if ( isZoomedOut ) {
+			if ( isZoomOut() ) {
 				resetZoomLevel();
 			} else {
 				setZoomLevel( 'auto-scaled' );
@@ -55,16 +57,13 @@ export function useZoomOut( zoomOut = true ) {
 
 		// Requested zoom and current zoom states are different, so toggle the state.
 		if ( zoomOut !== isZoomedOut ) {
-			programmaticZoomOutChange.current = true;
+			toggleZoomOnUnmount.current = true;
 
 			if ( isZoomedOut ) {
 				resetZoomLevel();
 			} else {
 				setZoomLevel( 'auto-scaled' );
 			}
-		} else {
-			// Reset the flag if the zoom state is the same as requested.
-			programmaticZoomOutChange.current = false;
 		}
 	}, [ zoomOut, setZoomLevel, isZoomOut, resetZoomLevel ] );
 }

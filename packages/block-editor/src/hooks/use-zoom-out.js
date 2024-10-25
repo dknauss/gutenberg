@@ -31,7 +31,7 @@ export function useZoomOut( zoomOut = true ) {
 				return;
 			}
 
-			// If we exited zoom out for them and they were originally in zoom out mode, enter zoom out again.
+			// If zoom out mode was exited for the user and they were originally in zoom out mode, re-enter zoom out mode.
 			if (
 				programmaticZoomOutChange.current === false &&
 				isZoomOutOnMount

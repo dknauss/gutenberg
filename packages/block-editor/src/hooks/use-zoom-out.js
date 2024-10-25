@@ -26,7 +26,7 @@ export function useZoomOut( zoomOut = true ) {
 		const isZoomOutOnMount = isZoomOut();
 
 		return () => {
-			// We never changed modes for them, so there is nothing to do.
+			// No mode change was made for the user, so no action is needed.
 			if ( programmaticZoomOutChange.current === null ) {
 				return;
 			}

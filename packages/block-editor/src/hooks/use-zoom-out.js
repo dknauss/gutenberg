@@ -23,22 +23,13 @@ export function useZoomOut( zoomOut = true ) {
 
 	const programmaticZoomOutChange = useRef( null );
 
-	const toggleZoomOut = ( isZoomedOut ) => {
-		if ( isZoomedOut ) {
-			resetZoomLevel();
-		} else {
-			setZoomLevel( 'auto-scaled' );
-		}
-	};
-
 	useEffect( () => {
 		const matchedZoomOutStateOnMount = zoomOut === isZoomOut();
 
 		return () => {
-			const isZoomedOut = isZoomOut();
 			// If the zoomOut state matched on mount and the current zoom state
 			// matches on unmount, then no action is needed.
-			if ( matchedZoomOutStateOnMount && isZoomedOut === zoomOut ) {
+			if ( matchedZoomOutStateOnMount && isZoomOut() === zoomOut ) {
 				return;
 			}
 
@@ -49,8 +40,10 @@ export function useZoomOut( zoomOut = true ) {
 				return;
 			}
 
-			// Zoom Out mode was changed by this hook, so we need to invert the state.
-			toggleZoomOut( isZoomedOut );
+			// Zoom Out mode was toggled by this hook, so we need to invert the state.
+			return isZoomOut()
+				? resetZoomLevel()
+				: setZoomLevel( 'auto-scaled' );
 		};
 	}, [] );
 
@@ -61,10 +54,14 @@ export function useZoomOut( zoomOut = true ) {
 		if ( zoomOut !== isZoomedOut ) {
 			programmaticZoomOutChange.current = true;
 
-			toggleZoomOut( isZoomedOut );
+			if ( isZoomedOut ) {
+				resetZoomLevel();
+			} else {
+				setZoomLevel( 'auto-scaled' );
+			}
 		} else {
 			// Reset the flag if the zoom state is the same as requested.
 			programmaticZoomOutChange.current = false;
 		}
-	}, [ zoomOut, isZoomOut, toggleZoomOut ] );
+	}, [ zoomOut, setZoomLevel, isZoomOut, resetZoomLevel ] );
 }

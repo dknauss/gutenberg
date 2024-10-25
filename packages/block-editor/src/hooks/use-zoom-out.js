@@ -27,23 +27,11 @@ export function useZoomOut( zoomOut = true ) {
 	const manualIsZoomOutCheck = isZoomOut();
 
 	useEffect( () => {
-		// If the zoom state changed (isZoomOut) and it does not match the requested zoom
-		// state (zoomOut), then it means they manually changed the zoom state and we should
-		// not toggle the zoom level on unmount.
-		if ( manualIsZoomOutCheck !== zoomOut ) {
-			toggleZoomOnUnmount.current = false;
-		}
-	}, [ manualIsZoomOutCheck ] );
-	// Intentionally excluding zoomOut from the dependency array. We want to catch instances where
-	// the zoom out state changes due to user interaction and not due to the hook.
-
-	useEffect( () => {
 		return () => {
 			if ( ! toggleZoomOnUnmount.current ) {
 				return;
 			}
 
-			// Zoom Out mode was toggled by this hook, so we need to invert the state.
 			if ( isZoomOut() ) {
 				resetZoomLevel();
 			} else {
@@ -52,6 +40,8 @@ export function useZoomOut( zoomOut = true ) {
 		};
 	}, [] );
 
+	// This hook should only run when zoomOut changes, so we check for isZoomOut() within the
+	// hook rather than passing in
 	useEffect( () => {
 		const isZoomedOut = isZoomOut();
 
@@ -66,4 +56,15 @@ export function useZoomOut( zoomOut = true ) {
 			}
 		}
 	}, [ zoomOut, setZoomLevel, isZoomOut, resetZoomLevel ] );
+
+	useEffect( () => {
+		// If the zoom state changed (isZoomOut) and it does not match the requested zoom
+		// state (zoomOut), then it means the user manually changed the zoom state and we should
+		// not toggle the zoom level on unmount.
+		if ( manualIsZoomOutCheck !== zoomOut ) {
+			toggleZoomOnUnmount.current = false;
+		}
+	}, [ manualIsZoomOutCheck ] );
+	// Intentionally excluding zoomOut from the dependency array. We want to catch instances where
+	// the zoom out state changes due to user interaction and not due to the hook.
 }

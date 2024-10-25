@@ -189,6 +189,38 @@ test.describe( 'Site Editor Inserter', () => {
 		// We should not return to zoom out since it was manually disengaged
 		await expect( await InserterUtils.getZoomCanvas() ).toBeHidden();
 	} );
+
+	// Similar test to the above but starting from not zoomed in
+	test( 'should not toggle zoom state when closing the inserter if the user manually changed zoom state', async ( {
+		InserterUtils,
+	} ) => {
+		const zoomOutButton = InserterUtils.getZoomOutButton();
+		const inserterButton = InserterUtils.getInserterButton();
+		const blockLibrary = InserterUtils.getBlockLibrary();
+
+		await inserterButton.click();
+		const patternsTab = InserterUtils.getBlockLibraryTab( 'Patterns' );
+		await patternsTab.click();
+		await expect( patternsTab ).toHaveAttribute(
+			'data-active-item',
+			'true'
+		);
+		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
+
+		await zoomOutButton.click();
+		await expect( await InserterUtils.getZoomCanvas() ).toBeHidden();
+		// Toggle again to return to zoom state
+		await zoomOutButton.click();
+		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
+
+		// Close the inserter
+		await inserterButton.click();
+
+		await expect( blockLibrary ).toBeHidden();
+
+		// We should stay in zoomed out state since it was manually engaged
+		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
+	} );
 } );
 
 class InserterUtils {

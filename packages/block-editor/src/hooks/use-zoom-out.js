@@ -38,7 +38,7 @@ export function useZoomOut( zoomOut = true ) {
 			) {
 				setZoomLevel( 'auto-scaled' );
 			}
-			// We entered zoom out for them, and they were not originally in zoom out mode, so reset the zoom level.
+			// Zoom out was activated for the user, and they were not originally in zoom out mode, so reset the zoom level.
 			else if (
 				programmaticZoomOutChange.current === true &&
 				isZoomOut() &&

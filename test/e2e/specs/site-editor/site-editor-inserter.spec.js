@@ -27,7 +27,7 @@ test.describe( 'Site Editor Inserter', () => {
 		},
 	} );
 
-	test.skip( 'inserter toggle button should toggle global inserter', async ( {
+	test( 'inserter toggle button should toggle global inserter', async ( {
 		InserterUtils,
 	} ) => {
 		const inserterButton = InserterUtils.getInserterButton();
@@ -44,7 +44,7 @@ test.describe( 'Site Editor Inserter', () => {
 	} );
 
 	// A test for https://github.com/WordPress/gutenberg/issues/43090.
-	test.skip( 'should close the inserter when clicking on the toggle button', async ( {
+	test( 'should close the inserter when clicking on the toggle button', async ( {
 		editor,
 		InserterUtils,
 	} ) => {
@@ -66,7 +66,7 @@ test.describe( 'Site Editor Inserter', () => {
 		await expect( blockLibrary ).toBeHidden();
 	} );
 
-	test.skip( 'should open the inserter to patterns tab if using zoom out', async ( {
+	test( 'should open the inserter to patterns tab if using zoom out', async ( {
 		InserterUtils,
 	} ) => {
 		const zoomOutButton = InserterUtils.getZoomOutButton();

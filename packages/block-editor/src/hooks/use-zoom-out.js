@@ -25,7 +25,7 @@ export function useZoomOut( zoomOut = true ) {
 	const zoomStateOnMount = useRef( null );
 
 	// Let this hook know if the zoom state was changed manually.
-	const manualIsZoomOutCheck = isZoomOut();
+	const userZoomOutState = isZoomOut();
 
 	useEffect( () => {
 		zoomStateOnMount.current = isZoomOut();
@@ -73,13 +73,13 @@ export function useZoomOut( zoomOut = true ) {
 		// If the zoom state changed (isZoomOut) and it does not match the requested zoom
 		// state (zoomOut), then it means the user manually changed the zoom state and we should
 		// not toggle the zoom level on unmount.
-		if ( manualIsZoomOutCheck !== zoomOut ) {
+		if ( userZoomOutState !== zoomOut ) {
 			toggleZoomOnUnmount.current = false;
 			// We no longer care about the zoom state on mount.
 			// We are tracking the toggle on unmount based on if this hook changes.
 			zoomStateOnMount.current = null;
 		}
-	}, [ manualIsZoomOutCheck ] );
+	}, [ userZoomOutState ] );
 	// Intentionally excluding zoomOut from the dependency array. We want to catch instances where
 	// the zoom out state changes due to user interaction and not due to the hook.
 }

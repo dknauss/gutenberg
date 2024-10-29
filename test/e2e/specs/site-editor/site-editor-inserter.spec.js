@@ -146,6 +146,7 @@ test.describe( 'Site Editor Inserter', () => {
 		const blocksTab = InserterUtils.getBlockLibraryTab( 'Blocks' );
 		await blocksTab.click();
 		await expect( blocksTab ).toHaveAttribute( 'data-active-item', 'true' );
+
 		// Zoom out should disengage
 		await expect( await InserterUtils.getZoomCanvas() ).toBeHidden();
 
@@ -199,6 +200,8 @@ test.describe( 'Site Editor Inserter', () => {
 		const blockLibrary = InserterUtils.getBlockLibrary();
 
 		await inserterButton.click();
+
+		// Go to patterns tab which should enter zoom out
 		const patternsTab = InserterUtils.getBlockLibraryTab( 'Patterns' );
 		await patternsTab.click();
 		await expect( patternsTab ).toHaveAttribute(
@@ -207,9 +210,11 @@ test.describe( 'Site Editor Inserter', () => {
 		);
 		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
 
+		// Manually toggle zoom out off
 		await zoomOutButton.click();
 		await expect( await InserterUtils.getZoomCanvas() ).toBeHidden();
-		// Toggle again to return to zoom state
+
+		// Manually toggle zoom out again to return to zoomed-in state set by the patterns tab.
 		await zoomOutButton.click();
 		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
 

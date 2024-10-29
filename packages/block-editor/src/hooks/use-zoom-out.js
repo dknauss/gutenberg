@@ -22,13 +22,12 @@ export function useZoomOut( zoomOut = true ) {
 	const { isZoomOut } = unlock( useSelect( blockEditorStore ) );
 
 	const toggleZoomOnUnmount = useRef( false );
-	const zoomStateOnMount = useRef( null );
-
-	// Let this hook know if the zoom state was changed manually.
-	const userZoomOutState = isZoomOut();
+	const userZoomState = useRef( null );
+	const isZoomedOut = isZoomOut();
 
 	useEffect( () => {
-		zoomStateOnMount.current = isZoomOut();
+		// Store the user's manually set zoom state on mount.
+		userZoomState.current = isZoomOut();
 
 		return () => {
 			if ( ! toggleZoomOnUnmount.current ) {
@@ -43,19 +42,16 @@ export function useZoomOut( zoomOut = true ) {
 		};
 	}, [] );
 
-	// This hook should only run when zoomOut changes, so we check for isZoomOut() within the
-	// hook rather than passing in
+	/**
+	 * This hook should only run when the requested zoomOut changes. We don't want to
+	 * update it when isZoomedOut changes.
+	 */
 	useEffect( () => {
-		const isZoomedOut = isZoomOut();
-
 		// Requested zoom and current zoom states are different, so toggle the state.
 		if ( zoomOut !== isZoomedOut ) {
-			// If we are in tracked mode (zoomStateOnMount !== null) and the zoomOut state
-			// changes back to the original state, then we should not reset the zoom level on unmount.
-			if (
-				zoomStateOnMount.current !== null &&
-				zoomStateOnMount.current === zoomOut
-			) {
+			// If the requested zoomOut matches the user's manually set zoom state,
+			// do not toggle the zoom level on unmount.
+			if ( userZoomState.current === zoomOut ) {
 				toggleZoomOnUnmount.current = false;
 			} else {
 				toggleZoomOnUnmount.current = true;
@@ -67,21 +63,25 @@ export function useZoomOut( zoomOut = true ) {
 				setZoomLevel( 'auto-scaled' );
 			}
 		}
-	}, [ zoomOut, setZoomLevel, isZoomOut, resetZoomLevel ] );
+		// Intentionally excluding isZoomedOut so this hook will not recursively udpate.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ zoomOut, setZoomLevel, resetZoomLevel ] );
 
+	/**
+	 * This hook tracks if the zoom state was changed manually by the user via clicking
+	 * the zoom out button.
+	 */
 	useEffect( () => {
 		// If the zoom state changed (isZoomOut) and it does not match the requested zoom
 		// state (zoomOut), then it means the user manually changed the zoom state and we should
 		// not toggle the zoom level on unmount.
-		if ( userZoomOutState !== zoomOut ) {
+		if ( isZoomedOut !== zoomOut ) {
 			toggleZoomOnUnmount.current = false;
-			// We no longer care about the zoom state on mount.
-			// We are tracking the toggle on unmount based on if this hook changes.
-			zoomStateOnMount.current = null;
+			userZoomState.current = zoomOut;
 		}
 
 		// Intentionally excluding zoomOut from the dependency array. We want to catch instances where
 		// the zoom out state changes due to user interaction and not due to the hook.
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-	}, [ userZoomOutState ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isZoomedOut ] );
 }

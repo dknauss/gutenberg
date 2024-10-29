@@ -79,7 +79,9 @@ export function useZoomOut( zoomOut = true ) {
 			// We are tracking the toggle on unmount based on if this hook changes.
 			zoomStateOnMount.current = null;
 		}
+
+		// Intentionally excluding zoomOut from the dependency array. We want to catch instances where
+		// the zoom out state changes due to user interaction and not due to the hook.
+		// eslint-disable-next-line react-hooks/rules-of-hooks
 	}, [ userZoomOutState ] );
-	// Intentionally excluding zoomOut from the dependency array. We want to catch instances where
-	// the zoom out state changes due to user interaction and not due to the hook.
 }

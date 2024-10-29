@@ -119,7 +119,7 @@ test.describe( 'Site Editor Inserter', () => {
 		await expect( await InserterUtils.getZoomCanvas() ).toBeHidden();
 	} );
 
-	test( 'should return you to zoom out if starting from zoom out', async ( {
+	test( 'should not toggle zoom state between tabs if starting from zoom out', async ( {
 		InserterUtils,
 	} ) => {
 		const zoomOutButton = InserterUtils.getZoomOutButton();
@@ -147,16 +147,14 @@ test.describe( 'Site Editor Inserter', () => {
 		await blocksTab.click();
 		await expect( blocksTab ).toHaveAttribute( 'data-active-item', 'true' );
 
-		// Zoom out should disengage
-		await expect( await InserterUtils.getZoomCanvas() ).toBeHidden();
+		// Zoom out should still be egnaged
+		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
 
 		// Close the inserter
 		await inserterButton.click();
 		await expect( blockLibrary ).toBeHidden();
 
-		// We should return to zoom out since the inserter was opened with
-		// zoom out engaged, and it was automatically disengaged when selecting
-		// the blocks tab
+		// We should stay in zoom out state since it was manually engaged from the start
 		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
 	} );
 
@@ -224,47 +222,6 @@ test.describe( 'Site Editor Inserter', () => {
 		await expect( blockLibrary ).toBeHidden();
 
 		// We should stay in zoomed out state since it was manually engaged
-		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
-	} );
-
-	// Covers bug found in https://github.com/WordPress/gutenberg/pull/66381#issuecomment-2441540851
-	test( 'should return to initial zoom out state after switching between multiple tabs', async ( {
-		InserterUtils,
-	} ) => {
-		const zoomOutButton = InserterUtils.getZoomOutButton();
-		const inserterButton = InserterUtils.getInserterButton();
-		const blockLibrary = InserterUtils.getBlockLibrary();
-
-		await zoomOutButton.click();
-		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
-
-		await inserterButton.click();
-		const patternsTab = InserterUtils.getBlockLibraryTab( 'Patterns' );
-		const blocksTab = InserterUtils.getBlockLibraryTab( 'Blocks' );
-		const mediaTab = InserterUtils.getBlockLibraryTab( 'Media' );
-
-		// Should start with pattern tab selected in zoom out state
-		await expect( patternsTab ).toHaveAttribute(
-			'data-active-item',
-			'true'
-		);
-		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
-
-		// Go to blocks tab which should exit zoom out
-		await blocksTab.click();
-		await expect( blocksTab ).toHaveAttribute( 'data-active-item', 'true' );
-		await expect( await InserterUtils.getZoomCanvas() ).toBeHidden();
-
-		// Go to media tab which should enter zoom out again since that's the starting state
-		await mediaTab.click();
-		await expect( mediaTab ).toHaveAttribute( 'data-active-item', 'true' );
-		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
-
-		// Close the inserter
-		await inserterButton.click();
-		await expect( blockLibrary ).toBeHidden();
-
-		// We should re-enter zoomed out state since it was the starting point
 		await expect( await InserterUtils.getZoomCanvas() ).toBeVisible();
 	} );
 } );

@@ -4,8 +4,8 @@
  *
  * @see The documentation for the `rememo` package from which the `createSelector` function is reexported.
  *
- * @param {Function} selector      Selector function that calculates a value from state and parameters.
- * @param {Function} getDependants Function that returns an array of "dependant" objects.
- * @return {Function} A memoized version of `selector` that caches the calculated return values.
+ * @param selector      Selector function that calculates a value from state and parameters.
+ * @param getDependants Function that returns an array of "dependant" objects.
+ * @return A memoized version of `selector` that caches the calculated return values.
  */
 export { default as createSelector } from 'rememo';

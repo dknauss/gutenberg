@@ -25,7 +25,6 @@ import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
-import { Async } from '../async';
 import {
 	PATTERN_TYPES,
 	TEMPLATE_PART_POST_TYPE,
@@ -88,12 +87,12 @@ function PreviewField( { item } ) {
 				{ isEmpty && isTemplatePart && __( 'Empty template part' ) }
 				{ isEmpty && ! isTemplatePart && __( 'Empty pattern' ) }
 				{ ! isEmpty && (
-					<Async>
+					<BlockPreview.Async>
 						<BlockPreview
 							blocks={ blocks }
 							viewportWidth={ item.viewportWidth }
 						/>
-					</Async>
+					</BlockPreview.Async>
 				) }
 			</PreviewWrapper>
 			{ !! description && (

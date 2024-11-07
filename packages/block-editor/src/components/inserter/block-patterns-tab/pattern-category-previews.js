@@ -46,7 +46,7 @@ export function PatternCategoryPreviews( {
 	const [ allPatterns, , onClickPattern ] = usePatternsState(
 		onInsert,
 		rootClientId,
-		category?.name
+		category
 	);
 	const [ patternSyncFilter, setPatternSyncFilter ] = useState( 'all' );
 	const [ patternSourceFilter, setPatternSourceFilter ] = useState( 'all' );
@@ -69,25 +69,25 @@ export function PatternCategoryPreviews( {
 					return false;
 				}
 
-				if ( category.name === allPatternsCategory.name ) {
+				if ( category === allPatternsCategory.name ) {
 					return true;
 				}
 
 				if (
-					category.name === myPatternsCategory.name &&
+					category === myPatternsCategory.name &&
 					pattern.type === INSERTER_PATTERN_TYPES.user
 				) {
 					return true;
 				}
 
 				if (
-					category.name === starterPatternsCategory.name &&
+					category === starterPatternsCategory.name &&
 					pattern.blockTypes?.includes( 'core/post-content' )
 				) {
 					return true;
 				}
 
-				if ( category.name === 'uncategorized' ) {
+				if ( category === 'uncategorized' ) {
 					// The uncategorized category should show all the patterns without any category...
 					if ( ! pattern.categories ) {
 						return true;
@@ -99,20 +99,24 @@ export function PatternCategoryPreviews( {
 					);
 				}
 
-				return pattern.categories?.includes( category.name );
+				return pattern.categories?.includes( category );
 			} ),
 		[
 			allPatterns,
 			availableCategories,
-			category.name,
+			category,
 			patternSourceFilter,
 			patternSyncFilter,
 		]
 	);
 
+	const categoryObject = availableCategories.find(
+		( { name } ) => name === category
+	);
+
 	const pagingProps = usePatternsPaging(
 		currentCategoryPatterns,
-		category,
+		categoryObject,
 		scrollContainerRef
 	);
 	const { changePage } = pagingProps;
@@ -149,7 +153,7 @@ export function PatternCategoryPreviews( {
 							level={ 4 }
 							as="div"
 						>
-							{ category.label }
+							{ categoryObject.label }
 						</Heading>
 					</FlexBlock>
 					<PatternsFilter
@@ -158,7 +162,7 @@ export function PatternCategoryPreviews( {
 						setPatternSyncFilter={ onSetPatternSyncFilter }
 						setPatternSourceFilter={ onSetPatternSourceFilter }
 						scrollContainerRef={ scrollContainerRef }
-						category={ category }
+						category={ categoryObject }
 					/>
 				</HStack>
 				{ ! currentCategoryPatterns.length && (
@@ -184,9 +188,9 @@ export function PatternCategoryPreviews( {
 						blockPatterns={ pagingProps.categoryPatterns }
 						onClickPattern={ onClickPattern }
 						onHover={ onHover }
-						label={ category.label }
+						label={ categoryObject.label }
 						orientation="vertical"
-						category={ category.name }
+						category={ categoryObject.name }
 						isDraggable
 						showTitlesAsTooltip={ showTitlesAsTooltip }
 						patternFilter={ patternSourceFilter }

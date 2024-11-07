@@ -68,6 +68,7 @@ export function usePatternCategories( rootClientId, sourceFilter = 'all' ) {
 				label: _x( 'Uncategorized' ),
 			} );
 		}
+		categories.unshift( starterPatternsCategory );
 		if (
 			filteredPatterns.some( ( pattern ) =>
 				pattern.blockTypes?.includes( 'core/post-content' )

@@ -31,24 +31,3 @@ function gutenberg_register_interactivity_script_module_data_hooks() {
 	}
 }
 add_action( 'after_setup_theme', 'gutenberg_register_interactivity_script_module_data_hooks', 20 );
-
-function gutenberg_block_core_query_add_url_filtering( $context ) {
-	if ( empty( $context['queryId'] ) ) {
-		return $context;
-	}
-
-	// if the parent block is NOT a Query Loop block, then we bail out
-	if ( empty( $context['query']['inherit'] ) ) {
-		return $context;
-	}
-
-	$search_key = 'query-' . $context['queryId'] . '-s';
-	if ( ! isset( $_GET[ $search_key ] ) ) {
-		return $context;
-	}
-
-	$context['query']['search'] = sanitize_text_field( $_GET[ $search_key ] );
-
-	return $context;
-}
-add_filter( 'render_block_context', 'gutenberg_block_core_query_add_url_filtering' );

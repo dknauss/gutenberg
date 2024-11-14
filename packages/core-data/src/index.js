@@ -71,15 +71,15 @@ const entityActions = entitiesConfig.reduce( ( result, entity ) => {
 const storeConfig = () => ( {
 	reducer,
 	actions: {
+		...dynamicActionDefinitions,
 		...actions,
 		...entityActions,
 		...createLocksActions(),
-		...dynamicActionDefinitions,
 	},
 	selectors: {
+		...dynamicSelectorDefinitions,
 		...selectors,
 		...entitySelectors,
-		...dynamicSelectorDefinitions,
 	},
 	resolvers: { ...resolvers, ...entityResolvers },
 } );

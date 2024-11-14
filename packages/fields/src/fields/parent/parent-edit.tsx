@@ -122,7 +122,6 @@ export function PageAttributesParent( {
 
 	const { parentPostTitle, pageItems, isHierarchical } = useSelect(
 		( select ) => {
-			// @ts-expect-error getPostType is not typed
 			const { getEntityRecord, getEntityRecords, getPostType } =
 				select( coreStore );
 

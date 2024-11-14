@@ -11,6 +11,9 @@ import type { NavMenuItem } from './nav-menu-item';
 import type { Page } from './page';
 import type { Plugin } from './plugin';
 import type { Post } from './post';
+import type { PostStatusObject } from './post-status';
+import type { PostType } from './post-type';
+import type { Base } from './base';
 import type { PostRevision } from './post-revision';
 import type { Settings } from './settings';
 import type { Sidebar } from './sidebar';
@@ -27,6 +30,7 @@ export type { BaseEntityRecords } from './base-entity-records';
 
 export type {
 	Attachment,
+	Base,
 	Comment,
 	Context,
 	GlobalStylesRevision,
@@ -36,6 +40,8 @@ export type {
 	Page,
 	Plugin,
 	Post,
+	PostStatusObject,
+	PostType,
 	PostRevision,
 	Settings,
 	Sidebar,
@@ -84,6 +90,7 @@ export type {
  */
 export interface PerPackageEntityRecords< C extends Context > {
 	core:
+		| Base< C >
 		| Attachment< C >
 		| Comment< C >
 		| GlobalStylesRevision< C >
@@ -93,6 +100,8 @@ export interface PerPackageEntityRecords< C extends Context > {
 		| Page< C >
 		| Plugin< C >
 		| Post< C >
+		| PostStatusObject< C >
+		| PostType< C >
 		| PostRevision< C >
 		| Settings< C >
 		| Sidebar< C >

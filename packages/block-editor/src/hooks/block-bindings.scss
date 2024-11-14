@@ -3,4 +3,32 @@ div.block-editor-bindings__panel {
 	button:hover .block-editor-bindings__item span {
 		color: inherit;
 	}
+
+}
+
+.block-editor-bindings__modal {
+	width: 100%;
+	height: 100%;
+	.dataviews-view-table {
+		margin-top: $grid-unit-20;
+		border: 1px solid #f0f0f0;
+		width: 100%;
+		thead {
+			th {
+				text-align: left;
+				padding-left: 12px;
+				button {
+					text-transform: uppercase;
+					color: #1e1e1e;
+				}
+			}
+		}
+		tbody {
+			td {
+				border-top: 1px solid #f0f0f0;
+				padding-left: 24px;
+			}
+		}
+	}
+
 }

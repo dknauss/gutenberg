@@ -46,6 +46,7 @@
 		"@wordpress/components": "*",
 		"@wordpress/compose": "*",
 		"@wordpress/data": "*",
+		"@wordpress/dataviews": "*",
 		"@wordpress/date": "*",
 		"@wordpress/deprecated": "*",
 		"@wordpress/dom": "*",

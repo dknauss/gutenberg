@@ -294,5 +294,8 @@
 	},
 	"workspaces": [
 		"packages/*"
-	]
+	],
+	"dependencies": {
+		"@wordpress/dataviews": "4.7.0"
+	}
 }

@@ -11,27 +11,23 @@ import type { Page } from '@playwright/test';
  * Go to the next page of the query.
  * @param page       - The page object.
  * @param pageNumber - The page number to navigate to.
- * @param args       - Query arguments: ['default'] or ['custom', number]
+ * @param testId     - The test ID of the query.
+ * @param queryId    - The query ID.
  */
 async function goToNextPage(
 	page: Page,
 	pageNumber: number,
-	...args: [ 'default' ] | [ 'custom', number ]
+	testId: string,
+	queryId: number
 ) {
-	const [ queryType, queryId ] = args;
 	await page
-		.getByTestId( `${ queryType }-query` )
+		.getByTestId( testId )
 		.getByRole( 'link', { name: 'Next Page' } )
 		.click();
 
 	// Wait for the response
 	return page.waitForResponse( ( response ) =>
-		queryType === 'default'
-			? response.url().includes( `paged=${ pageNumber }` ) ||
-			  response.url().includes( `/page/${ pageNumber }/` )
-			: response
-					.url()
-					.includes( `query-${ queryId }-page=${ pageNumber }` )
+		response.url().includes( `query-${ queryId }-page=${ pageNumber }` )
 	);
 }
 
@@ -305,21 +301,22 @@ test.describe( 'Instant Search', () => {
 	} );
 
 	test.describe( 'Multiple Queries', () => {
-		const customQueryId = 1234;
+		const firstQueryId = 1234;
+		const secondQueryId = 5678;
 
 		test.beforeAll( async ( { requestUtils } ) => {
-			// Edit the Home template to include both query types
+			// Edit the Home template to include two custom queries
 			await requestUtils.deleteAllTemplates( 'wp_template' );
 			await requestUtils.createTemplate( 'wp_template', {
 				slug: 'home',
 				title: 'Home',
 				content: `
-<!-- wp:query {"enhancedPagination":true,"queryId":1,"query":{"inherit":true,"offset":0,"perPage":2,"order":"desc","orderBy":"date"}} -->
-	<div class="wp-block-query" data-testid="default-query">
+<!-- wp:query {"enhancedPagination":true,"queryId":${ firstQueryId },"query":{"inherit":false,"perPage":2,"order":"desc","orderBy":"date","offset":0}} -->
+	<div class="wp-block-query" data-testid="first-query">
 		<!-- wp:heading -->
-		<h2>Default Query</h2>
+		<h2>First Query</h2>
 		<!-- /wp:heading -->
-		<!-- wp:search {"label":"default-instant-search","buttonText":"Search"} /-->
+		<!-- wp:search {"label":"1st-instant-search","buttonText":"Search"} /-->
 		<!-- wp:post-template -->
 			<!-- wp:post-title {"level":3} /-->
 			<!-- wp:post-excerpt /-->
@@ -337,12 +334,12 @@ test.describe( 'Instant Search', () => {
 	</div>
 <!-- /wp:query -->
 
-<!-- wp:query {"enhancedPagination":true,"queryId":${ customQueryId },"query":{"inherit":false,"perPage":2,"order":"desc","orderBy":"date","offset":0}} -->
-	<div class="wp-block-query" data-testid="custom-query">
+<!-- wp:query {"enhancedPagination":true,"queryId":${ secondQueryId },"query":{"inherit":false,"perPage":2,"order":"desc","orderBy":"date","offset":0}} -->
+	<div class="wp-block-query" data-testid="second-query">
 		<!-- wp:heading -->
-		<h2>Custom Query</h2>
+		<h2>Second Query</h2>
 		<!-- /wp:heading -->
-		<!-- wp:search {"label":"custom-instant-search","buttonText":"Search"} /-->
+		<!-- wp:search {"label":"2nd-instant-search","buttonText":"Search"} /-->
 		<!-- wp:post-template -->
 			<!-- wp:post-title {"level":3} /-->
 			<!-- wp:post-excerpt /-->
@@ -368,101 +365,116 @@ test.describe( 'Instant Search', () => {
 
 		test( 'should handle searches independently', async ( { page } ) => {
 			// Get search inputs
-			const defaultQuerySearch = page.getByLabel(
-				'default-instant-search'
-			);
+			const firstQuerySearch = page.getByLabel( '1st-instant-search' );
+			const secondQuerySearch = page.getByLabel( '2nd-instant-search' );
 
-			const customQuerySearch = page.getByLabel(
-				'custom-instant-search'
-			);
-
-			// Search in default query
-			await defaultQuerySearch.fill( 'Unique' );
+			// Search in first query
+			await firstQuerySearch.fill( 'Unique' );
 			await page.waitForResponse( ( response ) =>
-				response.url().includes( 'instant-search=Unique' )
+				response
+					.url()
+					.includes( `instant-search-${ firstQueryId }=Unique` )
 			);
 
-			// Verify only default query ONLY shows the unique post
+			// Verify first query ONLY shows the unique post
 			await expect(
 				page
-					.getByTestId( 'default-query' )
+					.getByTestId( 'first-query' )
 					.getByText( 'Unique Post', { exact: true } )
 			).toBeVisible();
 
-			// Verify that the custom query shows exactly 2 posts: First Test Post and Second Test Post
-			const customQuery = page.getByTestId( 'custom-query' );
-			const posts = customQuery.getByRole( 'heading', { level: 3 } );
+			// Verify that the second query shows exactly 2 posts: First Test Post and Second Test Post
+			const secondQuery = page.getByTestId( 'second-query' );
+			const posts = secondQuery.getByRole( 'heading', { level: 3 } );
 			await expect( posts ).toHaveCount( 2 );
 			await expect( posts ).toContainText( [
 				'First Test Post',
 				'Second Test Post',
 			] );
 
-			// Search in custom query
-			await customQuerySearch.fill( 'Third' );
+			// Search in second query
+			await secondQuerySearch.fill( 'Third' );
 			await page.waitForResponse( ( response ) =>
 				response
 					.url()
-					.includes( `instant-search-${ customQueryId }=Third` )
+					.includes( `instant-search-${ secondQueryId }=Third` )
 			);
 
 			// Verify URL contains both search parameters
-			await expect( page ).toHaveURL( /instant-search=Unique/ );
 			await expect( page ).toHaveURL(
-				new RegExp( `instant-search-${ customQueryId }=Third` )
+				new RegExp( `instant-search-${ firstQueryId }=Unique` )
+			);
+			await expect( page ).toHaveURL(
+				new RegExp( `instant-search-${ secondQueryId }=Third` )
 			);
 
-			// Clear default query search
-			await defaultQuerySearch.fill( '' );
-			await expect( page ).not.toHaveURL( /instant-search=/ );
-			await expect( page ).toHaveURL(
-				new RegExp( `instant-search-${ customQueryId }=Third` )
-			);
+			// Verify that the first query has only one post which is the "Unique" post
+			const firstQueryPosts = page
+				.getByTestId( 'first-query' )
+				.getByRole( 'heading', { level: 3 } );
+			await expect( firstQueryPosts ).toHaveCount( 1 );
+			await expect( firstQueryPosts ).toContainText( 'Unique Post' );
 
-			// Clear custom query search
-			await customQuerySearch.fill( '' );
+			// Verify that the second query has only one post which is the "Third Test Post"
+			const secondQueryPosts = page
+				.getByTestId( 'second-query' )
+				.getByRole( 'heading', { level: 3 } );
+			await expect( secondQueryPosts ).toHaveCount( 1 );
+			await expect( secondQueryPosts ).toContainText( 'Third Test Post' );
+
+			// Clear first query search
+			await firstQuerySearch.fill( '' );
 			await expect( page ).not.toHaveURL(
-				new RegExp( `instant-search-${ customQueryId }=` )
+				new RegExp( `instant-search-${ firstQueryId }=` )
+			);
+			await expect( page ).toHaveURL(
+				new RegExp( `instant-search-${ secondQueryId }=Third` )
+			);
+
+			// Clear second query search
+			await secondQuerySearch.fill( '' );
+			await expect( page ).not.toHaveURL(
+				new RegExp( `instant-search-${ secondQueryId }=` )
 			);
 		} );
 
 		test( 'should handle pagination independently', async ( { page } ) => {
-			const defaultQuerySearch = page.getByLabel(
-				'default-instant-search'
-			);
-			const customQuerySearch = page.getByLabel(
-				'custom-instant-search'
-			);
+			const firstQuerySearch = page.getByLabel( '1st-instant-search' );
+			const secondQuerySearch = page.getByLabel( '2nd-instant-search' );
 
-			// Navigate to second page in default query
-			await goToNextPage( page, 2, 'default' );
+			// Navigate to second page in first query
+			await goToNextPage( page, 2, 'first-query', firstQueryId );
 
-			// Navigate to second page in custom query
-			await goToNextPage( page, 2, 'custom', customQueryId );
+			// Navigate to second page in second query
+			await goToNextPage( page, 2, 'second-query', secondQueryId );
 
-			// Navigate to third page in custom query
-			await goToNextPage( page, 3, 'custom', customQueryId );
+			// Navigate to third page in second query
+			await goToNextPage( page, 3, 'second-query', secondQueryId );
 
 			// Verify URL contains both pagination parameters
-			await expect( page ).toHaveURL( /(?:paged=2|\/page\/2\/)/ );
 			await expect( page ).toHaveURL(
-				new RegExp( `query-${ customQueryId }-page=3` )
+				new RegExp( `query-${ firstQueryId }-page=2` )
+			);
+			await expect( page ).toHaveURL(
+				new RegExp( `query-${ secondQueryId }-page=3` )
 			);
 
-			// Search in default query and verify only its pagination resets
-			await defaultQuerySearch.fill( 'Test' );
-			await expect( page ).toHaveURL( /paged=1/ );
+			// Search in first query and verify only its pagination resets
+			await firstQuerySearch.fill( 'Test' );
 			await expect( page ).toHaveURL(
-				new RegExp( `query-${ customQueryId }-page=3` )
+				new RegExp( `query-${ firstQueryId }-page=1` )
+			);
+			await expect( page ).toHaveURL(
+				new RegExp( `query-${ secondQueryId }-page=3` )
 			);
 
-			// Verify that the
-
-			// Search in custom query and verify only its pagination resets
-			await customQuerySearch.fill( 'Test' );
-			await expect( page ).toHaveURL( /paged=1/ );
+			// Search in second query and verify only its pagination resets
+			await secondQuerySearch.fill( 'Test' );
 			await expect( page ).toHaveURL(
-				new RegExp( `query-${ customQueryId }-page=1` )
+				new RegExp( `query-${ firstQueryId }-page=1` )
+			);
+			await expect( page ).toHaveURL(
+				new RegExp( `query-${ secondQueryId }-page=1` )
 			);
 		} );
 	} );

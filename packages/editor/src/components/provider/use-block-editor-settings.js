@@ -133,7 +133,7 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 			} = select( coreStore );
 			const { get } = select( preferencesStore );
 			const { getBlockTypes } = select( blocksStore );
-			const { getBlocksByName, getBlockAttributes } =
+			const { getBlocks, getBlocksByName, getBlockAttributes } =
 				select( blockEditorStore );
 			const siteSettings = canUser( 'read', {
 				kind: 'root',
@@ -143,16 +143,56 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 				: undefined;
 
 			function getSectionRootBlock() {
+				// 1. Post Content block.
 				if ( renderingMode === 'template-locked' ) {
 					return getBlocksByName( 'core/post-content' )?.[ 0 ] ?? '';
 				}
 
-				return (
+				// 2. Group with `<main>`.
+				const groupBlockWithMainTagName =
 					getBlocksByName( 'core/group' ).find(
 						( clientId ) =>
 							getBlockAttributes( clientId )?.tagName === 'main'
-					) ?? ''
+					) ?? '';
+
+				if ( groupBlockWithMainTagName ) {
+					return groupBlockWithMainTagName;
+				}
+
+				const rootBlocks = getBlocks();
+
+				// 3. Group block inbetween a Header and Footer template part.
+				const groupBlockIndex = rootBlocks?.findIndex(
+					( block ) => block.name === 'core/group'
 				);
+
+				const previousBlock = rootBlocks[ groupBlockIndex - 1 ];
+				const nextBlock = rootBlocks[ groupBlockIndex + 1 ];
+
+				if (
+					groupBlockIndex !== -1 &&
+					previousBlock.name === 'core/template-part' &&
+					previousBlock.attributes.slug === 'header' &&
+					nextBlock.name === 'core/template-part' &&
+					nextBlock.attributes.slug === 'footer'
+				) {
+					return rootBlocks[ groupBlockIndex ].clientId;
+				}
+
+				// 4. Group or Cover block at the root.
+				const groupOrCoverBlockIndex = rootBlocks.findIndex(
+					( block ) =>
+						block.name === 'core/group' ||
+						block.name === 'core/cover'
+				);
+
+				if ( groupOrCoverBlockIndex !== -1 ) {
+					return rootBlocks[ groupOrCoverBlockIndex ].clientId;
+				}
+
+				// Default to empty to indicate the root of the block editor
+				// should be treated as the section root.
+				return '';
 			}
 
 			return {

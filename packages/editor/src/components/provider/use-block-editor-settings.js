@@ -179,15 +179,13 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 					return rootBlocks[ groupBlockIndex ].clientId;
 				}
 
-				// 4. Group or Cover block at the root.
-				const groupOrCoverBlockIndex = rootBlocks.findIndex(
-					( block ) =>
-						block.name === 'core/group' ||
-						block.name === 'core/cover'
+				// 4. Group block at the root.
+				const groupBlock = rootBlocks.find(
+					( block ) => block.name === 'core/group'
 				);
 
-				if ( groupOrCoverBlockIndex !== -1 ) {
-					return rootBlocks[ groupOrCoverBlockIndex ].clientId;
+				if ( groupBlock ) {
+					return groupBlock.clientId;
 				}
 
 				// Default to empty to indicate the root of the block editor

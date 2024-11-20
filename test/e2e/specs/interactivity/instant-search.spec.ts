@@ -298,6 +298,75 @@ test.describe( 'Instant Search', () => {
 				page.locator( '.wp-block-query-pagination-numbers' )
 			).toBeHidden();
 		} );
+
+		test( 'should handle pre-defined search from query attributes', async ( {
+			requestUtils,
+			page,
+		} ) => {
+			// Create page with custom query that includes a search parameter
+			const { id } = await requestUtils.createPage( {
+				status: 'publish',
+				title: 'Query with Search',
+				content: `
+<!-- wp:query {"enhancedPagination":true,"queryId":${ queryId },"query":{"inherit":false,"perPage":2,"order":"desc","orderBy":"date","offset":0,"search":"Unique"}} -->
+    <div class="wp-block-query" data-testid="query-with-search">
+        <!-- wp:search {"label":"","buttonText":"Search"} /-->
+        <!-- wp:post-template -->
+            <!-- wp:post-title {"level":3} /-->
+            <!-- wp:post-excerpt /-->
+        <!-- /wp:post-template -->
+        <!-- wp:query-pagination -->
+            <!-- wp:query-pagination-previous /-->
+            <!-- wp:query-pagination-numbers /-->
+            <!-- wp:query-pagination-next /-->
+        <!-- /wp:query-pagination -->
+        <!-- wp:query-no-results -->
+            <!-- wp:paragraph -->
+            <p>No results found.</p>
+            <!-- /wp:paragraph -->
+        <!-- /wp:query-no-results -->
+    </div>
+<!-- /wp:query -->`,
+			} );
+
+			// Navigate to the page
+			await page.goto( `/?p=${ id }` );
+
+			// Verify the search input has the initial value
+			await expect( page.locator( 'input[type="search"]' ) ).toHaveValue(
+				'Unique'
+			);
+
+			// Verify only the unique post is shown
+			await expect(
+				page.getByText( 'Unique Post', { exact: true } )
+			).toBeVisible();
+			const posts = page
+				.getByTestId( 'query-with-search' )
+				.getByRole( 'heading', { level: 3 } );
+			await expect( posts ).toHaveCount( 1 );
+
+			// Verify URL does not contain the instant-search parameter
+			await expect( page ).not.toHaveURL(
+				new RegExp( `instant-search-${ queryId }=` )
+			);
+
+			// Type new search term and verify normal instant search behavior
+			await page.locator( 'input[type="search"]' ).fill( 'Test' );
+			await page.waitForResponse( ( response ) =>
+				response.url().includes( `instant-search-${ queryId }=Test` )
+			);
+
+			// Verify URL now contains the instant-search parameter
+			await expect( page ).toHaveURL(
+				new RegExp( `instant-search-${ queryId }=Test` )
+			);
+
+			// Verify search results update
+			await expect(
+				page.getByText( 'First Test Post', { exact: true } )
+			).toBeVisible();
+		} );
 	} );
 
 	test.describe( 'Multiple Queries', () => {

@@ -1,0 +1,84 @@
+diff --git a/node_modules/framer-motion/dist/client-entry.d.ts b/node_modules/framer-motion/dist/client-entry.d.ts
+index ac45d32..c08264e 100644
+--- a/node_modules/framer-motion/dist/client-entry.d.ts
++++ b/node_modules/framer-motion/dist/client-entry.d.ts
+@@ -1,7 +1,8 @@
+ /// <reference types="react" />
+ import * as react from 'react';
+-import { SVGAttributes, CSSProperties, PropsWithoutRef, RefAttributes, JSX, HTMLElementType } from 'react';
++import { SVGAttributes, CSSProperties, PropsWithoutRef, RefAttributes, JSX } from 'react';
+ 
++type HTMLElementType = keyof HTMLElements;
+ type EasingFunction = (v: number) => number;
+ type BezierDefinition = [number, number, number, number];
+ type EasingDefinition = BezierDefinition | "linear" | "easeIn" | "easeOut" | "easeInOut" | "circIn" | "circOut" | "circInOut" | "backIn" | "backOut" | "backInOut" | "anticipate";
+@@ -2482,7 +2483,7 @@ type DOMMotionComponents = HTMLMotionComponents & SVGMotionComponents;
+ 
+ declare const createMotionComponent: <Props, TagName extends string = "div">(Component: string | TagName | react.ForwardRefExoticComponent<Props>, { forwardMotionProps }?: {
+     forwardMotionProps: boolean;
+-}) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | react.HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>;
++}) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>;
+ 
+ /**
+  * HTML components
+diff --git a/node_modules/framer-motion/dist/index.d.ts b/node_modules/framer-motion/dist/index.d.ts
+index 0caa480..1095408 100644
+--- a/node_modules/framer-motion/dist/index.d.ts
++++ b/node_modules/framer-motion/dist/index.d.ts
+@@ -1,8 +1,9 @@
+ /// <reference types="react" />
+ import * as react from 'react';
+-import { SVGAttributes as SVGAttributes$1, CSSProperties, PropsWithoutRef, RefAttributes, JSX, HTMLElementType, useEffect, RefObject as RefObject$1 } from 'react';
++import { SVGAttributes as SVGAttributes$1, CSSProperties, PropsWithoutRef, RefAttributes, JSX, useEffect, RefObject as RefObject$1 } from 'react';
+ import * as react_jsx_runtime from 'react/jsx-runtime';
+ 
++type HTMLElementType = keyof HTMLElements;
+ type EasingFunction = (v: number) => number;
+ type EasingModifier = (easing: EasingFunction) => EasingFunction;
+ type BezierDefinition = [number, number, number, number];
+@@ -3558,18 +3559,18 @@ declare function createRendererMotionComponent<Props extends {}, Instance, Rende
+ 
+ declare const motion: (<Props, TagName extends string = "div">(Component: string | TagName | react.ForwardRefExoticComponent<Props>, { forwardMotionProps }?: {
+     forwardMotionProps: boolean;
+-}) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | react.HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>) & HTMLMotionComponents & SVGMotionComponents & {
++}) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>) & HTMLMotionComponents & SVGMotionComponents & {
+     create: <Props, TagName extends string = "div">(Component: string | TagName | react.ForwardRefExoticComponent<Props>, { forwardMotionProps }?: {
+         forwardMotionProps: boolean;
+-    }) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | react.HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>;
++    }) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>;
+ };
+ 
+ declare const m: (<Props, TagName extends string = "div">(Component: string | TagName | react.ForwardRefExoticComponent<Props>, { forwardMotionProps }?: {
+     forwardMotionProps: boolean;
+-}) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | react.HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>) & HTMLMotionComponents & SVGMotionComponents & {
++}) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>) & HTMLMotionComponents & SVGMotionComponents & {
+     create: <Props, TagName extends string = "div">(Component: string | TagName | react.ForwardRefExoticComponent<Props>, { forwardMotionProps }?: {
+         forwardMotionProps: boolean;
+-    }) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | react.HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>;
++    }) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>;
+ };
+ 
+ /**
+diff --git a/node_modules/framer-motion/dist/m-entry.d.ts b/node_modules/framer-motion/dist/m-entry.d.ts
+index bc97a0c..7e7580c 100644
+--- a/node_modules/framer-motion/dist/m-entry.d.ts
++++ b/node_modules/framer-motion/dist/m-entry.d.ts
+@@ -1,7 +1,8 @@
+ /// <reference types="react" />
+ import * as react from 'react';
+-import { SVGAttributes, CSSProperties, PropsWithoutRef, RefAttributes, JSX, HTMLElementType } from 'react';
++import { SVGAttributes, CSSProperties, PropsWithoutRef, RefAttributes, JSX } from 'react';
+ 
++type HTMLElementType = keyof HTMLElements;
+ type EasingFunction = (v: number) => number;
+ type BezierDefinition = [number, number, number, number];
+ type EasingDefinition = BezierDefinition | "linear" | "easeIn" | "easeOut" | "easeInOut" | "circIn" | "circOut" | "circInOut" | "backIn" | "backOut" | "backInOut" | "anticipate";
+@@ -2482,7 +2483,7 @@ type DOMMotionComponents = HTMLMotionComponents & SVGMotionComponents;
+ 
+ declare const createMinimalMotionComponent: <Props, TagName extends string = "div">(Component: string | TagName | react.ForwardRefExoticComponent<Props>, { forwardMotionProps }?: {
+     forwardMotionProps: boolean;
+-}) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | react.HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>;
++}) => TagName extends "symbol" | "filter" | "stop" | "clipPath" | "mask" | "marker" | "animate" | "text" | "path" | "image" | "circle" | "switch" | "defs" | "desc" | "ellipse" | "feBlend" | "feColorMatrix" | "feComponentTransfer" | "feComposite" | "feConvolveMatrix" | "feDiffuseLighting" | "feDisplacementMap" | "feDistantLight" | "feDropShadow" | "feFlood" | "feFuncA" | "feFuncB" | "feFuncG" | "feFuncR" | "feGaussianBlur" | "feImage" | "feMerge" | "feMergeNode" | "feMorphology" | "feOffset" | "fePointLight" | "feSpecularLighting" | "feSpotLight" | "feTile" | "feTurbulence" | "foreignObject" | "g" | "line" | "linearGradient" | "metadata" | "pattern" | "polygon" | "polyline" | "radialGradient" | "rect" | "svg" | "textPath" | "tspan" | "use" | "view" | HTMLElementType ? DOMMotionComponents[TagName] : react.ForwardRefExoticComponent<MotionComponentProps<react.PropsWithChildren<Props>>>;
+ 
+ /**
+  * HTML components

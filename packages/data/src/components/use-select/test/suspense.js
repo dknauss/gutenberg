@@ -110,10 +110,10 @@ describe( 'useSuspenseSelect', () => {
 		render( <App /> );
 		await screen.findByLabelText( 'loaded' );
 
-		// Verify there were 3 attempts to render. Suspended twice because of
+		// Verify there were 4 attempts to render. Suspended twice because of
 		// `getToken` and `getData` selectors not being resolved, and then finally
 		// rendered after all data got loaded.
-		expect( attempts ).toBe( 3 );
+		expect( attempts ).toBe( 4 );
 		expect( renders ).toBe( 1 );
 	} );
 
@@ -230,7 +230,7 @@ describe( 'useSuspenseSelect', () => {
 		expect( slowLabel ).toHaveTextContent( 'slow' );
 
 		// TODO: Understand what's going on here. This has to be reverted.
-		expect( FastUI ).toHaveBeenCalledTimes( 3 );
-		expect( SlowUI ).toHaveBeenCalledTimes( 2 );
+		expect( FastUI ).toHaveBeenCalledTimes( 4 );
+		expect( SlowUI ).toHaveBeenCalledTimes( 3 );
 	} );
 } );

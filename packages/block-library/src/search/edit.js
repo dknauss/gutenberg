@@ -67,6 +67,7 @@ export default function SearchEdit( {
 	toggleSelection,
 	isSelected,
 	clientId,
+	context,
 } ) {
 	const {
 		label,
@@ -81,6 +82,16 @@ export default function SearchEdit( {
 		isSearchFieldHidden,
 		style,
 	} = attributes;
+
+	const isEnhancedPagination = context?.enhancedPagination;
+
+	useEffect( () => {
+		if ( isEnhancedPagination ) {
+			setAttributes( { metadata: { name: 'Instant Search' } } );
+		} else {
+			setAttributes( { metadata: { name: label } } );
+		}
+	}, [ isEnhancedPagination, setAttributes, label ] );
 
 	const wasJustInsertedIntoNavigationBlock = useSelect(
 		( select ) => {
@@ -385,24 +396,28 @@ export default function SearchEdit( {
 						} }
 						className={ showLabel ? 'is-pressed' : undefined }
 					/>
-					<ToolbarDropdownMenu
-						icon={ getButtonPositionIcon() }
-						label={ __( 'Change button position' ) }
-						controls={ buttonPositionControls }
-					/>
-					{ ! hasNoButton && (
-						<ToolbarButton
-							title={ __( 'Use button with icon' ) }
-							icon={ buttonWithIcon }
-							onClick={ () => {
-								setAttributes( {
-									buttonUseIcon: ! buttonUseIcon,
-								} );
-							} }
-							className={
-								buttonUseIcon ? 'is-pressed' : undefined
-							}
-						/>
+					{ ! isEnhancedPagination && (
+						<>
+							<ToolbarDropdownMenu
+								icon={ getButtonPositionIcon() }
+								label={ __( 'Change button position' ) }
+								controls={ buttonPositionControls }
+							/>
+							{ ! hasNoButton && (
+								<ToolbarButton
+									title={ __( 'Use button with icon' ) }
+									icon={ buttonWithIcon }
+									onClick={ () => {
+										setAttributes( {
+											buttonUseIcon: ! buttonUseIcon,
+										} );
+									} }
+									className={
+										buttonUseIcon ? 'is-pressed' : undefined
+									}
+								/>
+							) }
+						</>
 					) }
 				</ToolbarGroup>
 			</BlockControls>
@@ -596,16 +611,22 @@ export default function SearchEdit( {
 				} }
 				showHandle={ isSelected }
 			>
-				{ ( isButtonPositionInside ||
-					isButtonPositionOutside ||
-					hasOnlyButton ) && (
+				{ isEnhancedPagination ? (
+					renderTextField()
+				) : (
 					<>
-						{ renderTextField() }
-						{ renderButton() }
+						{ ( isButtonPositionInside ||
+							isButtonPositionOutside ||
+							hasOnlyButton ) && (
+							<>
+								{ renderTextField() }
+								{ renderButton() }
+							</>
+						) }
+
+						{ hasNoButton && renderTextField() }
 					</>
 				) }
-
-				{ hasNoButton && renderTextField() }
 			</ResizableBox>
 		</div>
 	);

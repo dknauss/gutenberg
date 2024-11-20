@@ -42,7 +42,7 @@
 		"@wordpress/warning": "*",
 		"browserslist": "^4.21.10",
 		"core-js": "^3.31.0",
-		"react": "^19.0.0-rc-100dfd7dab-20240701"
+		"react": "^19.0.0-rc.1"
 	},
 	"publishConfig": {
 		"access": "public"

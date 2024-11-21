@@ -119,35 +119,34 @@ function gutenberg_register_block_style( $block_name, $style_properties ) {
 }
 
 /**
- * Adds the search query to the context if the instant search gutenberg experiment is enabled.
+ * Adds the search query to Query Loop blocks if the instant search experiment is enabled.
  *
- * @param array $context The block context.
- * @return array The block context.
+ * @param array     $query The query variables.
+ * @param WP_Block  $block Block instance.
+ * @return array Modified query variables.
  */
-function gutenberg_block_core_query_add_url_filtering( $context ) {
-
-	// Make sure it only runs for blocks with a queryId
-	if ( empty( $context['queryId'] ) ) {
-		return $context;
-	}
-
+function gutenberg_block_core_query_add_url_filtering( $query, $block ) {
 	// Check if the instant search gutenberg experiment is enabled
 	$gutenberg_experiments  = get_option( 'gutenberg-experiments' );
 	$instant_search_enabled = $gutenberg_experiments && array_key_exists( 'gutenberg-search-query-block', $gutenberg_experiments );
 	if ( ! $instant_search_enabled ) {
-		return $context;
+		return $query;
+	}
+
+	// Make sure block has a queryId
+	if ( empty( $block->context['queryId'] ) ) {
+		return $query;
 	}
 
 	// Get the search key from the URL
-	$search_key = 'instant-search-' . $context['queryId'];
+	$search_key = 'instant-search-' . $block->context['queryId'];
 	if ( ! isset( $_GET[ $search_key ] ) ) {
-		return $context;
+		return $query;
 	}
 
-	// Add the search query to the context, it will be picked up by all the blocks that
-	// use the `query` context like `post-template` or `query-pagination`.
-	$context['query']['search'] = sanitize_text_field( $_GET[ $search_key ] );
+	// Add the search parameter to the query
+	$query['s'] = sanitize_text_field( $_GET[ $search_key ] );
 
-	return $context;
+	return $query;
 }
-add_filter( 'render_block_context', 'gutenberg_block_core_query_add_url_filtering', 10, 2 );
+add_filter( 'query_loop_block_query_vars', 'gutenberg_block_core_query_add_url_filtering', 10, 2 );

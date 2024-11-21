@@ -90,13 +90,7 @@ test.describe( 'Instant Search', () => {
 
 	test.afterAll( async ( { requestUtils } ) => {
 		await requestUtils.deleteAllPosts();
-		await requestUtils.deleteAllPages();
-		await requestUtils.deleteAllTemplates( 'wp_template' );
-
-		// Reset the Blog pages show at most 10 posts
-		await requestUtils.updateSiteSettings( {
-			posts_per_page: 10,
-		} );
+		await requestUtils.activateTheme( 'twentytwentyone' );
 	} );
 
 	test.describe( 'Custom Query', () => {
@@ -375,9 +369,8 @@ test.describe( 'Instant Search', () => {
 
 		test.beforeAll( async ( { requestUtils } ) => {
 			// Edit the Home template to include two custom queries
-			await requestUtils.deleteAllTemplates( 'wp_template' );
-			await requestUtils.createTemplate( 'wp_template', {
-				slug: 'home',
+			await requestUtils.createPage( {
+				status: 'publish',
 				title: 'Home',
 				content: `
 <!-- wp:query {"enhancedPagination":true,"queryId":${ firstQueryId },"query":{"inherit":false,"perPage":2,"order":"desc","orderBy":"date","offset":0}} -->

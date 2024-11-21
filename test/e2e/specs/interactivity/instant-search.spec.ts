@@ -364,12 +364,14 @@ test.describe( 'Instant Search', () => {
 	} );
 
 	test.describe( 'Multiple Queries', () => {
+		let pageId: number;
+
 		const firstQueryId = 1234;
 		const secondQueryId = 5678;
 
 		test.beforeAll( async ( { requestUtils } ) => {
 			// Edit the Home template to include two custom queries
-			await requestUtils.createPage( {
+			const { id } = await requestUtils.createPage( {
 				status: 'publish',
 				title: 'Home',
 				content: `
@@ -419,10 +421,12 @@ test.describe( 'Instant Search', () => {
 	</div>
 <!-- /wp:query -->`,
 			} );
+
+			pageId = id;
 		} );
 
 		test.beforeEach( async ( { page } ) => {
-			await page.goto( '/' );
+			await page.goto( `/?p=${ pageId }` );
 		} );
 
 		test( 'should handle searches independently', async ( { page } ) => {

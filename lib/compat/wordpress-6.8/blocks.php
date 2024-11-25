@@ -144,3 +144,12 @@ function gutenberg_stabilize_experimental_block_supports( $args ) {
 }
 
 add_filter( 'register_block_type_args', 'gutenberg_stabilize_experimental_block_supports', PHP_INT_MAX, 1 );
+
+function gutenberg_apply_block_hooks_to_post_content( $content ) {
+	// The `the_content` filter does not provide the post that the content is coming from.
+	// However, we can infer it by calling `get_post()`, which will return the current post
+	// if no post ID is provided.
+	return apply_block_hooks_to_content( $content, get_post(), 'insert_hooked_blocks' );
+}
+// We need to apply this filter before `do_blocks` (which is hooked to `the_content` at priority 9).
+add_filter( 'the_content', 'gutenberg_apply_block_hooks_to_post_content', 8 );

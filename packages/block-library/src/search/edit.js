@@ -87,9 +87,12 @@ export default function SearchEdit( {
 
 	useEffect( () => {
 		if ( isEnhancedPagination ) {
+			// Add the name to the metadata
 			setAttributes( { metadata: { name: 'Instant Search' } } );
 		} else {
-			setAttributes( { metadata: { name: label } } );
+			// Remove the name from the metadata
+			const { name, ...metadata } = attributes.metadata || {};
+			setAttributes( { metadata } );
 		}
 	}, [ isEnhancedPagination, setAttributes, label ] );
 

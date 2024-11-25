@@ -28,7 +28,7 @@ add_action( 'admin_init', 'gutenberg_add_styles_submenu_item' );
 
 /**
  * Filter the `wp_die_handler` to allow access to the Site Editor's Styles page
- * for Classic themes. 
+ * for Classic themes.
  *
  * @param callable $default_handler The default handler.
  * @return callable The default handler or a custom handler.

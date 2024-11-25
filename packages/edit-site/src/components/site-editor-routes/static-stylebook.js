@@ -13,8 +13,8 @@ export const staticStylebookRoute = {
 	name: 'static-stylebook',
 	match: ( params ) => {
 		return (
-			params.page &&
-			params.page.startsWith( 'gutenberg-stylebook-static' ) &&
+			params.path &&
+			params.path.startsWith( '/style-book' ) &&
 			params.canvas !== 'edit'
 		);
 	},

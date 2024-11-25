@@ -23,7 +23,7 @@ import {
 	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients,
 } from '@wordpress/block-editor';
 import { privateApis as editorPrivateApis } from '@wordpress/editor';
-import { useSelect } from '@wordpress/data';
+import { useSelect, dispatch } from '@wordpress/data';
 import { useResizeObserver } from '@wordpress/compose';
 import {
 	useMemo,
@@ -46,6 +46,7 @@ import {
 	getTopLevelStyleBookCategories,
 } from './categories';
 import { getExamples } from './examples';
+import { store as siteEditorStore } from '../../store';
 
 const {
 	ExperimentalBlockEditorProvider,
@@ -349,6 +350,13 @@ export const StyleBookPreview = ( {
 	isSelected,
 	onSelect,
 } ) => {
+	const siteEditorSettings = useSelect(
+		( select ) => select( siteEditorStore ).getSettings(),
+		[]
+	);
+	// Update block editor settings because useMultipleOriginColorsAndGradients fetch colours from there.
+	dispatch( blockEditorStore ).updateSettings( siteEditorSettings );
+
 	const [ resizeObserver, sizes ] = useResizeObserver();
 	const { colors, gradients } = useMultipleOriginColorsAndGradients();
 	// Exclude the default colors and gradients.
@@ -374,22 +382,18 @@ export const StyleBookPreview = ( {
 		return {};
 	}, [ baseConfig, userConfig ] );
 
-	const originalSettings = useSelect(
-		( select ) => select( blockEditorStore ).getSettings(),
-		[]
-	);
 	const [ globalStyles ] = useGlobalStylesOutputWithConfig( mergedConfig );
 
 	const settings = useMemo(
 		() => ( {
-			...originalSettings,
+			...siteEditorSettings,
 			styles:
 				! isObjectEmpty( globalStyles ) && ! isObjectEmpty( userConfig )
 					? globalStyles
-					: originalSettings.styles,
+					: siteEditorSettings.styles,
 			isPreviewMode: true,
 		} ),
-		[ globalStyles, originalSettings, userConfig ]
+		[ globalStyles, siteEditorSettings, userConfig ]
 	);
 
 	return (

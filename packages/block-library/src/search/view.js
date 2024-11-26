@@ -109,26 +109,15 @@ const { state, actions } = store(
 				const url = new URL( window.location.href );
 
 				if ( value ) {
-					if ( ctx.isInherited ) {
-						url.searchParams.set( 'instant-search', value );
+					// Set the instant-search parameter using the query ID and search value
+					const queryId = ctx.queryId;
+					url.searchParams.set(
+						`instant-search-${ queryId }`,
+						value
+					);
 
-						// Make sure we reset the pagination.
-						url.searchParams.set( 'paged', '1' );
-					} else {
-						// Set the instant-search parameter using the query ID and search value
-						const queryId = ctx.queryId;
-						url.searchParams.set(
-							`instant-search-${ queryId }`,
-							value
-						);
-
-						// Make sure we reset the pagination.
-						url.searchParams.set( `query-${ queryId }-page`, '1' );
-					}
-				} else if ( ctx.isInherited ) {
-					// Reset global search for inherited queries
-					url.searchParams.delete( 'instant-search' );
-					url.searchParams.delete( 'paged' );
+					// Make sure we reset the pagination.
+					url.searchParams.set( `query-${ queryId }-page`, '1' );
 				} else {
 					// Reset specific search for non-inherited queries
 					url.searchParams.delete(

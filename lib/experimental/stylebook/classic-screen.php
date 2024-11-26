@@ -20,8 +20,10 @@ function gutenberg_add_styles_submenu_item() {
 			'edit_theme_options',
 			'site-editor.php?path=/style-book',
 		);
-		// Insert the Styles submenu item at position 2.
-		array_splice( $submenu['themes.php'], 2, 0, array( $styles_menu_item ) );
+		// If $submenu exists, insert the Styles submenu item at position 2.
+		if ( $submenu && isset( $submenu['themes.php'] ) ) {
+			array_splice( $submenu['themes.php'], 2, 0, array( $styles_menu_item ) );
+		}
 	}
 }
 add_action( 'admin_init', 'gutenberg_add_styles_submenu_item' );

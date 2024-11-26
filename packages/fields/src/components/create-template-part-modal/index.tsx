@@ -29,7 +29,6 @@ import {
 } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 // @ts-ignore
-// @ts-ignore
 import { serialize } from '@wordpress/blocks';
 
 /**

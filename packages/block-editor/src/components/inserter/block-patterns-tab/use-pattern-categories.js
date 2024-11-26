@@ -76,13 +76,6 @@ export function usePatternCategories( rootClientId, sourceFilter = 'all' ) {
 			categories.unshift( starterPatternsCategory );
 		}
 		if (
-			filteredPatterns.some( ( pattern ) =>
-				pattern.blockTypes?.includes( 'core/post-content' )
-			)
-		) {
-			categories.unshift( starterPatternsCategory );
-		}
-		if (
 			filteredPatterns.some(
 				( pattern ) => pattern.type === INSERTER_PATTERN_TYPES.user
 			)

@@ -210,8 +210,8 @@ function render_block_core_search( $attributes, $content, $block ) {
 	}
 
 	if ( $enhanced_pagination && $instant_search_enabled && isset( $block->context['queryId'] ) ) {
-
-		$search = '';
+		$is_inherited = isset( $block->context['query']['inherit'] ) && $block->context['query']['inherit'] && ! empty( $block->context['queryId'] );
+		$search       = '';
 
 		// If the query is defined in the block context, use it
 		if ( isset( $block->context['query']['search'] ) && '' !== $block->context['query']['search'] ) {
@@ -219,13 +219,18 @@ function render_block_core_search( $attributes, $content, $block ) {
 		}
 
 		// If the query is defined in the URL, it overrides the block context value if defined
-		$search = empty( $_GET[ 'instant-search-' . $block->context['queryId'] ] ) ? $search : sanitize_text_field( $_GET[ 'instant-search-' . $block->context['queryId'] ] );
+		if ( $is_inherited ) {
+			$search = empty( $_GET['instant-search'] ) ? '' : sanitize_text_field( $_GET['instant-search'] );
+		} else {
+			$search = empty( $_GET[ 'instant-search-' . $block->context['queryId'] ] ) ? '' : sanitize_text_field( $_GET[ 'instant-search-' . $block->context['queryId'] ] );
+		}
 
 		$form_context = array_merge(
 			$form_context,
 			array(
-				'search'  => $search,
-				'queryId' => $block->context['queryId'],
+				'search'      => $search,
+				'queryId'     => $block->context['queryId'],
+				'isInherited' => $is_inherited,
 			)
 		);
 	}

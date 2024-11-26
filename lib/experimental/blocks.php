@@ -150,3 +150,32 @@ function gutenberg_block_core_query_add_url_filtering( $query, $block ) {
 	return $query;
 }
 add_filter( 'query_loop_block_query_vars', 'gutenberg_block_core_query_add_url_filtering', 10, 2 );
+
+function gutenberg_block_core_query_add_search_query_filtering( $query ) {
+
+	// if the query is not the main query, return
+	if ( ! $query->is_main_query() ) {
+		return;
+	}
+
+	// Check if the instant search gutenberg experiment is enabled
+	$gutenberg_experiments  = get_option( 'gutenberg-experiments' );
+	$instant_search_enabled = $gutenberg_experiments && array_key_exists( 'gutenberg-search-query-block', $gutenberg_experiments );
+	if ( ! $instant_search_enabled ) {
+		return;
+	}
+
+	// Get the search key from the URL
+	$search_key = 'instant-search';
+	if ( ! isset( $_GET[ $search_key ] ) ) {
+		return;
+	}
+
+	// Add the search parameter to the query
+	$query->set( 's', sanitize_text_field( $_GET[ $search_key ] ) );
+}
+
+add_action(
+	'pre_get_posts',
+	'gutenberg_block_core_query_add_search_query_filtering'
+);

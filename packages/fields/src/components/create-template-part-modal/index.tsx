@@ -127,7 +127,7 @@ export function CreateTemplatePartModalContents( {
 
 	const defaultTemplatePartAreas = useSelect( ( select ) => {
 		const areas =
-			// @ts-expect-error The default_template_part_areas is not part of the core store type.
+			// @ts-expect-error getEntityRecord is not typed with unstableBase as argument.
 			select( coreStore ).getEntityRecord< {
 				default_template_part_areas: Array< {
 					area: string;

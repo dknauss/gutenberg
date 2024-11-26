@@ -569,11 +569,10 @@ export type Form = {
 };
 
 export interface DataFormProps< Item > {
-	data: Item;
+	data: Item | Item[];
 	fields: Field< Item >[];
 	form: Form;
 	onChange: ( value: Record< string, any > ) => void;
-	isBulkEditing?: boolean;
 }
 
 export interface FieldLayoutProps< Item > {

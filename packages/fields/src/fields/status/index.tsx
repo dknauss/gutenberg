@@ -20,6 +20,7 @@ const statusField: Field< BasePost > = {
 	elements: STATUSES,
 	render: StatusView,
 	Edit: 'radio',
+	supportsBulk: true,
 	enableSorting: false,
 	filterBy: {
 		operators: [ OPERATOR_IS_ANY ],

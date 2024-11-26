@@ -8,7 +8,7 @@ const FORM_FIELD_LAYOUTS = [
 	{
 		type: 'regular',
 		component: FormRegularField,
-		supportsBulk: false,
+		supportsBulk: true,
 	},
 	{
 		type: 'panel',

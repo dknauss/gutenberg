@@ -11,7 +11,7 @@ import { DataForm } from '@wordpress/dataviews';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { __experimentalVStack as VStack } from '@wordpress/components';
-import { useState, useMemo, useEffect } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { privateApis as editorPrivateApis } from '@wordpress/editor';
 
 /**
@@ -57,7 +57,6 @@ function PostEditForm( { postType, postId } ) {
 		},
 		[ postType, ids ]
 	);
-	const [ multiEdits, setMultiEdits ] = useState( {} );
 	const { editEntityRecord } = useDispatch( coreDataStore );
 	const { fields: _fields } = usePostFields( { postType } );
 	const fields = useMemo(
@@ -98,7 +97,9 @@ function PostEditForm( { postType, postId } ) {
 			].filter(
 				( field ) =>
 					ids.length === 1 ||
-					fieldsWithBulkEditSupport.includes( field )
+					fieldsWithBulkEditSupport.includes(
+						typeof field === 'string' ? field : field.id
+					)
 			),
 		} ),
 		[ ids ]
@@ -121,31 +122,8 @@ function PostEditForm( { postType, postId } ) {
 				edits.password = '';
 			}
 			editEntityRecord( 'postType', postType, id, edits );
-			if ( ids.length > 1 ) {
-				setMultiEdits( ( prev ) => ( {
-					...prev,
-					...edits,
-				} ) );
-			}
 		}
 	};
-	useEffect( () => {
-		if ( records && records.length > 1 ) {
-			const intersectingValues = {};
-			const keys = Object.keys( records[ 0 ] );
-			for ( const key of keys ) {
-				const [ firstRecord, ...remainingRecords ] = records;
-				const intersects = remainingRecords.every( ( item ) => {
-					return item[ key ] === firstRecord[ key ];
-				} );
-				if ( intersects ) {
-					intersectingValues[ key ] = firstRecord[ key ];
-				}
-			}
-
-			setMultiEdits( intersectingValues );
-		}
-	}, [ records ] );
 
 	return (
 		<VStack spacing={ 4 }>
@@ -153,8 +131,7 @@ function PostEditForm( { postType, postId } ) {
 				<PostCardPanel postType={ postType } postId={ ids[ 0 ] } />
 			) }
 			<DataForm
-				data={ ids.length === 1 ? record : multiEdits }
-				isBulkEditing={ ids.length > 1 }
+				data={ ids.length === 1 ? record : records }
 				fields={ fields }
 				form={ form }
 				onChange={ onChange }

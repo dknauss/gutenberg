@@ -30,7 +30,7 @@ function Header( { title }: { title: string } ) {
 	);
 }
 
-export default function FormRegularField< Item >( {
+export default function FormRegularField< Item extends object >( {
 	data,
 	field,
 	onChange,

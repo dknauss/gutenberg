@@ -19,6 +19,7 @@ const titleField: Field< BasePost > = {
 	getValue: ( { item } ) => getItemTitle( item ),
 	render: TitleView,
 	enableHiding: false,
+	supportsBulk: true,
 };
 
 export default titleField;

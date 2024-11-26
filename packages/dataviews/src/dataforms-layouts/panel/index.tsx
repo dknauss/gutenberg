@@ -59,7 +59,7 @@ function DropdownHeader( {
 	);
 }
 
-function PanelDropdown< Item >( {
+function PanelDropdown< Item extends object >( {
 	fieldDefinition,
 	popoverAnchor,
 	labelPosition = 'side',
@@ -158,6 +158,7 @@ function PanelDropdown< Item >( {
 						data={ data }
 						form={ form as Form }
 						onChange={ onChange }
+						isBulkEditing={ isBulkEditing }
 					>
 						{ ( FieldLayout, nestedField ) => (
 							<FieldLayout

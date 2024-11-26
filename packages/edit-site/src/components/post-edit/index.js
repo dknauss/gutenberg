@@ -32,7 +32,7 @@ const fieldsWithBulkEditSupport = [
 
 function PostEditForm( { postType, postId } ) {
 	const ids = useMemo( () => postId.split( ',' ), [ postId ] );
-	const { record } = useSelect(
+	const { record, records } = useSelect(
 		( select ) => {
 			return {
 				record:
@@ -41,6 +41,16 @@ function PostEditForm( { postType, postId } ) {
 								'postType',
 								postType,
 								ids[ 0 ]
+						  )
+						: null,
+				records:
+					ids.length > 1
+						? ids.map( ( id ) =>
+								select( coreDataStore ).getEditedEntityRecord(
+									'postType',
+									postType,
+									id
+								)
 						  )
 						: null,
 			};
@@ -120,8 +130,22 @@ function PostEditForm( { postType, postId } ) {
 		}
 	};
 	useEffect( () => {
-		setMultiEdits( {} );
-	}, [ ids ] );
+		if ( records && records.length > 1 ) {
+			const intersectingValues = {};
+			const keys = Object.keys( records[ 0 ] );
+			for ( const key of keys ) {
+				const [ firstRecord, ...remainingRecords ] = records;
+				const intersects = remainingRecords.every( ( item ) => {
+					return item[ key ] === firstRecord[ key ];
+				} );
+				if ( intersects ) {
+					intersectingValues[ key ] = firstRecord[ key ];
+				}
+			}
+
+			setMultiEdits( intersectingValues );
+		}
+	}, [ records ] );
 
 	return (
 		<VStack spacing={ 4 }>
@@ -130,6 +154,7 @@ function PostEditForm( { postType, postId } ) {
 			) }
 			<DataForm
 				data={ ids.length === 1 ? record : multiEdits }
+				isBulkEditing={ ids.length > 1 }
 				fields={ fields }
 				form={ form }
 				onChange={ onChange }

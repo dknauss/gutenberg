@@ -18,6 +18,7 @@ export function DataFormLayout< Item >( {
 	form,
 	onChange,
 	children,
+	isBulkEditing,
 }: {
 	data: Item;
 	form: Form;
@@ -31,6 +32,7 @@ export function DataFormLayout< Item >( {
 		} ) => React.JSX.Element | null,
 		field: FormField
 	) => React.JSX.Element;
+	isBulkEditing?: boolean;
 } ) {
 	const { fields: fieldDefinitions } = useContext( DataFormContext );
 
@@ -50,10 +52,13 @@ export function DataFormLayout< Item >( {
 	return (
 		<VStack spacing={ 2 }>
 			{ normalizedFormFields.map( ( formField ) => {
-				const FieldLayout = getFormFieldLayout( formField.layout )
-					?.component;
+				const formFieldLayout = getFormFieldLayout( formField.layout );
+				const FieldLayout = formFieldLayout?.component;
 
-				if ( ! FieldLayout ) {
+				if (
+					! FieldLayout ||
+					( isBulkEditing && ! formFieldLayout?.supportsBulk )
+				) {
 					return null;
 				}
 
@@ -79,6 +84,7 @@ export function DataFormLayout< Item >( {
 						data={ data }
 						field={ formField }
 						onChange={ onChange }
+						isBulkEditing={ isBulkEditing }
 					/>
 				);
 			} ) }

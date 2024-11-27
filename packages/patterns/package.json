@@ -40,6 +40,7 @@
 		"@wordpress/compose": "*",
 		"@wordpress/core-data": "*",
 		"@wordpress/data": "*",
+		"@wordpress/dataviews": "*",
 		"@wordpress/element": "*",
 		"@wordpress/html-entities": "*",
 		"@wordpress/i18n": "*",

@@ -83,6 +83,17 @@ export default function useSaveImage( {
 				} );
 				createSuccessNotice( messages[ modifierType ], {
 					type: 'snackbar',
+					actions: [
+						{
+							label: __( 'Undo' ),
+							onClick: () => {
+								onSaveImage( {
+									id,
+									url,
+								} );
+							},
+						},
+					],
 				} );
 			} )
 			.catch( ( error ) => {

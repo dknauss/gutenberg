@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 28.13.0 (2024-11-27)
+
 ### Deprecations
 
 -   `DimensionControl`: Deprecate 36px default size ([#66705](https://github.com/WordPress/gutenberg/pull/66705)).

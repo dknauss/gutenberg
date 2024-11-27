@@ -8,12 +8,10 @@ const FORM_FIELD_LAYOUTS = [
 	{
 		type: 'regular',
 		component: FormRegularField,
-		supportsBulk: true,
 	},
 	{
 		type: 'panel',
 		component: FormPanelField,
-		supportsBulk: true,
 	},
 ];
 

@@ -71,13 +71,10 @@ export function DataFormLayout< Item extends object >( {
 	return (
 		<VStack spacing={ 2 }>
 			{ normalizedFormFields.map( ( formField ) => {
-				const formFieldLayout = getFormFieldLayout( formField.layout );
-				const FieldLayout = formFieldLayout?.component;
+				const FieldLayout = getFormFieldLayout( formField.layout )
+					?.component;
 
-				if (
-					! FieldLayout ||
-					( isBulkEditing && ! formFieldLayout?.supportsBulk )
-				) {
+				if ( ! FieldLayout ) {
 					return null;
 				}
 

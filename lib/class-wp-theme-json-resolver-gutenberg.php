@@ -567,12 +567,12 @@ class WP_Theme_JSON_Resolver_Gutenberg {
 		 * The Separator block uses different CSS properties for its color depending
 		 * on how it is being rendered e.g. as "content" for the Dots style, or
 		 * as a border etc.
-		 * 
+		 *
 		 * Uses are only presented with a single color control for background. Any
 		 * selection of a background color should be applied to the other paths
-		 * so it can be honoured.
+		 * so it can be honored.
 		 */
-		$separator_color =  $config['styles']['blocks']['core/separator']['color']['background'] ?? null;
+		$separator_color = $config['styles']['blocks']['core/separator']['color']['background'] ?? null;
 		if ( $separator_color ) {
 			_wp_array_set( $config, array( 'styles', 'blocks', 'core/separator', 'color', 'text' ), $separator_color );
 			_wp_array_set( $config, array( 'styles', 'blocks', 'core/separator', 'border', 'color' ), $separator_color );

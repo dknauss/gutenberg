@@ -18,10 +18,9 @@ import { privateApis as editorPrivateApis } from '@wordpress/editor';
  * Internal dependencies
  */
 import Page from '../page';
-import usePostFields from '../post-fields';
 import { unlock } from '../../lock-unlock';
 
-const { PostCardPanel } = unlock( editorPrivateApis );
+const { PostCardPanel, usePostFields } = unlock( editorPrivateApis );
 
 const fieldsWithBulkEditSupport = [
 	'title',
@@ -71,9 +70,16 @@ function PostEditForm( { postType, postId } ) {
 		() => ( {
 			type: 'panel',
 			fields: [
-				'featured_media',
+				{
+					id: 'featured_media',
+					layout: 'regular',
+				},
 				'title',
-				'status_and_visibility',
+				{
+					id: 'status',
+					label: __( 'Status & Visibility' ),
+					children: [ 'status', 'password' ],
+				},
 				'author',
 				'date',
 				'slug',
@@ -84,15 +90,6 @@ function PostEditForm( { postType, postId } ) {
 					ids.length === 1 ||
 					fieldsWithBulkEditSupport.includes( field )
 			),
-			combinedFields: [
-				{
-					id: 'status_and_visibility',
-					label: __( 'Status & Visibility' ),
-					children: [ 'status', 'password' ],
-					direction: 'vertical',
-					render: ( { item } ) => item.status,
-				},
-			],
 		} ),
 		[ ids ]
 	);

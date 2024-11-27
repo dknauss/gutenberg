@@ -25,6 +25,7 @@ import { useHasAPossibleBulkAction } from '../../components/dataviews-bulk-actio
 import type { Action, NormalizedField, ViewGridProps } from '../../types';
 import type { SetSelection } from '../../private-types';
 import getClickableItemProps from '../utils/get-clickable-item-props';
+import { useUpdatedPreviewSizeOnViewportChange } from './preview-size-picker';
 
 interface GridItemProps< Item > {
 	selection: string[];
@@ -114,11 +115,9 @@ function GridItem< Item >( {
 				justify="space-between"
 				className="dataviews-view-grid__title-actions"
 			>
-				<HStack>
-					<div { ...clickablePrimaryItemProps }>
-						{ renderedPrimaryField }
-					</div>
-				</HStack>
+				<div { ...clickablePrimaryItemProps }>
+					{ renderedPrimaryField }
+				</div>
 				<ItemActions item={ item } actions={ actions } isCompact />
 			</HStack>
 			{ !! badgeFields?.length && (
@@ -194,7 +193,6 @@ export default function ViewGrid< Item >( {
 	isItemClickable,
 	selection,
 	view,
-	density,
 }: ViewGridProps< Item > ) {
 	const mediaField = fields.find(
 		( field ) => field.id === view.layout?.mediaField
@@ -225,8 +223,12 @@ export default function ViewGrid< Item >( {
 		{ visibleFields: [], badgeFields: [] }
 	);
 	const hasData = !! data?.length;
-	const gridStyle = density
-		? { gridTemplateColumns: `repeat(${ density }, minmax(0, 1fr))` }
+	const updatedPreviewSize = useUpdatedPreviewSizeOnViewportChange();
+	const usedPreviewSize = updatedPreviewSize || view.layout?.previewSize;
+	const gridStyle = usedPreviewSize
+		? {
+				gridTemplateColumns: `repeat(${ usedPreviewSize }, minmax(0, 1fr))`,
+		  }
 		: {};
 	return (
 		<>

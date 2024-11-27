@@ -16,6 +16,7 @@ import PluginPostExcerpt from './components/post-excerpt/plugin';
 import PostCardPanel from './components/post-card-panel';
 import PreferencesModal from './components/preferences-modal';
 import { usePostActions } from './components/post-actions/actions';
+import usePostFields from './components/post-fields';
 import ToolsMoreMenuGroup from './components/more-menu/tools-more-menu-group';
 import ViewMoreMenuGroup from './components/more-menu/view-more-menu-group';
 import ResizableEditor from './components/resizable-editor';
@@ -24,6 +25,7 @@ import {
 	GlobalStylesProvider,
 } from './components/global-styles-provider';
 import { registerCoreBlockBindingsSources } from './bindings/api';
+import { getTemplateInfo } from './utils/get-template-info';
 
 const { store: interfaceStore, ...remainingInterfaceApis } = interfaceApis;
 
@@ -40,11 +42,12 @@ lock( privateApis, {
 	PostCardPanel,
 	PreferencesModal,
 	usePostActions,
+	usePostFields,
 	ToolsMoreMenuGroup,
 	ViewMoreMenuGroup,
 	ResizableEditor,
 	registerCoreBlockBindingsSources,
-
+	getTemplateInfo,
 	// This is a temporary private API while we're updating the site editor to use EditorProvider.
 	interfaceStore,
 	...remainingInterfaceApis,

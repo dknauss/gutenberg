@@ -392,17 +392,16 @@ function Layout( {
 		showIconLabels,
 		isDistractionFree,
 		showMetaBoxes,
-		hasHistory,
 		isWelcomeGuideVisible,
 		templateId,
 		enablePaddingAppender,
 	} = useSelect(
 		( select ) => {
 			const { get } = select( preferencesStore );
-			const { isFeatureActive, getEditedPostTemplateId } = unlock(
-				select( editPostStore )
+			const { isFeatureActive } = select( editPostStore );
+			const { canUser, getPostType, getTemplateId } = unlock(
+				select( coreStore )
 			);
-			const { canUser, getPostType } = select( coreStore );
 
 			const supportsTemplateMode = settings.supportsTemplateMode;
 			const isViewable =
@@ -433,7 +432,7 @@ function Layout( {
 					isViewable &&
 					canViewTemplate &&
 					! isEditingTemplate
-						? getEditedPostTemplateId()
+						? getTemplateId( currentPostType, currentPostId )
 						: null,
 				enablePaddingAppender:
 					! isZoomOut() &&
@@ -441,7 +440,12 @@ function Layout( {
 					! DESIGN_POST_TYPES.includes( currentPostType ),
 			};
 		},
-		[ currentPostType, isEditingTemplate, settings.supportsTemplateMode ]
+		[
+			currentPostType,
+			currentPostId,
+			isEditingTemplate,
+			settings.supportsTemplateMode,
+		]
 	);
 	const [ paddingAppenderRef, paddingStyle ] = usePaddingAppender(
 		enablePaddingAppender
@@ -590,7 +594,7 @@ function Layout( {
 						<PostLockedModal />
 						<EditorInitialization />
 						<FullscreenMode isActive={ isFullscreenActive } />
-						<BrowserURL hasHistory={ hasHistory } />
+						<BrowserURL />
 						<UnsavedChangesWarning />
 						<AutosaveMonitor />
 						<LocalAutosaveMonitor />

@@ -15,7 +15,6 @@ const authorField: Field< BasePostWithEmbeddedAuthor > = {
 	id: 'author',
 	type: 'integer',
 	elements: [],
-	supportsBulk: true,
 	render: AuthorView,
 	sort: ( a, b, direction ) => {
 		const nameA = a._embedded?.author?.[ 0 ]?.name || '';

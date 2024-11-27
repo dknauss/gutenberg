@@ -22,13 +22,26 @@ import { unlock } from '../../lock-unlock';
 
 const { PostCardPanel, usePostFields } = unlock( editorPrivateApis );
 
-const fieldsWithBulkEditSupport = [
-	'title',
-	'status',
-	'date',
-	'author',
-	'comment_status',
-];
+const DATAFORM_CONFIG = {
+	type: 'panel',
+	fields: [
+		{
+			id: 'featured_media',
+			layout: 'regular',
+		},
+		'title',
+		{
+			id: 'status',
+			label: __( 'Status & Visibility' ),
+			children: [ 'status', 'password' ],
+		},
+		'author',
+		'date',
+		'slug',
+		'parent',
+		'comment_status',
+	],
+};
 
 function PostEditForm( { postType, postId } ) {
 	const ids = useMemo( () => postId.split( ',' ), [ postId ] );
@@ -75,35 +88,6 @@ function PostEditForm( { postType, postId } ) {
 		[ _fields ]
 	);
 
-	const form = useMemo(
-		() => ( {
-			type: 'panel',
-			fields: [
-				{
-					id: 'featured_media',
-					layout: 'regular',
-				},
-				'title',
-				{
-					id: 'status',
-					label: __( 'Status & Visibility' ),
-					children: [ 'status', 'password' ],
-				},
-				'author',
-				'date',
-				'slug',
-				'parent',
-				'comment_status',
-			].filter(
-				( field ) =>
-					ids.length === 1 ||
-					fieldsWithBulkEditSupport.includes(
-						typeof field === 'string' ? field : field.id
-					)
-			),
-		} ),
-		[ ids ]
-	);
 	const onChange = ( edits ) => {
 		for ( const id of ids ) {
 			if (
@@ -133,7 +117,7 @@ function PostEditForm( { postType, postId } ) {
 			<DataForm
 				data={ ids.length === 1 ? record : records }
 				fields={ fields }
-				form={ form }
+				form={ DATAFORM_CONFIG }
 				onChange={ onChange }
 			/>
 		</VStack>

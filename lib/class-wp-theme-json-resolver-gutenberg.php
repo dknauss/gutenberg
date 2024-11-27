@@ -271,6 +271,27 @@ class WP_Theme_JSON_Resolver_Gutenberg {
 			$theme_json_data = static::inject_variations_from_block_style_variation_files( $theme_json_data, $variations );
 			$theme_json_data = static::inject_variations_from_block_styles_registry( $theme_json_data );
 
+			/*
+			 * The core Separator block has Block Styles that rely on different CSS
+			 * properties. For example, the "Dots" style renders using `::before` and
+			 * requires styling the `color` property instead of `border-color`.
+			 * TwentyTwenty's default style renders using a linear gradient that can't
+			 * be applied to `color` so uses `background` instead.
+			 *
+			 * End users are only given a single color control in the Global Styles UI
+			 * so we need to ensure all the required values are set if a theme only adds
+			 * the `background` property, matching the UI.
+			 */
+			$separator_color = $theme_json_data['styles']['blocks']['core/separator']['color']['background'] ?? null;
+			if ( $separator_color ) {
+				if ( ! isset( $theme_json_data['styles']['blocks']['core/separator']['color']['text'] ) ) {
+					_wp_array_set( $theme_json_data, array( 'styles', 'blocks', 'core/separator', 'color', 'text' ), $separator_color );
+				}
+				if ( ! isset( $theme_json_data['styles']['blocks']['core/separator']['border']['color'] ) ) {
+					_wp_array_set( $theme_json_data, array( 'styles', 'blocks', 'core/separator', 'border', 'color' ), $separator_color );
+				}
+			}
+
 			/**
 			 * Filters the data provided by the theme for global styles and settings.
 			 *

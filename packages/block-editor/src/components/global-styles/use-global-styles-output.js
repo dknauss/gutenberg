@@ -1282,41 +1282,6 @@ export const getBlockSelectors = (
 	return result;
 };
 
-/**
- * If there is a separator block whose color is defined in theme.json via background,
- * update the separator color to the same value by using border color.
- *
- * @param {Object} config Theme.json configuration file object.
- * @return {Object} configTheme.json configuration file object updated.
- */
-function updateConfigWithSeparator( config ) {
-	const needsSeparatorStyleUpdate =
-		config.styles?.blocks?.[ 'core/separator' ] &&
-		config.styles?.blocks?.[ 'core/separator' ].color?.background &&
-		! config.styles?.blocks?.[ 'core/separator' ].color?.text &&
-		! config.styles?.blocks?.[ 'core/separator' ].border?.color;
-	if ( needsSeparatorStyleUpdate ) {
-		return {
-			...config,
-			styles: {
-				...config.styles,
-				blocks: {
-					...config.styles.blocks,
-					'core/separator': {
-						...config.styles.blocks[ 'core/separator' ],
-						color: {
-							...config.styles.blocks[ 'core/separator' ].color,
-							text: config.styles?.blocks[ 'core/separator' ]
-								.color.background,
-						},
-					},
-				},
-			},
-		};
-	}
-	return config;
-}
-
 export function processCSSNesting( css, blockSelector ) {
 	let processedCSS = '';
 
@@ -1404,7 +1369,6 @@ export function useGlobalStylesOutputWithConfig(
 		if ( ! mergedConfig?.styles || ! mergedConfig?.settings ) {
 			return [];
 		}
-		const updatedConfig = updateConfigWithSeparator( mergedConfig );
 
 		const blockSelectors = getBlockSelectors(
 			getBlockTypes(),
@@ -1412,19 +1376,19 @@ export function useGlobalStylesOutputWithConfig(
 		);
 
 		const customProperties = toCustomProperties(
-			updatedConfig,
+			mergedConfig,
 			blockSelectors
 		);
 
 		const globalStyles = toStyles(
-			updatedConfig,
+			mergedConfig,
 			blockSelectors,
 			hasBlockGapSupport,
 			hasFallbackGapSupport,
 			disableLayoutStyles,
 			disableRootPadding
 		);
-		const svgs = toSvgFilters( updatedConfig, blockSelectors );
+		const svgs = toSvgFilters( mergedConfig, blockSelectors );
 
 		const styles = [
 			{
@@ -1437,7 +1401,7 @@ export function useGlobalStylesOutputWithConfig(
 			},
 			// Load custom CSS in own stylesheet so that any invalid CSS entered in the input won't break all the global styles in the editor.
 			{
-				css: updatedConfig.styles.css ?? '',
+				css: mergedConfig.styles.css ?? '',
 				isGlobalStyles: true,
 			},
 			{
@@ -1451,11 +1415,11 @@ export function useGlobalStylesOutputWithConfig(
 		// If there are, get the block selector and push the selector together with
 		// the CSS value to the 'stylesheets' array.
 		getBlockTypes().forEach( ( blockType ) => {
-			if ( updatedConfig.styles.blocks[ blockType.name ]?.css ) {
+			if ( mergedConfig.styles.blocks[ blockType.name ]?.css ) {
 				const selector = blockSelectors[ blockType.name ].selector;
 				styles.push( {
 					css: processCSSNesting(
-						updatedConfig.styles.blocks[ blockType.name ]?.css,
+						mergedConfig.styles.blocks[ blockType.name ]?.css,
 						selector
 					),
 					isGlobalStyles: true,
@@ -1463,7 +1427,7 @@ export function useGlobalStylesOutputWithConfig(
 			}
 		} );
 
-		return [ styles, updatedConfig.settings ];
+		return [ styles, mergedConfig.settings ];
 	}, [
 		hasBlockGapSupport,
 		hasFallbackGapSupport,

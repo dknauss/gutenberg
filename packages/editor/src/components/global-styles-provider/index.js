@@ -22,7 +22,7 @@ const { GlobalStylesContext, cleanEmptyObject } = unlock(
 );
 
 export function mergeBaseAndUserConfigs( base, user ) {
-	const mergedConfig = deepmerge( base, user, {
+	return deepmerge( base, user, {
 		/*
 		 * We only pass as arrays the presets,
 		 * in which case we want the new array of values
@@ -41,28 +41,6 @@ export function mergeBaseAndUserConfigs( base, user ) {
 			return undefined;
 		},
 	} );
-
-	/*
-	 * The Separator block uses different CSS properties for its color depending
-	 * on how it is being rendered e.g. as "content" for the Dots style, or
-	 * as a border etc.
-	 *
-	 * Uses are only presented with a single color control for background. Any
-	 * selection of a background color should be applied to the other paths
-	 * so it can be honoured.
-	 */
-	const separatorColor =
-		user.styles?.blocks?.[ 'core/separator' ]?.color?.background;
-	if ( separatorColor ) {
-		mergedConfig.styles.blocks[ 'core/separator' ].color.text =
-			separatorColor;
-		mergedConfig.styles.blocks[ 'core/separator' ].border = {
-			...mergedConfig.styles.blocks[ 'core/separator' ].border,
-			color: separatorColor,
-		};
-	}
-
-	return mergedConfig;
 }
 
 function useGlobalStylesUserConfig() {
@@ -238,9 +216,31 @@ export function useGlobalStylesContext() {
 	}, [ userConfig, baseConfig ] );
 
 	const context = useMemo( () => {
+		/*
+		 * The Separator block uses different CSS properties for its color depending
+		 * on how it is being rendered e.g. as "content" for the Dots style, or
+		 * as a border etc.
+		 *
+		 * Uses are only presented with a single color control for background. Any
+		 * selection of a background color should be applied to the other paths
+		 * so it can be honored.
+		 */
+		const updatedUserConfig = { ...userConfig };
+		const separatorColor =
+			userConfig?.styles?.blocks?.[ 'core/separator' ]?.color?.background;
+
+		if ( separatorColor ) {
+			updatedUserConfig.styles.blocks[ 'core/separator' ].color.text =
+				separatorColor;
+			updatedUserConfig.styles.blocks[ 'core/separator' ].border = {
+				...userConfig.styles.blocks[ 'core/separator' ].border,
+				color: separatorColor,
+			};
+		}
+
 		return {
 			isReady: isUserConfigReady && isBaseConfigReady,
-			user: userConfig,
+			user: updatedUserConfig,
 			base: baseConfig,
 			merged: mergedConfig,
 			setUserConfig,

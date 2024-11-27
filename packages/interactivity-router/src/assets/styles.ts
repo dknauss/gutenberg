@@ -23,10 +23,10 @@ const styleSheetCache = new Map< string, Promise< CSSStyleSheet > >();
 
 const getCachedSheet = async (
 	sheetId: string,
-	constructor: () => Promise< CSSStyleSheet >
+	factory: () => Promise< CSSStyleSheet >
 ) => {
 	if ( ! styleSheetCache.has( sheetId ) ) {
-		styleSheetCache.set( sheetId, constructor() );
+		styleSheetCache.set( sheetId, factory() );
 	}
 	return styleSheetCache.get( sheetId );
 };

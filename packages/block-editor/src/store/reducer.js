@@ -2212,6 +2212,10 @@ function traverseBlockTree( state, clientId, callback ) {
  * @return {string|undefined} The client ID of the parent block if found, undefined otherwise.
  */
 function findParentInClientIdsList( state, clientId, clientIds ) {
+	if ( ! clientIds.length ) {
+		return;
+	}
+
 	let parent = state.blocks.parents.get( clientId );
 	while ( parent ) {
 		if ( clientIds.includes( parent ) ) {
@@ -2258,12 +2262,20 @@ function getDerivedBlockEditingModesForTree(
 	// so the default block editing mode is set to disabled.
 	const sectionRootClientId = state.settings?.[ sectionRootClientIdKey ];
 	const sectionClientIds = state.blocks.order.get( sectionRootClientId );
-	const syncedPatternClientIds = Object.keys(
-		state.blocks.controlledInnerBlocks
-	).filter(
-		( clientId ) =>
-			state.blocks.byClientId?.get( clientId )?.name === 'core/block'
-	);
+	const templatePartClientIds = [];
+	const syncedPatternClientIds = [];
+
+	Object.keys( state.blocks.controlledInnerBlocks ).forEach( ( clientId ) => {
+		const block = state.blocks.byClientId?.get( clientId );
+
+		if ( block?.name === 'core/template-part' ) {
+			templatePartClientIds.push( clientId );
+		}
+
+		if ( block?.name === 'core/block' ) {
+			syncedPatternClientIds.push( clientId );
+		}
+	} );
 
 	traverseBlockTree( state, treeClientId, ( block ) => {
 		const { clientId, name: blockName } = block;
@@ -2292,21 +2304,34 @@ function getDerivedBlockEditingModesForTree(
 				return;
 			}
 
-			const isInSection = findParentInClientIdsList(
+			const isInSection = !! findParentInClientIdsList(
 				state,
 				clientId,
 				sectionClientIds
 			);
 			if ( ! isInSection ) {
-				// If the block is not in a section, it should only be contentOnly if it's a template part.
-				// All other blocks should be disabled.
-				if ( block.name === 'core/template-part' ) {
+				if ( clientId === '' ) {
+					derivedBlockEditingModes.set( clientId, 'disabled' );
+					return;
+				}
+
+				// Allow selection of template parts outside of sections.
+				if ( blockName === 'core/template-part' ) {
 					derivedBlockEditingModes.set( clientId, 'contentOnly' );
 					return;
 				}
 
-				derivedBlockEditingModes.set( clientId, 'disabled' );
-				return;
+				const isInTemplatePart = !! findParentInClientIdsList(
+					state,
+					clientId,
+					templatePartClientIds
+				);
+				// Allow contentOnly blocks in template parts outside of sections
+				// to be editable. Only disable blocks that aren't don't fit this criteria.
+				if ( ! isInTemplatePart && ! isContentBlock( blockName ) ) {
+					derivedBlockEditingModes.set( clientId, 'disabled' );
+					return;
+				}
 			}
 
 			// Handle synced pattern content so the inner blocks of a synced pattern are

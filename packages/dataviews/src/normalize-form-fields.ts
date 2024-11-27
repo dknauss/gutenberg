@@ -1,13 +1,13 @@
 /**
  * Internal dependencies
  */
-import type { Form } from './types';
+import type { Form, FormFieldValidation } from './types';
 
-interface NormalizedFormField {
+export type NormalizedFormField = {
 	id: string;
 	layout: 'regular' | 'panel';
 	labelPosition: 'side' | 'top' | 'none';
-}
+} & { validation: FormFieldValidation };
 
 export default function normalizeFormFields(
 	form: Form
@@ -20,12 +20,19 @@ export default function normalizeFormFields(
 	const labelPosition =
 		form.labelPosition ?? ( layout === 'regular' ? 'top' : 'side' );
 
-	return ( form.fields ?? [] ).map( ( field ) => {
+	return Object.entries( form.fields ?? {} ).map( ( [ id, field ] ) => {
 		if ( typeof field === 'string' ) {
 			return {
-				id: field,
+				id,
 				layout,
 				labelPosition,
+				validation: {
+					callback: () => ( {
+						isValid: true,
+						message: '',
+					} ),
+					validateWhenDirty: false,
+				},
 			};
 		}
 
@@ -35,8 +42,12 @@ export default function normalizeFormFields(
 			( fieldLayout === 'regular' ? 'top' : 'side' );
 		return {
 			...field,
+			id,
 			layout: fieldLayout,
 			labelPosition: fieldLabelPosition,
+			validation: {
+				...field.validation,
+			},
 		};
 	} );
 }

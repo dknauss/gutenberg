@@ -47,6 +47,9 @@ export function DataFormLayout< Item >( {
 		[ form ]
 	);
 
+	// @ts-ignore
+	const { setTouchedFields, setError, touchedFields } = form;
+
 	return (
 		<VStack spacing={ 2 }>
 			{ normalizedFormFields.map( ( formField ) => {
@@ -78,7 +81,35 @@ export function DataFormLayout< Item >( {
 						key={ formField.id }
 						data={ data }
 						field={ formField }
-						onChange={ onChange }
+						onChange={ ( value ) => {
+							if ( ! touchedFields.includes( formField.id ) ) {
+								setTouchedFields( [
+									// @ts-ignore
+									...form.touchedFields,
+									formField.id,
+								] );
+							}
+
+							if (
+								( formField.validation.validateWhenDirty &&
+									// @ts-ignore
+									form.touchedFields.includes(
+										formField.id
+									) ) ||
+								! formField.validation.validateWhenDirty
+							) {
+								const { isValid, message } =
+									formField.validation.callback();
+
+								if ( ! isValid ) {
+									setError( formField.id, message );
+								}
+							}
+
+							onChange( value );
+						} }
+						// @ts-ignore
+						message={ form.errors[ formField.id ] }
 					/>
 				);
 			} ) }

@@ -13,7 +13,7 @@ import { useState } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { store as coreStore } from '@wordpress/core-data';
-import { DataForm, isItemValid } from '@wordpress/dataviews';
+import { DataForm, isItemValid, useForm } from '@wordpress/dataviews';
 
 /**
  * Internal dependencies
@@ -27,6 +27,7 @@ import { store as patternsStore } from '../store';
 import CategorySelector from './category-selector';
 import { useAddPatternCategory } from '../private-hooks';
 import { unlock } from '../lock-unlock';
+import { useEffect } from 'react';
 
 export default function CreatePatternModal( {
 	className = 'patterns-menu-items__convert-modal',
@@ -74,14 +75,25 @@ export function CreatePatternModalContents( {
 
 	const { categoryMap, findOrCreateTerm } = useAddPatternCategory();
 
+	const form = useForm( {
+		title: {
+			validation: {
+				validateWhenDirty: true,
+				callback: () => {
+					return {
+						isValid: pattern.title.length > 0,
+						message: 'Title is required',
+					};
+				},
+			},
+		},
+	} );
+
 	const fields = [
 		{
 			id: 'title',
 			label: __( 'Name' ),
 			type: 'text',
-			isValid: ( value ) => {
-				return value.title.length > 0;
-			},
 		},
 		{
 			id: 'categoryTerms',
@@ -130,14 +142,10 @@ export function CreatePatternModalContents( {
 		},
 	];
 
-	const form = {
-		fields: [ 'title', 'categoryTerms', 'sync' ],
-	};
-
-	const isFormValid = isItemValid( pattern, fields, form );
+	// const isFormValid = isItemValid( pattern, fields, form );
 
 	async function onCreate( patternTitle, sync ) {
-		if ( ! isFormValid || isSaving ) {
+		if ( isSaving ) {
 			return;
 		}
 
@@ -201,7 +209,7 @@ export function CreatePatternModalContents( {
 					onClick={ async () => {
 						await onCreate( pattern.title, pattern.sync );
 					} }
-					aria-disabled={ ! isFormValid }
+					aria-disabled={ false }
 					isBusy={ isSaving }
 				>
 					{ confirmLabel }

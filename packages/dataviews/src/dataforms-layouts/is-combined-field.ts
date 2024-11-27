@@ -1,10 +1,11 @@
 /**
  * Internal dependencies
  */
-import type { FormField, CombinedFormField } from '../types';
+import { NormalizedFormField } from '../normalize-form-fields';
+import type { FormField, CombinedFormField, NormalizedField } from '../types';
 
 export function isCombinedField(
-	field: FormField
+	field: FormField | NormalizedFormField
 ): field is CombinedFormField {
 	return ( field as CombinedFormField ).children !== undefined;
 }

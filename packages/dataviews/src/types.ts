@@ -542,7 +542,7 @@ export type SimpleFormField = {
 	id: string;
 	layout?: 'regular' | 'panel';
 	labelPosition?: 'side' | 'top' | 'none';
-};
+} & { validation: FormFieldValidation };
 
 export type CombinedFormField = {
 	id: string;
@@ -550,10 +550,23 @@ export type CombinedFormField = {
 	layout?: 'regular' | 'panel';
 	labelPosition?: 'side' | 'top' | 'none';
 	children: Array< FormField | string >;
+} & { validation: FormFieldValidation };
+
+export type FormFieldValidation = {
+	/**
+	 * The validation message.
+	 */
+	validateWhenDirty: boolean;
+	/**
+	 * The validation function.
+	 */
+	callback: () => {
+		isValid: boolean;
+		message: string;
+	};
 };
 
 export type FormField = SimpleFormField | CombinedFormField;
-
 /**
  * The form configuration.
  */

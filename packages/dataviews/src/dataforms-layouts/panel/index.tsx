@@ -10,7 +10,7 @@ import {
 	Button,
 } from '@wordpress/components';
 import { sprintf, __, _x } from '@wordpress/i18n';
-import { useState, useMemo, useContext, Fragment } from '@wordpress/element';
+import { useState, useMemo, useContext } from '@wordpress/element';
 import { closeSmall } from '@wordpress/icons';
 
 /**
@@ -145,7 +145,7 @@ function PanelDropdown< Item extends object >( {
 					onClick={ onToggle }
 				>
 					{ showMixedValue ? (
-						<>Mixed</>
+						__( 'Mixed' )
 					) : (
 						<fieldDefinition.render item={ data } />
 					) }

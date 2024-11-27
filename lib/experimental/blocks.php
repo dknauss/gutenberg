@@ -154,7 +154,7 @@ add_filter( 'query_loop_block_query_vars', 'gutenberg_block_core_query_add_url_f
 function gutenberg_block_core_query_add_search_query_filtering( $query ) {
 
 	// if the query is not the main query, return
-	if ( ! $query->is_main_query() ) {
+	if ( $query->is_admin() || ! $query->is_main_query() ) {
 		return;
 	}
 

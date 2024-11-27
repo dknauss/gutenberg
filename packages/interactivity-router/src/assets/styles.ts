@@ -1,3 +1,24 @@
+const cssUrlRegEx =
+	/url\(\s*(?:(["'])((?:\\.|[^\n\\"'])+)\1|((?:\\.|[^\s,"'()\\])+))\s*\)/g;
+
+const resolveUrl = ( relativeUrl: string, baseUrl: string ) => {
+	try {
+		return new URL( relativeUrl, baseUrl ).toString();
+	} catch ( e ) {
+		return relativeUrl;
+	}
+};
+
+const withAbsoluteUrls = ( cssText: string, baseUrl: string ) =>
+	cssText.replace(
+		cssUrlRegEx,
+		( _match, quotes = '', relUrl1, relUrl2 ) =>
+			`url(${ quotes }${ resolveUrl(
+				relUrl1 || relUrl2,
+				baseUrl
+			) }${ quotes })`
+	);
+
 const styleSheetCache = new Map< string, Promise< CSSStyleSheet > >();
 
 const getCachedSheet = async (
@@ -10,13 +31,17 @@ const getCachedSheet = async (
 	return styleSheetCache.get( sheetId );
 };
 
-const sheetFromLink = async ( { id, href }: HTMLLinkElement ) => {
+const sheetFromLink = async (
+	{ id, href }: HTMLLinkElement,
+	baseUrl: string
+) => {
 	const sheetId = id || href;
+	const sheetUrl = resolveUrl( href, baseUrl );
 	return getCachedSheet( sheetId, async () => {
 		const response = await fetch( href );
 		const text = await response.text();
-		const sheet = new CSSStyleSheet( { baseURL: href } );
-		await sheet.replace( text );
+		const sheet = new CSSStyleSheet();
+		await sheet.replace( withAbsoluteUrls( text, sheetUrl ) );
 		return sheet;
 	} );
 };
@@ -31,12 +56,13 @@ const sheetFromStyle = async ( { id, textContent }: HTMLStyleElement ) => {
 };
 
 export const generateCSSStyleSheets = (
-	doc: Document
+	doc: Document,
+	baseUrl: string = ( doc.location || window.location ).href
 ): Promise< CSSStyleSheet >[] =>
 	[ ...doc.querySelectorAll( 'style,link[rel=stylesheet]' ) ].map(
 		( element ) => {
 			if ( 'LINK' === element.nodeName ) {
-				return sheetFromLink( element as HTMLLinkElement );
+				return sheetFromLink( element as HTMLLinkElement, baseUrl );
 			}
 			return sheetFromStyle( element as HTMLStyleElement );
 		}

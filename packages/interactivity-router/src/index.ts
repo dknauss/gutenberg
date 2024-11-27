@@ -37,6 +37,7 @@ interface PrefetchOptions {
 
 interface VdomParams {
 	vdom?: typeof initialVdom;
+	baseUrl?: string;
 }
 
 interface Page {
@@ -74,7 +75,7 @@ const fetchPage = async ( url: string, { html }: { html: string } ) => {
 			html = await res.text();
 		}
 		const dom = new window.DOMParser().parseFromString( html, 'text/html' );
-		return regionsToVdom( dom );
+		return regionsToVdom( dom, { baseUrl: url } );
 	} catch ( e ) {
 		return false;
 	}
@@ -82,18 +83,17 @@ const fetchPage = async ( url: string, { html }: { html: string } ) => {
 
 // Return an object with VDOM trees of those HTML regions marked with a
 // `router-region` directive.
-const regionsToVdom: RegionsToVdom = ( dom, { vdom } = {} ) => {
+const regionsToVdom: RegionsToVdom = ( dom, { vdom, baseUrl } = {} ) => {
 	const regions = { body: undefined };
-	let styles: Promise< CSSStyleSheet >[];
-	let scriptModules: string[];
+	const styles = generateCSSStyleSheets( dom, baseUrl );
+	const scriptModules = [
+		...dom.querySelectorAll< HTMLScriptElement >(
+			'script[type=module][src]'
+		),
+	].map( ( s ) => s.src );
+
 	if ( globalThis.IS_GUTENBERG_PLUGIN ) {
 		if ( navigationMode === 'fullPage' ) {
-			styles = generateCSSStyleSheets( dom );
-			scriptModules = [
-				...dom.querySelectorAll< HTMLScriptElement >(
-					'script[type=module][src]'
-				),
-			].map( ( s ) => s.src );
 			regions.body = vdom
 				? vdom.get( document.body )
 				: toVdom( dom.body );
@@ -115,21 +115,22 @@ const regionsToVdom: RegionsToVdom = ( dom, { vdom } = {} ) => {
 
 // Render all interactive regions contained in the given page.
 const renderRegions = async ( page: Page ) => {
+	// Whait for styles and modules to be ready.
+	await Promise.all( [
+		...page.styles,
+		...page.scriptModules.map(
+			( src ) => import( /* webpackIgnore: true */ src )
+		),
+	] );
+	// Replace style sheets.
+	const sheets = await Promise.all( page.styles );
+	window.document
+		.querySelectorAll( 'style,link[rel=stylesheet]' )
+		.forEach( ( element ) => element.remove() );
+	window.document.adoptedStyleSheets = sheets;
+
 	if ( globalThis.IS_GUTENBERG_PLUGIN ) {
 		if ( navigationMode === 'fullPage' ) {
-			// Whait for styles and modules to be ready.
-			await Promise.all( [
-				...page.styles,
-				...page.scriptModules.map(
-					( src ) => import( /* webpackIgnore: true */ src )
-				),
-			] );
-			// Replace style sheets.
-			const sheets = await Promise.all( page.styles );
-			window.document
-				.querySelectorAll( 'style,link[rel=stylesheet]' )
-				.forEach( ( element ) => element.remove() );
-			window.document.adoptedStyleSheets = sheets;
 			// Update HTML.
 			const fragment = getRegionRootFragment( document.body );
 			batch( () => {
@@ -188,23 +189,14 @@ window.addEventListener( 'popstate', async () => {
 // Initialize the router and cache the initial page using the initial vDOM.
 // Once this code is tested and more mature, the head should be updated for
 // region based navigation as well.
-if ( globalThis.IS_GUTENBERG_PLUGIN ) {
-	if ( navigationMode === 'fullPage' ) {
-		// Cache the scripts. Has to be called before fetching the assets.
-		// [].map.call(
-		// 	document.querySelectorAll( 'script[type="module"][src]' ),
-		// 	( script ) => {
-		// 		headElements.set( script.getAttribute( 'src' ), {
-		// 			tag: script,
-		// 		} );
-		// 	}
-		// );
-		// await fetchHeadAssets( document );
-	}
-}
 pages.set(
 	getPagePath( window.location.href ),
-	Promise.resolve( regionsToVdom( document, { vdom: initialVdom } ) )
+	Promise.resolve(
+		regionsToVdom( document, {
+			vdom: initialVdom,
+			baseUrl: window.location.href,
+		} )
+	)
 );
 
 // Check if the link is valid for client-side navigation.
@@ -376,6 +368,7 @@ export const { state, actions } = store< Store >( 'core/router', {
 		 * @param [options]       Options object.
 		 * @param [options.force] Force fetching the URL again.
 		 * @param [options.html]  HTML string to be used instead of fetching the requested URL.
+		 * @param [options.vdom]  vDOM map to be used instead of fetching the requested URL.
 		 */
 		prefetch( url: string, options: PrefetchOptions = {} ) {
 			const { clientNavigationDisabled } = getConfig();

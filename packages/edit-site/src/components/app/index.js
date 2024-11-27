@@ -1,11 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { SlotFillProvider } from '@wordpress/components';
-import {
-	UnsavedChangesWarning,
-	privateApis as editorPrivateApis,
-} from '@wordpress/editor';
 import { store as noticesStore } from '@wordpress/notices';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
@@ -23,7 +18,6 @@ import useSetCommandContext from '../../hooks/commands/use-set-command-context';
 import { useRegisterSiteEditorRoutes } from '../site-editor-routes';
 
 const { RouterProvider } = unlock( routerPrivateApis );
-const { GlobalStylesProvider } = unlock( editorPrivateApis );
 
 function AppLayout() {
 	useCommonCommands();
@@ -50,14 +44,9 @@ export default function App() {
 	}
 
 	return (
-		<SlotFillProvider>
-			<GlobalStylesProvider>
-				<UnsavedChangesWarning />
-				<RouterProvider>
-					<AppLayout />
-					<PluginArea onError={ onPluginAreaError } />
-				</RouterProvider>
-			</GlobalStylesProvider>
-		</SlotFillProvider>
+		<RouterProvider>
+			<AppLayout />
+			<PluginArea onError={ onPluginAreaError } />
+		</RouterProvider>
 	);
 }

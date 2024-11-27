@@ -1707,7 +1707,7 @@ export const __experimentalGetDefaultTemplateTypes = createRegistrySelector(
 		deprecated(
 			"select('core/editor').__experimentalGetDefaultTemplateTypes",
 			{
-				since: '6.7',
+				since: '6.8',
 				alternative:
 					"select('core/core-data').getEntityRecord( 'root', '__unstableBase' )?.default_template_types",
 			}
@@ -1730,7 +1730,7 @@ export const __experimentalGetDefaultTemplatePartAreas = createRegistrySelector(
 			deprecated(
 				"select('core/editor').__experimentalGetDefaultTemplatePartAreas",
 				{
-					since: '6.7',
+					since: '6.8',
 					alternative:
 						"select('core/core-data').getEntityRecord( 'root', '__unstableBase' )?.default_template_part_areas",
 				}
@@ -1760,7 +1760,7 @@ export const __experimentalGetDefaultTemplateType = createRegistrySelector(
 			deprecated(
 				"select('core/editor').__experimentalGetDefaultTemplateType",
 				{
-					since: '6.7',
+					since: '6.8',
 				}
 			);
 			const templateTypes = select( coreStore ).getEntityRecord(
@@ -1792,7 +1792,7 @@ export const __experimentalGetTemplateInfo = createRegistrySelector(
 	( select ) =>
 		createSelector( ( state, template ) => {
 			deprecated( "select('core/editor').__experimentalGetTemplateInfo", {
-				since: '6.7',
+				since: '6.8',
 			} );
 
 			if ( ! template ) {

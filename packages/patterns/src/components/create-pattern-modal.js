@@ -77,7 +77,7 @@ export function CreatePatternModalContents( {
 	const form = useForm( {
 		title: {
 			validation: {
-				validateWhenDirty: false,
+				showErrorOnlyWhenDirty: true,
 				callback: ( data ) => {
 					if ( data.title.length === 0 ) {
 						return {

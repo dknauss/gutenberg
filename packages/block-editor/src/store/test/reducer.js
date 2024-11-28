@@ -4029,6 +4029,47 @@ describe( 'state', () => {
 								},
 							],
 						},
+						{
+							type: 'SET_HAS_CONTROLLED_INNER_BLOCKS',
+							clientId: 'header',
+							hasControlledInnerBlocks: true,
+						},
+						{
+							type: 'REPLACE_INNER_BLOCKS',
+							rootClientId: 'header',
+							blocks: [
+								{
+									name: 'core/group',
+									clientId: 'header-group',
+									attributes: {},
+									innerBlocks: [
+										{
+											name: 'core/paragraph',
+											clientId: 'header-paragraph',
+											attributes: {},
+											innerBlocks: [],
+										},
+									],
+								},
+							],
+						},
+						{
+							type: 'SET_HAS_CONTROLLED_INNER_BLOCKS',
+							clientId: 'footer',
+							hasControlledInnerBlocks: true,
+						},
+						{
+							type: 'REPLACE_INNER_BLOCKS',
+							rootClientId: 'footer',
+							blocks: [
+								{
+									name: 'core/paragraph',
+									clientId: 'footer-paragraph',
+									attributes: {},
+									innerBlocks: [],
+								},
+							],
+						},
 					],
 					testReducer
 				);
@@ -4044,7 +4085,10 @@ describe( 'state', () => {
 						Object.entries( {
 							'': 'disabled',
 							header: 'contentOnly', // Template part.
+							'header-group': 'disabled', // Content block in template part.
+							'header-paragraph': 'contentOnly', // Content block in template part.
 							footer: 'contentOnly', // Template part.
+							'footer-paragraph': 'contentOnly', // Content block in template part.
 							'section-root': 'contentOnly', // Section root.
 							'group-1': 'contentOnly', // Section block.
 							'paragraph-1': 'contentOnly', // Content block in section.
@@ -4071,8 +4115,11 @@ describe( 'state', () => {
 					new Map(
 						Object.entries( {
 							'': 'disabled',
-							header: 'contentOnly',
-							footer: 'contentOnly',
+							header: 'contentOnly', // Template part.
+							'header-group': 'disabled', // Content block in template part.
+							'header-paragraph': 'contentOnly', // Content block in template part.
+							footer: 'contentOnly', // Template part.
+							'footer-paragraph': 'contentOnly', // Content block in template part.
 							'section-root': 'contentOnly',
 							'group-1': 'contentOnly',
 							'paragraph-1': 'contentOnly',
@@ -4119,7 +4166,10 @@ describe( 'state', () => {
 						Object.entries( {
 							'': 'disabled', // Section root.
 							header: 'contentOnly', // Template part.
+							'header-group': 'disabled', // Content block in template part.
+							'header-paragraph': 'contentOnly', // Content block in template part.
 							footer: 'contentOnly', // Template part.
+							'footer-paragraph': 'contentOnly', // Content block in template part.
 							'section-root': 'contentOnly', // Section root.
 							'group-1': 'contentOnly', // Section block.
 							'paragraph-1': 'contentOnly', // Content block in section.
@@ -4151,7 +4201,10 @@ describe( 'state', () => {
 						Object.entries( {
 							'': 'disabled', // Section root.
 							header: 'contentOnly', // Template part.
+							'header-group': 'disabled', // Content block in template part.
+							'header-paragraph': 'contentOnly', // Content block in template part.
 							footer: 'contentOnly', // Template part.
+							'footer-paragraph': 'contentOnly', // Content block in template part.
 							'section-root': 'contentOnly', // Section root.
 							'group-1': 'contentOnly', // Section block.
 							'paragraph-1': 'contentOnly', // Content block in section.
@@ -4180,8 +4233,11 @@ describe( 'state', () => {
 					new Map(
 						Object.entries( {
 							'': 'disabled',
-							header: 'contentOnly',
-							footer: 'contentOnly',
+							header: 'contentOnly', // Template part.
+							'header-group': 'disabled', // Content block in template part.
+							'header-paragraph': 'contentOnly', // Content block in template part.
+							footer: 'contentOnly', // Template part.
+							'footer-paragraph': 'contentOnly', // Content block in template part.
 							'section-root': 'disabled',
 							'group-1': 'contentOnly', // New section root.
 							'paragraph-1': 'contentOnly', // Section and content block

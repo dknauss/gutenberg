@@ -202,7 +202,7 @@ function render_block_core_search( $attributes, $content, $block ) {
 		';
 	}
 
-	if ( $enhanced_pagination && $instant_search_enabled ) {
+	if ( $enhanced_pagination && $instant_search_enabled && isset( $block->context['queryId'] ) ) {
 
 		$search = '';
 

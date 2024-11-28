@@ -13,7 +13,7 @@ import { useState } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { store as coreStore } from '@wordpress/core-data';
-import { DataForm, isItemValid, useForm } from '@wordpress/dataviews';
+import { DataForm, useForm } from '@wordpress/dataviews';
 
 /**
  * Internal dependencies
@@ -27,7 +27,6 @@ import { store as patternsStore } from '../store';
 import CategorySelector from './category-selector';
 import { useAddPatternCategory } from '../private-hooks';
 import { unlock } from '../lock-unlock';
-import { useEffect } from 'react';
 
 export default function CreatePatternModal( {
 	className = 'patterns-menu-items__convert-modal',
@@ -78,11 +77,25 @@ export function CreatePatternModalContents( {
 	const form = useForm( {
 		title: {
 			validation: {
-				validateWhenDirty: true,
-				callback: () => {
+				validateWhenDirty: false,
+				callback: ( data ) => {
+					if ( data.title.length === 0 ) {
+						return {
+							isValid: false,
+							errorMessage: 'Title is required',
+						};
+					}
+
+					if ( data.title.length > 5 ) {
+						return {
+							isValid: false,
+							errorMessage: 'Title is too long',
+						};
+					}
+
 					return {
-						isValid: pattern.title.length > 0,
-						message: 'Title is required',
+						isValid: true,
+						errorMessage: undefined,
 					};
 				},
 			},
@@ -141,8 +154,6 @@ export function CreatePatternModalContents( {
 			},
 		},
 	];
-
-	// const isFormValid = isItemValid( pattern, fields, form );
 
 	async function onCreate( patternTitle, sync ) {
 		if ( isSaving ) {
@@ -209,7 +220,7 @@ export function CreatePatternModalContents( {
 					onClick={ async () => {
 						await onCreate( pattern.title, pattern.sync );
 					} }
-					aria-disabled={ false }
+					aria-disabled={ ! form.isFormValid( pattern ) }
 					isBusy={ isSaving }
 				>
 					{ confirmLabel }

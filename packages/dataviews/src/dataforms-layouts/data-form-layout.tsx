@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __experimentalVStack as VStack } from '@wordpress/components';
-import { useContext, useMemo } from '@wordpress/element';
+import { useContext, useEffect, useMemo } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -28,6 +28,7 @@ export function DataFormLayout< Item >( {
 			field: FormField;
 			onChange: ( value: any ) => void;
 			hideLabelFromVision?: boolean;
+			errorMessage: string | undefined;
 		} ) => React.JSX.Element | null,
 		field: FormField
 	) => React.JSX.Element;
@@ -47,8 +48,20 @@ export function DataFormLayout< Item >( {
 		[ form ]
 	);
 
-	// @ts-ignore
-	const { setTouchedFields, setError, touchedFields } = form;
+	const { setTouchedFields, setErrors, touchedFields, messageErrors } = form;
+
+	useEffect( () => {
+		normalizedFormFields.forEach( ( formField ) => {
+			const { isValid, errorMessage } = formField.validation.callback( {
+				...data,
+			} );
+			if ( ! isValid ) {
+				setErrors( formField.id, errorMessage );
+			} else {
+				setErrors( formField.id, undefined );
+			}
+		} );
+	}, [ data, normalizedFormFields, setErrors ] );
 
 	return (
 		<VStack spacing={ 2 }>
@@ -81,6 +94,14 @@ export function DataFormLayout< Item >( {
 						key={ formField.id }
 						data={ data }
 						field={ formField }
+						errorMessage={
+							( formField.validation.showErrorOnlyWhenDirty &&
+								touchedFields.includes( formField.id ) ) ||
+							( ! formField.validation.showErrorOnlyWhenDirty &&
+								messageErrors[ formField.id ] )
+								? messageErrors[ formField.id ]
+								: undefined
+						}
 						onChange={ ( value ) => {
 							if ( ! touchedFields.includes( formField.id ) ) {
 								setTouchedFields( [
@@ -90,26 +111,18 @@ export function DataFormLayout< Item >( {
 								] );
 							}
 
-							if (
-								( formField.validation.validateWhenDirty &&
-									// @ts-ignore
-									form.touchedFields.includes(
-										formField.id
-									) ) ||
-								! formField.validation.validateWhenDirty
-							) {
-								const { isValid, message } =
-									formField.validation.callback();
-
-								if ( ! isValid ) {
-									setError( formField.id, message );
-								}
-							}
-
 							onChange( value );
+							const { isValid, errorMessage } =
+								formField.validation.callback( {
+									...data,
+									...value,
+								} );
+							if ( ! isValid ) {
+								setErrors( formField.id, errorMessage );
+							} else {
+								setErrors( formField.id, undefined );
+							}
 						} }
-						// @ts-ignore
-						message={ form.errors[ formField.id ] }
 					/>
 				);
 			} ) }

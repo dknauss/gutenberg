@@ -23,9 +23,6 @@ import type { BasePost, CoreDataError } from '../types';
 import { getItemTitle } from './utils';
 
 const fields = [ titleField ];
-const formDuplicateAction = {
-	fields: [ 'title' ],
-};
 
 const duplicatePost: Action< BasePost > = {
 	id: 'duplicate-post',
@@ -139,7 +136,8 @@ const duplicatePost: Action< BasePost > = {
 					<DataForm
 						data={ item }
 						fields={ fields }
-						form={ formDuplicateAction }
+						// @ts-ignore
+						form={ form }
 						onChange={ ( changes ) =>
 							setItem( ( prev ) => ( {
 								...prev,

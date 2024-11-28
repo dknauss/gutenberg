@@ -184,6 +184,7 @@ export type DataFormControlProps< Item > = {
 	field: NormalizedField< Item >;
 	onChange: ( value: Record< string, any > ) => void;
 	hideLabelFromVision?: boolean;
+	errorMessage: string | undefined;
 };
 
 export type DataViewRenderFieldProps< Item > = {
@@ -552,18 +553,20 @@ export type CombinedFormField = {
 	children: Array< FormField | string >;
 } & { validation: FormFieldValidation };
 
+export type ValidationResult = {
+	isValid: boolean;
+	errorMessage: string | undefined;
+};
+
 export type FormFieldValidation = {
 	/**
-	 * The validation message.
+	 * The validation should be triggered only when the field is dirty.
 	 */
-	validateWhenDirty: boolean;
+	showErrorOnlyWhenDirty: boolean;
 	/**
 	 * The validation function.
 	 */
-	callback: () => {
-		isValid: boolean;
-		message: string;
-	};
+	callback: ( data: any ) => ValidationResult;
 };
 
 export type FormField = SimpleFormField | CombinedFormField;
@@ -574,6 +577,11 @@ export type Form = {
 	type?: 'regular' | 'panel';
 	fields?: Array< FormField | string >;
 	labelPosition?: 'side' | 'top' | 'none';
+	touchedFields: string[];
+	messageErrors: Record< string, string | undefined >;
+	setTouchedFields: ( touchedFields: string[] ) => void;
+	setErrors: ( field: string, error: string | undefined ) => void;
+	isFormValid: ( data: Record< string, any > ) => boolean;
 };
 
 export interface DataFormProps< Item > {
@@ -588,4 +596,5 @@ export interface FieldLayoutProps< Item > {
 	field: FormField;
 	onChange: ( value: any ) => void;
 	hideLabelFromVision?: boolean;
+	errorMessage: string | undefined;
 }

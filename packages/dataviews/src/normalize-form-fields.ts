@@ -29,9 +29,9 @@ export default function normalizeFormFields(
 				validation: {
 					callback: () => ( {
 						isValid: true,
-						message: '',
+						errorMessage: '',
 					} ),
-					validateWhenDirty: false,
+					showErrorOnlyWhenDirty: true,
 				},
 			};
 		}

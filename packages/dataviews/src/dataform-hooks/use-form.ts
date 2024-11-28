@@ -1,11 +1,20 @@
-import { useEffect, useState } from 'react';
-import { FormField } from '../types';
+/**
+ * WordPress dependencies
+ */
+import { useState } from '@wordpress/element';
 
-export const useForm = ( supportedFields: Record< string, FormField > ) => {
+/**
+ * Internal dependencies
+ */
+import type { FormField } from '../types';
+
+export const useForm = < Item >(
+	supportedFields: Record< string, FormField >
+) => {
 	const [ form, setForm ] = useState( {
 		fields: supportedFields,
 		touchedFields: [] as string[],
-		errors: {},
+		messageErrors: {},
 	} );
 
 	const setTouchedFields = ( touchedFields: string[] ) => {
@@ -15,33 +24,26 @@ export const useForm = ( supportedFields: Record< string, FormField > ) => {
 		} );
 	};
 
-	const setError = ( field: string, error: string ) => {
+	const setErrors = ( field: string, error: string | undefined ) => {
 		setForm( {
 			...form,
-			errors: {
-				...form.errors,
+			messageErrors: {
+				...form.messageErrors,
 				[ field ]: error,
 			},
 		} );
 	};
 
-	const isFormValid = () => {
+	const isFormValid = ( data: Item ) => {
 		return Object.entries( form.fields ).every( ( [ , field ] ) => {
-			if (
-				field.validation.validateWhenDirty === true &&
-				form.touchedFields.includes( field.id )
-			) {
-				return field.validation.callback().isValid;
-			}
-
-			return field.validation.callback().isValid;
+			return field.validation.callback( data ).isValid;
 		} );
 	};
 
 	return {
 		...form,
 		setTouchedFields,
-		setError,
-		isFormValid: isFormValid(),
+		setErrors,
+		isFormValid,
 	};
 };

@@ -39,7 +39,7 @@ function ReorderModal( {
 
 	async function onOrder( event: React.FormEvent ) {
 		event.preventDefault();
-
+		// @ts-ignore
 		if ( ! isItemValid( item, fields, formOrderAction ) ) {
 			return;
 		}
@@ -68,6 +68,7 @@ function ReorderModal( {
 			} );
 		}
 	}
+	// @ts-ignore
 	const isSaveDisabled = ! isItemValid( item, fields, formOrderAction );
 	return (
 		<form onSubmit={ onOrder }>
@@ -80,6 +81,7 @@ function ReorderModal( {
 				<DataForm
 					data={ item }
 					fields={ fields }
+					// @ts-ignore
 					form={ formOrderAction }
 					onChange={ ( changes ) =>
 						setItem( {

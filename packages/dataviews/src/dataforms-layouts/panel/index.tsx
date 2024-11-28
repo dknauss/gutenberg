@@ -66,6 +66,7 @@ function PanelDropdown< Item >( {
 	data,
 	onChange,
 	field,
+	errorMessage,
 }: {
 	fieldDefinition: NormalizedField< Item >;
 	popoverAnchor: HTMLElement | null;
@@ -73,6 +74,7 @@ function PanelDropdown< Item >( {
 	data: Item;
 	onChange: ( value: any ) => void;
 	field: FormField;
+	errorMessage: string | undefined;
 } ) {
 	const fieldLabel = isCombinedField( field )
 		? field.label
@@ -158,6 +160,7 @@ function PanelDropdown< Item >( {
 								hideLabelFromVision={
 									( form?.fields ?? [] ).length < 2
 								}
+								errorMessage={ errorMessage }
 							/>
 						) }
 					</DataFormLayout>
@@ -171,6 +174,7 @@ export default function FormPanelField< Item >( {
 	data,
 	field,
 	onChange,
+	errorMessage,
 }: FieldLayoutProps< Item > ) {
 	const { fields } = useContext( DataFormContext );
 	const fieldDefinition = fields.find( ( fieldDef ) => {
@@ -221,6 +225,7 @@ export default function FormPanelField< Item >( {
 						data={ data }
 						onChange={ onChange }
 						labelPosition={ labelPosition }
+						errorMessage={ errorMessage }
 					/>
 				</div>
 			</VStack>
@@ -237,6 +242,7 @@ export default function FormPanelField< Item >( {
 					data={ data }
 					onChange={ onChange }
 					labelPosition={ labelPosition }
+					errorMessage={ errorMessage }
 				/>
 			</div>
 		);
@@ -259,6 +265,7 @@ export default function FormPanelField< Item >( {
 					data={ data }
 					onChange={ onChange }
 					labelPosition={ labelPosition }
+					errorMessage={ errorMessage }
 				/>
 			</div>
 		</HStack>

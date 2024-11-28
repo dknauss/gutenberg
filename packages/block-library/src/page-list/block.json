@@ -15,7 +15,8 @@
 		},
 		"isNested": {
 			"type": "boolean",
-			"default": false
+			"default": false,
+			"role": "content"
 		}
 	},
 	"usesContext": [

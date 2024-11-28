@@ -60,7 +60,7 @@ function replacePatternOverrideDefaultBindings( blockName, bindings ) {
  *
  * @return {WPHigherOrderComponent} Higher-order component.
  */
-export const withBlockBindingSupport = createHigherOrderComponent(
+export const withBlockBindingsSupport = createHigherOrderComponent(
 	( BlockEdit ) => ( props ) => {
 		const registry = useRegistry();
 		const blockContext = useContext( BlockContext );

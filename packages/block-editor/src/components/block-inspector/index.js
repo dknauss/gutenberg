@@ -214,6 +214,15 @@ const BlockInspectorSingleBlock = ( {
 	const availableTabs = useInspectorControlsTabs( blockName );
 	const showTabs = ! isSectionBlock && availableTabs?.length > 1;
 
+	// HACK FOR TESTING PURPOSES.
+	const isNavigationBlock = useSelect(
+		( select ) => {
+			const { getBlockName } = select( blockEditorStore );
+			return getBlockName( clientId ) === 'core/navigation';
+		},
+		[ clientId ]
+	);
+
 	const hasBlockStyles = useSelect(
 		( select ) => {
 			const { getBlockStyles } = select( blocksStore );
@@ -266,12 +275,21 @@ const BlockInspectorSingleBlock = ( {
 						<BlockStylesPanel clientId={ clientId } />
 					) }
 
-					{ contentClientIds && contentClientIds?.length > 0 && (
-						<PanelBody title={ __( 'Content' ) }>
-							<BlockQuickNavigation
-								clientIds={ contentClientIds }
-							/>
-						</PanelBody>
+					{ ! isNavigationBlock &&
+						contentClientIds &&
+						contentClientIds?.length > 0 && (
+							<PanelBody title={ __( 'Content' ) }>
+								<BlockQuickNavigation
+									clientIds={ contentClientIds }
+								/>
+							</PanelBody>
+						) }
+
+					{ isNavigationBlock && (
+						<>
+							<InspectorControls.Slot />
+							<InspectorControls.Slot group="list" />
+						</>
 					) }
 
 					{ ! isSectionBlock && (

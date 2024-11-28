@@ -72,9 +72,9 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 			() =>
 				replacePatternOverrideDefaultBindings(
 					name,
-					props.attributes.metadata?.bindings
+					props.attributes?.metadata?.bindings
 				),
-			[ props.attributes.metadata?.bindings, name ]
+			[ props.attributes?.metadata?.bindings, name ]
 		);
 
 		// While this hook doesn't directly call any selectors, `useSelect` is
@@ -160,7 +160,7 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 
 		const hasParentPattern = !! updatedContext[ 'pattern/overrides' ];
 		const hasPatternOverridesDefaultBinding =
-			props.attributes.metadata?.bindings?.[ DEFAULT_ATTRIBUTE ]
+			props.attributes?.metadata?.bindings?.[ DEFAULT_ATTRIBUTE ]
 				?.source === 'core/pattern-overrides';
 
 		const _setAttributes = useCallback(

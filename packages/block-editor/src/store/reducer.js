@@ -2287,11 +2287,24 @@ function getDerivedBlockEditingModesForTree(
 
 			// If zoomed out, all blocks that aren't sections or the section root are
 			// disabled.
-			// If the tree root is not in a section, set its editing mode to disabled.
-			if (
-				isZoomedOut ||
-				! findParentInClientIdsList( state, clientId, sectionClientIds )
-			) {
+			if ( isZoomedOut ) {
+				derivedBlockEditingModes.set( clientId, 'disabled' );
+				return;
+			}
+
+			const isInSection = findParentInClientIdsList(
+				state,
+				clientId,
+				sectionClientIds
+			);
+			if ( ! isInSection ) {
+				// If the block is not in a section, it should only be contentOnly if it's a template part.
+				// All other blocks should be disabled.
+				if ( block.name === 'core/template-part' ) {
+					derivedBlockEditingModes.set( clientId, 'contentOnly' );
+					return;
+				}
+
 				derivedBlockEditingModes.set( clientId, 'disabled' );
 				return;
 			}

@@ -509,3 +509,32 @@ function _gutenberg_footnotes_force_filtered_html_on_import_filter( $arg ) {
 add_action( 'init', '_gutenberg_footnotes_kses_init' );
 add_action( 'set_current_user', '_gutenberg_footnotes_kses_init' );
 add_filter( 'force_filtered_html_on_import', '_gutenberg_footnotes_force_filtered_html_on_import_filter', 999 );
+
+
+function gutenberg_block_core_query_add_url_filtering( $context ) {
+
+	// Make sure it only runs for blocks with a queryId
+	if ( empty( $context['queryId'] ) ) {
+		return $context;
+	}
+
+	// Check if the instant search gutenberg experiment is enabled
+	$gutenberg_experiments  = get_option( 'gutenberg-experiments' );
+	$instant_search_enabled = $gutenberg_experiments && array_key_exists( 'gutenberg-search-query-block', $gutenberg_experiments );
+	if ( ! $instant_search_enabled ) {
+		return $context;
+	}
+
+	// Get the search key from the URL
+	$search_key = 'instant-search-' . $context['queryId'];
+	if ( ! isset( $_GET[ $search_key ] ) ) {
+		return $context;
+	}
+
+	// Add the search query to the context, it will be picked up by all the blocks that
+	// use the `query` context like `post-template` or `query-pagination`.
+	$context['query']['search'] = sanitize_text_field( $_GET[ $search_key ] );
+
+	return $context;
+}
+add_filter( 'render_block_context', 'gutenberg_block_core_query_add_url_filtering', 10, 2 );

@@ -4,7 +4,7 @@
 /**
  * External dependencies
  */
-import { h as createElement, type RefObject } from 'preact';
+import { h as createElement, Fragment, type RefObject } from 'preact';
 import { useContext, useMemo, useRef } from 'preact/hooks';
 
 /**
@@ -28,6 +28,7 @@ import {
 } from './hooks';
 import { getScope } from './scopes';
 import { proxifyState, proxifyContext, deepMerge } from './proxies';
+import { SlotProvider, Slot, Fill } from './slots';
 
 /**
  * Recursively clone the passed object.
@@ -607,4 +608,66 @@ export default () => {
 	);
 
 	directive( 'each-child', () => null, { priority: 1 } );
+
+	// data-wp-slot
+	directive(
+		'slot',
+		( { directives: { slot }, props: { children }, element } ) => {
+			const entry = slot.find( ( { suffix } ) => suffix === null )!;
+			const value = entry.value as
+				| string
+				| { name: string; position: string };
+
+			const name = typeof value === 'string' ? value : value.name;
+			const position =
+				typeof value === 'string'
+					? 'children'
+					: value.position || 'children';
+
+			if ( position === 'before' ) {
+				return createElement( Fragment, {}, [
+					createElement( Slot, { name } ),
+					children,
+				] );
+			}
+			if ( position === 'after' ) {
+				return createElement( Fragment, {}, [
+					children,
+					createElement( Slot, { name } ),
+				] );
+			}
+			if ( position === 'replace' ) {
+				return createElement( Slot, { name }, children );
+			}
+			if ( position === 'children' ) {
+				element.props.children = createElement(
+					Slot,
+					{ name },
+					element.props.children
+				);
+			}
+
+			return undefined;
+		},
+		{ priority: 4 }
+	);
+
+	// data-wp-fill
+	directive(
+		'fill',
+		( { directives: { fill }, props: { children }, evaluate } ) => {
+			const entry = fill.find( ( { suffix } ) => suffix === null )!;
+			const slot = evaluate( entry );
+			return createElement( Fill, { slot }, children );
+		},
+		{ priority: 4 }
+	);
+
+	// data-wp-slot-provider
+	directive(
+		'slot-provider',
+		( { props: { children } } ) =>
+			createElement( SlotProvider, null, children ),
+		{ priority: 4 }
+	);
 };

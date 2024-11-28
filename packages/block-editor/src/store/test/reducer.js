@@ -3975,37 +3975,57 @@ describe( 'state', () => {
 						{
 							type: 'UPDATE_SETTINGS',
 							settings: {
-								[ sectionRootClientIdKey ]: '',
+								[ sectionRootClientIdKey ]: 'section-root',
 							},
 						},
 						{
 							type: 'RESET_BLOCKS',
 							blocks: [
 								{
+									name: 'core/template-part',
+									clientId: 'header',
+									attributes: {},
+									innerBlocks: [],
+								},
+								{
 									name: 'core/group',
-									clientId: 'group-1',
+									clientId: 'section-root',
 									attributes: {},
 									innerBlocks: [
 										{
-											name: 'core/paragraph',
-											clientId: 'paragraph-1',
-											attributes: {},
-											innerBlocks: [],
-										},
-										{
 											name: 'core/group',
-											clientId: 'group-2',
+											clientId: 'group-1',
 											attributes: {},
 											innerBlocks: [
 												{
 													name: 'core/paragraph',
-													clientId: 'paragraph-2',
+													clientId: 'paragraph-1',
 													attributes: {},
 													innerBlocks: [],
+												},
+												{
+													name: 'core/group',
+													clientId: 'group-2',
+													attributes: {},
+													innerBlocks: [
+														{
+															name: 'core/paragraph',
+															clientId:
+																'paragraph-2',
+															attributes: {},
+															innerBlocks: [],
+														},
+													],
 												},
 											],
 										},
 									],
+								},
+								{
+									name: 'core/template-part',
+									clientId: 'footer',
+									attributes: {},
+									innerBlocks: [],
 								},
 							],
 						},
@@ -4022,7 +4042,10 @@ describe( 'state', () => {
 				expect( initialState.derivedNavModeBlockEditingModes ).toEqual(
 					new Map(
 						Object.entries( {
-							'': 'contentOnly', // Section root.
+							'': 'disabled',
+							header: 'contentOnly', // Template part.
+							footer: 'contentOnly', // Template part.
+							'section-root': 'contentOnly', // Section root.
 							'group-1': 'contentOnly', // Section block.
 							'paragraph-1': 'contentOnly', // Content block in section.
 							'group-2': 'disabled', // Non-content block in section.
@@ -4047,7 +4070,10 @@ describe( 'state', () => {
 				expect( derivedNavModeBlockEditingModes ).toEqual(
 					new Map(
 						Object.entries( {
-							'': 'contentOnly',
+							'': 'disabled',
+							header: 'contentOnly',
+							footer: 'contentOnly',
+							'section-root': 'contentOnly',
 							'group-1': 'contentOnly',
 							'paragraph-1': 'contentOnly',
 						} )
@@ -4060,7 +4086,7 @@ describe( 'state', () => {
 					[
 						{
 							type: 'INSERT_BLOCKS',
-							rootClientId: '',
+							rootClientId: 'section-root',
 							blocks: [
 								{
 									name: 'core/group',
@@ -4091,7 +4117,10 @@ describe( 'state', () => {
 				expect( derivedNavModeBlockEditingModes ).toEqual(
 					new Map(
 						Object.entries( {
-							'': 'contentOnly', // Section root.
+							'': 'disabled', // Section root.
+							header: 'contentOnly', // Template part.
+							footer: 'contentOnly', // Template part.
+							'section-root': 'contentOnly', // Section root.
 							'group-1': 'contentOnly', // Section block.
 							'paragraph-1': 'contentOnly', // Content block in section.
 							'group-2': 'disabled', // Non-content block in section.
@@ -4111,7 +4140,7 @@ describe( 'state', () => {
 							type: 'MOVE_BLOCKS_TO_POSITION',
 							clientIds: [ 'group-2' ],
 							fromRootClientId: 'group-1',
-							toRootClientId: '',
+							toRootClientId: 'section-root',
 						},
 					],
 					testReducer,
@@ -4120,7 +4149,10 @@ describe( 'state', () => {
 				expect( derivedNavModeBlockEditingModes ).toEqual(
 					new Map(
 						Object.entries( {
-							'': 'contentOnly', // Section root.
+							'': 'disabled', // Section root.
+							header: 'contentOnly', // Template part.
+							footer: 'contentOnly', // Template part.
+							'section-root': 'contentOnly', // Section root.
 							'group-1': 'contentOnly', // Section block.
 							'paragraph-1': 'contentOnly', // Content block in section.
 							'group-2': 'contentOnly', // New section block.
@@ -4148,10 +4180,13 @@ describe( 'state', () => {
 					new Map(
 						Object.entries( {
 							'': 'disabled',
-							'group-1': 'contentOnly',
-							'paragraph-1': 'contentOnly',
-							'group-2': 'contentOnly',
-							'paragraph-2': 'contentOnly',
+							header: 'contentOnly',
+							footer: 'contentOnly',
+							'section-root': 'disabled',
+							'group-1': 'contentOnly', // New section root.
+							'paragraph-1': 'contentOnly', // Section and content block
+							'group-2': 'contentOnly', // Section.
+							'paragraph-2': 'contentOnly', // Content block.
 						} )
 					)
 				);

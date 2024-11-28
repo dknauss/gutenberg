@@ -147,7 +147,11 @@ function TableColumnCombined< Item >( {
 	) );
 
 	if ( field.direction === 'horizontal' ) {
-		return <HStack spacing={ 3 }>{ children }</HStack>;
+		return (
+			<HStack spacing={ 3 } justify="flex-start">
+				{ children }
+			</HStack>
+		);
 	}
 	return <VStack spacing={ 0 }>{ children }</VStack>;
 }
@@ -328,7 +332,13 @@ function ViewTable< Item >( {
 	return (
 		<>
 			<table
-				className="dataviews-view-table"
+				className={ clsx( 'dataviews-view-table', {
+					[ `has-${ view.layout?.density }-density` ]:
+						view.layout?.density &&
+						[ 'compact', 'comfortable' ].includes(
+							view.layout.density
+						),
+				} ) }
 				aria-busy={ isLoading }
 				aria-describedby={ tableNoticeId }
 			>

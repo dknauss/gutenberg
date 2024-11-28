@@ -18,7 +18,9 @@ import { isValidIcon, normalizeIconObject, omit } from '../api/utils';
 import {
 	BLOCK_ICON_DEFAULT,
 	DEPRECATED_ENTRY_KEYS,
-	TYPOGRAPHY_SUPPORTS_EXPERIMENTAL_TO_STABLE,
+	EXPERIMENTAL_SUPPORTS_MAP,
+	COMMON_EXPERIMENTAL_PROPERTIES,
+	EXPERIMENTAL_SUPPORT_PROPERTIES,
 } from '../api/constants';
 
 /** @typedef {import('../api/registration').WPBlockType} WPBlockType */
@@ -66,33 +68,149 @@ function mergeBlockVariations(
 	return result;
 }
 
+/**
+ * Stabilizes a block support configuration by converting experimental properties
+ * to their stable equivalents.
+ *
+ * @param {Object} unstableConfig   The support configuration to stabilize.
+ * @param {string} stableSupportKey The stable support key for looking up properties.
+ * @return {Object} The stabilized support configuration.
+ */
+function stabilizeSupportConfig( unstableConfig, stableSupportKey ) {
+	const stableConfig = {};
+	for ( const [ key, value ] of Object.entries( unstableConfig ) ) {
+		// Get stable key from support-specific map, common properties map, or keep original.
+		const stableKey =
+			EXPERIMENTAL_SUPPORT_PROPERTIES[ stableSupportKey ]?.[ key ] ??
+			COMMON_EXPERIMENTAL_PROPERTIES[ key ] ??
+			key;
+
+		stableConfig[ stableKey ] = value;
+
+		/*
+		 * The `__experimentalSkipSerialization` key needs to be kept until
+		 * WP 6.8 becomes the minimum supported version. This is due to the
+		 * core `wp_should_skip_block_supports_serialization` function only
+		 * checking for `__experimentalSkipSerialization` in earlier versions.
+		 */
+		if (
+			key === '__experimentalSkipSerialization' ||
+			key === 'skipSerialization'
+		) {
+			stableConfig.__experimentalSkipSerialization = value;
+		}
+	}
+	return stableConfig;
+}
+
+/**
+ * Stabilizes experimental block supports by converting experimental keys and properties
+ * to their stable equivalents.
+ *
+ * @param {Object|undefined} rawSupports The block supports configuration to stabilize.
+ * @return {Object|undefined} The stabilized block supports configuration.
+ */
 function stabilizeSupports( rawSupports ) {
 	if ( ! rawSupports ) {
 		return rawSupports;
 	}
 
-	// Create a new object to avoid mutating the original. This ensures that
-	// custom block plugins that rely on immutable supports are not affected.
-	// See: https://github.com/WordPress/gutenberg/pull/66849#issuecomment-2463614281
+	/*
+	 * Create a new object to avoid mutating the original. This ensures that
+	 * custom block plugins that rely on immutable supports are not affected.
+	 * See: https://github.com/WordPress/gutenberg/pull/66849#issuecomment-2463614281
+	 */
 	const newSupports = {};
-	for ( const [ key, value ] of Object.entries( rawSupports ) ) {
+	const done = {};
+
+	for ( const [ support, config ] of Object.entries( rawSupports ) ) {
+		/*
+		 * If this support config has already been stabilized, skip it.
+		 * A stable support key occurring after an experimental key, gets
+		 * stabilized then so that the two configs can be merged effectively.
+		 */
+		if ( done[ support ] ) {
+			continue;
+		}
+
+		const stableSupportKey =
+			EXPERIMENTAL_SUPPORTS_MAP[ support ] ?? support;
+
+		/*
+		 * Use the support's config as is when it's not in need of stabilization.
+		 * A support does not need stabilization if:
+		 * - The support key doesn't need stabilization AND
+		 * - Either:
+		 *     - The config isn't an object, so can't have experimental properties OR
+		 *     - The config is an object but has no experimental properties to stabilize.
+		 */
 		if (
-			key === 'typography' &&
-			typeof value === 'object' &&
-			value !== null
+			support === stableSupportKey &&
+			( ! isPlainObject( config ) ||
+				( ! EXPERIMENTAL_SUPPORT_PROPERTIES[ stableSupportKey ] &&
+					Object.keys( config ).every(
+						( key ) => ! COMMON_EXPERIMENTAL_PROPERTIES[ key ]
+					) ) )
 		) {
-			newSupports.typography = Object.fromEntries(
-				Object.entries( value ).map(
-					( [ typographyKey, typographyValue ] ) => [
-						TYPOGRAPHY_SUPPORTS_EXPERIMENTAL_TO_STABLE[
-							typographyKey
-						] || typographyKey,
-						typographyValue,
-					]
-				)
+			newSupports[ support ] = config;
+			continue;
+		}
+
+		// Stabilize the config value.
+		const stableConfig = isPlainObject( config )
+			? stabilizeSupportConfig( config, stableSupportKey )
+			: config;
+
+		/*
+		 * If a plugin overrides the support config with the `blocks.registerBlockType`
+		 * filter, both experimental and stable configs may be present. In that case,
+		 * use the order keys are defined in to determine the final value.
+		 *    - If config is an array, merge the arrays in their order of definition.
+		 *    - If config is not an array, use the value defined last.
+		 *
+		 * The reason for preferring the last defined key is that after filters
+		 * are applied, the last inserted key is likely the most up-to-date value.
+		 * We cannot determine with certainty which value was "last modified" so
+		 * the insertion order is the best guess. The extreme edge case of multiple
+		 * filters tweaking the same support property will become less over time as
+		 * extenders migrate existing blocks and plugins to stable keys.
+		 */
+		if (
+			support !== stableSupportKey &&
+			Object.hasOwn( rawSupports, stableSupportKey )
+		) {
+			const keyPositions = Object.keys( rawSupports ).reduce(
+				( acc, key, index ) => {
+					acc[ key ] = index;
+					return acc;
+				},
+				{}
 			);
+			const experimentalFirst =
+				( keyPositions[ support ] ?? Number.MAX_VALUE ) <
+				( keyPositions[ stableSupportKey ] ?? Number.MAX_VALUE );
+
+			if ( isPlainObject( rawSupports[ stableSupportKey ] ) ) {
+				/*
+				 * To merge the alternative support config effectively, it also needs to be
+				 * stabilized before merging to keep stabilized and experimental flags in sync.
+				 */
+				rawSupports[ stableSupportKey ] = stabilizeSupportConfig(
+					rawSupports[ stableSupportKey ],
+					stableSupportKey
+				);
+				newSupports[ stableSupportKey ] = experimentalFirst
+					? { ...stableConfig, ...rawSupports[ stableSupportKey ] }
+					: { ...rawSupports[ stableSupportKey ], ...stableConfig };
+				// Prevents reprocessing this support as it was merged above.
+				done[ stableSupportKey ] = true;
+			} else {
+				newSupports[ stableSupportKey ] = experimentalFirst
+					? rawSupports[ stableSupportKey ]
+					: stableConfig;
+			}
 		} else {
-			newSupports[ key ] = value;
+			newSupports[ stableSupportKey ] = stableConfig;
 		}
 	}
 

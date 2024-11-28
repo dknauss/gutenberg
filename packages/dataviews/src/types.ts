@@ -329,6 +329,8 @@ export interface ColumnStyle {
 	minWidth?: string | number;
 }
 
+export type Density = 'compact' | 'balanced' | 'comfortable';
+
 export interface ViewTable extends ViewBase {
 	type: 'table';
 
@@ -347,6 +349,11 @@ export interface ViewTable extends ViewBase {
 		 * The styles for the columns.
 		 */
 		styles?: Record< string, ColumnStyle >;
+
+		/**
+		 * The density of the view.
+		 */
+		density?: Density;
 	};
 }
 
@@ -389,6 +396,11 @@ export interface ViewGrid extends ViewBase {
 		 * The fields to use as badge fields.
 		 */
 		badgeFields?: string[];
+
+		/**
+		 * The preview size of the grid.
+		 */
+		previewSize?: number;
 	};
 }
 
@@ -501,7 +513,6 @@ export interface ViewBaseProps< Item > {
 	onClickItem: ( item: Item ) => void;
 	isItemClickable: ( item: Item ) => boolean;
 	view: View;
-	density: number;
 }
 
 export interface ViewTableProps< Item > extends ViewBaseProps< Item > {
@@ -527,37 +538,41 @@ export interface SupportedLayouts {
 	table?: Omit< ViewTable, 'type' >;
 }
 
-export interface CombinedFormField< Item > extends CombinedField {
-	render?: ComponentType< { item: Item } >;
-}
-
-export interface DataFormCombinedEditProps< Item > {
-	field: NormalizedCombinedFormField< Item >;
-	data: Item;
-	onChange: ( value: Record< string, any > ) => void;
-	hideLabelFromVision?: boolean;
-}
-
-export type NormalizedCombinedFormField< Item > = CombinedFormField< Item > & {
-	fields: NormalizedField< Item >[];
-	Edit?: ComponentType< DataFormCombinedEditProps< Item > >;
+export type SimpleFormField = {
+	id: string;
+	layout?: 'regular' | 'panel';
+	labelPosition?: 'side' | 'top' | 'none';
 };
+
+export type CombinedFormField = {
+	id: string;
+	label?: string;
+	layout?: 'regular' | 'panel';
+	labelPosition?: 'side' | 'top' | 'none';
+	children: Array< FormField | string >;
+};
+
+export type FormField = SimpleFormField | CombinedFormField;
 
 /**
  * The form configuration.
  */
-export type Form< Item > = {
+export type Form = {
 	type?: 'regular' | 'panel';
-	fields?: string[];
-	/**
-	 * The fields to combine.
-	 */
-	combinedFields?: CombinedFormField< Item >[];
+	fields?: Array< FormField | string >;
+	labelPosition?: 'side' | 'top' | 'none';
 };
 
 export interface DataFormProps< Item > {
 	data: Item;
 	fields: Field< Item >[];
-	form: Form< Item >;
+	form: Form;
 	onChange: ( value: Record< string, any > ) => void;
+}
+
+export interface FieldLayoutProps< Item > {
+	data: Item;
+	field: FormField;
+	onChange: ( value: any ) => void;
+	hideLabelFromVision?: boolean;
 }

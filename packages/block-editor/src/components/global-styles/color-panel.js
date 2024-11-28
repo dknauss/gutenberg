@@ -19,7 +19,7 @@ import {
 	Button,
 	privateApis as componentsPrivateApis,
 } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -209,6 +209,7 @@ function ColorPanelDropdown( {
 } ) {
 	const currentTab = tabs.find( ( tab ) => tab.userValue !== undefined );
 	const { key: firstTabKey, ...firstTab } = tabs[ 0 ] ?? {};
+	const colorGradientDropdownButtonRef = useRef();
 	return (
 		<ToolsPanelItem
 			className="block-editor-tools-panel-color-gradient-settings__item"
@@ -229,6 +230,7 @@ function ColorPanelDropdown( {
 							{ 'is-open': isOpen }
 						),
 						'aria-expanded': isOpen,
+						ref: colorGradientDropdownButtonRef,
 					};
 
 					return (
@@ -252,7 +254,11 @@ function ColorPanelDropdown( {
 									}
 									className="block-editor-panel-color-gradient-settings__reset"
 									icon={ resetIcon }
-									onClick={ resetValue }
+									onClick={() => {
+										resetValue();
+										// Return focus to parent button
+										colorGradientDropdownButtonRef.current?.focus();
+									} }
 								/>
 							) }
 						</>

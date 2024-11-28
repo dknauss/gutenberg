@@ -124,17 +124,12 @@ $swatch-gap: 12px;
 
 .block-editor-panel-color-gradient-settings__reset {
 	position: absolute;
-	display: inline-flex;
 	right: 0;
 	top: 0;
-	bottom: 0;
 	opacity: 0;
 	transition: opacity 0.1s ease-in-out;
 
-	.block-editor-panel-color-gradient-settings__dropdown:hover + & {
-		opacity: 1;
-	}
-
+	.block-editor-panel-color-gradient-settings__dropdown:hover + &,
 	&:focus,
 	&:hover {
 		opacity: 1;

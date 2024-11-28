@@ -20,7 +20,7 @@ import {
 	privateApis as componentsPrivateApis,
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -244,8 +244,11 @@ function ColorPanelDropdown( {
 									__next40pxDefaultSize
 									label={ __( 'Reset' ) }
 									aria-label={
-										/* translators: %s is the type of color property, e.g., "background" */
-										__( 'Reset %s color' )
+										sprintf(
+											/* translators: %s: The name of the color property being reset e.g. "Background" */
+											__( 'Reset %s' ),
+											label.toLowerCase()
+										)
 									}
 									className="block-editor-panel-color-gradient-settings__reset"
 									icon={ resetIcon }

@@ -110,12 +110,11 @@ function render_block_core_post_comments_form( $attributes, $content, $block ) {
 
 					// Add translated strings to the state.
 					$submit_text = $p->get_attribute( 'value' );
-					wp_store(
+					wp_interactivity_state(
+						'core/comments',
 						array(
-							'core/comments' => array(
-								'submitText'  => $submit_text,
-								'loadingText' => __( 'Submitting…' ),
-							),
+							'submitText'  => $submit_text,
+							'loadingText' => __( 'Submitting…' ),
 						)
 					);
 				}
@@ -140,11 +139,10 @@ function render_block_core_post_comments_form( $attributes, $content, $block ) {
 
 			// Add a div to show error messages below the form and another div to
 			// announce the spoken notices.
-			wp_store(
+			wp_interactivity_state(
+				'core/comments',
 				array(
-					'core/comments' => array(
-						'submittedNotice' => __( 'Comment submitted.' ),
-					),
+					'submittedNotice' => __( 'Comment submitted.' ),
 				)
 			);
 			$enhanced_form     = $p->get_updated_html();

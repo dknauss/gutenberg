@@ -47,8 +47,8 @@ function render_block_core_comments( $attributes, $content, $block ) {
 			$p = new WP_HTML_Tag_Processor( $output );
 			if ( $p->next_tag( array( 'class_name' => 'wp-block-comments' ) ) ) {
 				// Add the necessary directives.
-				$p->set_attribute( 'data-wp-interactive', '{ "namespace": "core/comments" }' );
-				$p->set_attribute( 'data-wp-navigation-id', 'comments-' . ++$id );
+				$p->set_attribute( 'data-wp-interactive', 'core/comments' );
+				$p->set_attribute( 'data-wp-router-region', 'comments-' . ++$id );
 				$p->set_attribute( 'data-wp-slot-provider', true );
 				$p->set_attribute(
 					'data-wp-context',
@@ -124,14 +124,14 @@ function register_block_core_comments() {
 		)
 	);
 
-	if ( defined( 'IS_GUTENBERG_PLUGIN' ) && IS_GUTENBERG_PLUGIN ) {
-		gutenberg_register_module(
-			'@wordpress/block-library/comments',
-			gutenberg_url( '/build/interactivity/comments.min.js' ),
-			array( '@wordpress/interactivity' ),
-			defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : get_bloginfo( 'version' )
-		);
-	}
+	// if ( defined( 'IS_GUTENBERG_PLUGIN' ) && IS_GUTENBERG_PLUGIN ) {
+	// 	gutenberg_register_module(
+	// 		'@wordpress/block-library/comments',
+	// 		gutenberg_url( '/build/interactivity/comments.min.js' ),
+	// 		array( '@wordpress/interactivity' ),
+	// 		defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : get_bloginfo( 'version' )
+	// 	);
+	// }
 }
 add_action( 'init', 'register_block_core_comments' );
 

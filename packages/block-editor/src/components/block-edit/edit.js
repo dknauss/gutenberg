@@ -53,14 +53,24 @@ const EditWithGeneratedProps = ( props ) => {
 	const blockContext = useContext( BlockContext );
 
 	// Assign context values using the block type's declared context needs.
+	// Add the context defined by block bindings.
 	const context = useMemo( () => {
-		return blockType && blockType.usesContext
-			? Object.fromEntries(
-					Object.entries( blockContext ).filter( ( [ key ] ) =>
-						blockType.usesContext.includes( key )
-					)
-			  )
-			: DEFAULT_BLOCK_CONTEXT;
+		const _context =
+			blockType && blockType.usesContext
+				? Object.fromEntries(
+						Object.entries( blockContext ).filter( ( [ key ] ) =>
+							blockType.usesContext.includes( key )
+						)
+				  )
+				: DEFAULT_BLOCK_CONTEXT;
+
+		const bindingsContext = {};
+		Object.values( props.bindings ).forEach( ( binding ) => {
+			if ( binding.context ) {
+				Object.assign( bindingsContext, binding.context );
+			}
+		} );
+		return { ..._context, ...bindingsContext };
 	}, [ blockType, blockContext ] );
 
 	if ( ! blockType ) {

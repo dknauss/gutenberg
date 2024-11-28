@@ -44,6 +44,8 @@ import { useBlockProps } from './use-block-props';
 import { store as blockEditorStore } from '../../store';
 import { useLayout } from './layout';
 import { PrivateBlockContext } from './private-block-context';
+import BlockContext from '../block-context';
+import isURLLike from '../link-control/is-url-like';
 
 import { unlock } from '../../lock-unlock';
 
@@ -106,6 +108,7 @@ function BlockListBlock( {
 	onInsertBlocksAfter,
 	onMerge,
 	toggleSelection,
+	bindings,
 } ) {
 	const {
 		mayDisplayControls,
@@ -146,6 +149,7 @@ function BlockListBlock( {
 			mayDisplayParentControls={ mayDisplayParentControls }
 			blockEditingMode={ context.blockEditingMode }
 			isPreviewMode={ context.isPreviewMode }
+			bindings={ bindings }
 		/>
 	);
 
@@ -550,6 +554,78 @@ BlockListBlock = compose(
 	withFilters( 'editor.BlockListBlock' )
 )( BlockListBlock );
 
+/**
+ * Based on the given block name,
+ * check if it is possible to bind the block.
+ *
+ * @param {string} blockName - The block name.
+ * @return {boolean} Whether it is possible to bind the block to sources.
+ */
+export function canBindBlock( blockName ) {
+	return blockName in BLOCK_BINDINGS_ALLOWED_BLOCKS;
+}
+
+/**
+ * Based on the given block name and attribute name,
+ * check if it is possible to bind the block attribute.
+ *
+ * @param {string} blockName     - The block name.
+ * @param {string} attributeName - The attribute name.
+ * @return {boolean} Whether it is possible to bind the block attribute.
+ */
+export function canBindAttribute( blockName, attributeName ) {
+	return (
+		canBindBlock( blockName ) &&
+		BLOCK_BINDINGS_ALLOWED_BLOCKS[ blockName ].includes( attributeName )
+	);
+}
+
+export function getBindableAttributes( blockName ) {
+	return BLOCK_BINDINGS_ALLOWED_BLOCKS[ blockName ];
+}
+
+const BLOCK_BINDINGS_ALLOWED_BLOCKS = {
+	'core/paragraph': [ 'content' ],
+	'core/heading': [ 'content' ],
+	'core/image': [ 'id', 'url', 'title', 'alt' ],
+	'core/button': [ 'url', 'text', 'linkTarget', 'rel' ],
+};
+
+const DEFAULT_ATTRIBUTE = '__default';
+
+/**
+ * Returns the bindings with the `__default` binding for pattern overrides
+ * replaced with the full-set of supported attributes. e.g.:
+ *
+ * bindings passed in: `{ __default: { source: 'core/pattern-overrides' } }`
+ * bindings returned: `{ content: { source: 'core/pattern-overrides' } }`
+ *
+ * @param {string} blockName The block name (e.g. 'core/paragraph').
+ * @param {Object} bindings  A block's bindings from the metadata attribute.
+ *
+ * @return {Object} The bindings with default replaced for pattern overrides.
+ */
+function replacePatternOverrideDefaultBindings( blockName, bindings ) {
+	// The `__default` binding currently only works for pattern overrides.
+	if (
+		bindings?.[ DEFAULT_ATTRIBUTE ]?.source === 'core/pattern-overrides'
+	) {
+		const supportedAttributes = BLOCK_BINDINGS_ALLOWED_BLOCKS[ blockName ];
+		const bindingsWithDefaults = {};
+		for ( const attributeName of supportedAttributes ) {
+			// If the block has mixed binding sources, retain any non pattern override bindings.
+			const bindingSource = bindings[ attributeName ]
+				? bindings[ attributeName ]
+				: { source: 'core/pattern-overrides' };
+			bindingsWithDefaults[ attributeName ] = bindingSource;
+		}
+
+		return bindingsWithDefaults;
+	}
+
+	return bindings;
+}
+
 // This component provides all the information we need through a single store
 // subscription (useSelect mapping). Only the necessary props are passed down
 // to the BlockListBlock component, which is a filtered component, so these
@@ -558,6 +634,7 @@ BlockListBlock = compose(
 // component, and useBlockProps.
 function BlockListBlockProvider( props ) {
 	const { clientId, rootClientId } = props;
+	const blockContext = useContext( BlockContext );
 	const selectedProps = useSelect(
 		( select ) => {
 			const {
@@ -611,6 +688,104 @@ function BlockListBlockProvider( props ) {
 			const blockType = getBlockType( blockName );
 			const { supportsLayout, isPreviewMode } = getSettings();
 			const hasLightBlockWrapper = blockType?.apiVersion > 1;
+			// Populate bindings property.
+			// @todo: useSelect warning.
+			const processedBindings = {};
+
+			const bindingsAttribute = replacePatternOverrideDefaultBindings(
+				blockName,
+				attributes.metadata?.bindings
+			);
+
+			if ( bindingsAttribute ) {
+				const bindingsContext = {};
+				const sources = unlock(
+					select( blocksStore )
+				).getAllBlockBindingsSources();
+
+				const blockBindingsBySource = new Map();
+
+				for ( const [ attributeName, binding ] of Object.entries(
+					bindingsAttribute
+				) ) {
+					const { source: sourceName, args: sourceArgs } = binding;
+					const source = sources[ sourceName ];
+					if (
+						! source ||
+						! canBindAttribute( blockName, attributeName )
+					) {
+						continue;
+					}
+
+					// Populate context.
+					for ( const key of source.usesContext || [] ) {
+						bindingsContext[ key ] = blockContext[ key ];
+					}
+
+					blockBindingsBySource.set(
+						{
+							name: sourceName,
+							...source,
+						},
+						{
+							...blockBindingsBySource.get( source ),
+							[ attributeName ]: {
+								args: sourceArgs,
+							},
+						}
+					);
+				}
+
+				if ( blockBindingsBySource.size ) {
+					for ( const [
+						source,
+						bindings,
+					] of blockBindingsBySource ) {
+						// Get values in batch if the source supports it.
+						let values = {};
+						if ( ! source.getValues ) {
+							Object.keys( bindings ).forEach( ( attr ) => {
+								// Default to the source label when `getValues` doesn't exist.
+								values[ attr ] = source.label;
+							} );
+						} else {
+							values = source.getValues( {
+								select,
+								context: bindingsContext,
+								clientId,
+								bindings,
+							} );
+						}
+						for ( const [ attributeName, value ] of Object.entries(
+							values
+						) ) {
+							const bindingContext = source.usesContext.reduce(
+								( acc, key ) => {
+									acc[ key ] = bindingsContext[ key ];
+									return acc;
+								},
+								{}
+							);
+							// Update attributes object.
+							attributes[ attributeName ] =
+								attributeName === 'url' &&
+								( ! value || ! isURLLike( value ) )
+									? null
+									: value;
+							// Update the `bindings` object.
+							// @todo: Add the props we want here.
+							processedBindings[ attributeName ] = {
+								value,
+								sourceName: source.name,
+								sourceLabel: source.label,
+								context: bindingContext,
+								canUserEditValue: true,
+							};
+						}
+					}
+				}
+			}
+
 			const previewContext = {
 				isPreviewMode,
 				blockWithoutAttributes,
@@ -627,6 +802,7 @@ function BlockListBlockProvider( props ) {
 					? getBlockDefaultClassName( blockName )
 					: undefined,
 				blockTitle: blockType?.title,
+				bindings: processedBindings,
 			};
 
 			// When in preview mode, we can avoid a lot of selection and
@@ -710,7 +886,7 @@ function BlockListBlockProvider( props ) {
 					: false,
 			};
 		},
-		[ clientId, rootClientId ]
+		[ clientId, rootClientId, blockContext ]
 	);
 
 	const {
@@ -750,6 +926,7 @@ function BlockListBlockProvider( props ) {
 		className,
 		defaultClassName,
 		originalBlockClientId,
+		bindings,
 	} = selectedProps;
 
 	// Users of the editor.BlockListBlock filter used to be able to
@@ -830,6 +1007,7 @@ function BlockListBlockProvider( props ) {
 					attributes,
 					isValid,
 					isSelected,
+					bindings,
 				} }
 			/>
 		</PrivateBlockContext.Provider>

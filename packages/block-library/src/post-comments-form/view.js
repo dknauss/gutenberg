@@ -33,7 +33,7 @@ const { state } = store( 'core/comments', {
 		},
 	},
 	actions: {
-		submit: async ( event ) => {
+		*submit( event ) {
 			let response;
 			const context = getContext();
 			const { ref } = getElement();
@@ -49,7 +49,7 @@ const { state } = store( 'core/comments', {
 				state.error = '';
 				context.isSubmitting = true;
 
-				response = await window.fetch( ref.action, {
+				response = yield window.fetch( ref.action, {
 					method: 'POST',
 					body: new window.FormData( ref ),
 				} );
@@ -62,7 +62,7 @@ const { state } = store( 'core/comments', {
 			}
 
 			try {
-				const html = await response.text();
+				const html = yield response.text();
 				const dom = new window.DOMParser().parseFromString(
 					html,
 					'text/html'
@@ -72,7 +72,7 @@ const { state } = store( 'core/comments', {
 					state.error =
 						dom.querySelector( '.wp-die-message' ).innerText;
 				} else {
-					await navigate( response.url, {
+					yield navigate( response.url, {
 						html,
 						replace: true,
 						force: true,
@@ -82,8 +82,9 @@ const { state } = store( 'core/comments', {
 					comments
 						.querySelectorAll( 'li[id^="comment-"]' )
 						.forEach( ( comment ) => {
-							if ( ! existingComments.has( comment.id ) )
+							if ( ! existingComments.has( comment.id ) ) {
 								newComment = comment;
+							}
 						} );
 
 					// Scroll the new comment into view.
@@ -167,10 +168,11 @@ const { state } = store( 'core/comments', {
 			const { ref } = getElement();
 
 			// Focus on the first field in the comment form.
-			if ( formSlot )
+			if ( formSlot ) {
 				ref.querySelector( 'form' )
 					.querySelector( focusableSelectors )
 					.focus();
+			}
 		},
 	},
 } );

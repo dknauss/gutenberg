@@ -1,12 +1,7 @@
 /**
  * WordPress dependencies
  */
-import {
-	getContext,
-	getElement,
-	store,
-	navigate,
-} from '@wordpress/interactivity';
+import { getContext, getElement, store } from '@wordpress/interactivity';
 
 const focusableSelectors = [
 	'input:not([disabled]):not([type="hidden"]):not([aria-hidden])',
@@ -72,7 +67,10 @@ const { state } = store( 'core/comments', {
 					state.error =
 						dom.querySelector( '.wp-die-message' ).innerText;
 				} else {
-					yield navigate( response.url, {
+					const router = yield import(
+						'@wordpress/interactivity-router'
+					);
+					yield router.actions.navigate( response.url, {
 						html,
 						replace: true,
 						force: true,

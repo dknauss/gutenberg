@@ -8,6 +8,7 @@ import { hasBlockSupport } from '@wordpress/blocks';
  * Internal dependencies
  */
 import Edit from './edit';
+import { withBlockBindingSupport } from './with-block-bindings-attributes';
 import {
 	BlockEditContextProvider,
 	useBlockEditContext,
@@ -29,6 +30,8 @@ import { PrivateBlockContext } from '../block-list/private-block-context';
  * @return {Object} Block edit context
  */
 export { useBlockEditContext };
+
+const BlockEditWithBindings = withBlockBindingSupport( Edit );
 
 export default function BlockEdit( {
 	mayDisplayControls,
@@ -88,7 +91,7 @@ export default function BlockEdit( {
 				]
 			) }
 		>
-			<Edit { ...props } />
+			<BlockEditWithBindings { ...props } />
 			{ originalBlockClientId && (
 				<MultipleUsageWarning
 					originalBlockClientId={ originalBlockClientId }

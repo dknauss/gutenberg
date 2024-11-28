@@ -204,7 +204,15 @@ function render_block_core_search( $attributes, $content, $block ) {
 
 	if ( $enhanced_pagination && $instant_search_enabled ) {
 
-		$search = empty( $_GET[ 'instant-search-' . $block->context['queryId'] ] ) ? '' : sanitize_text_field( $_GET[ 'instant-search-' . $block->context['queryId'] ] );
+		$search = '';
+
+		// If the query is defined in the block context, use it
+		if ( isset( $block->context['query']['search'] ) && '' !== $block->context['query']['search'] ) {
+			$search = $block->context['query']['search'];
+		}
+
+		// If the query is defined in the URL, it overrides the block context value if defined
+		$search = empty( $_GET[ 'instant-search-' . $block->context['queryId'] ] ) ? $search : sanitize_text_field( $_GET[ 'instant-search-' . $block->context['queryId'] ] );
 
 		$form_context = array_merge(
 			$form_context,

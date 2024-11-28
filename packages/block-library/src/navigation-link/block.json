@@ -14,13 +14,15 @@
 	"textdomain": "default",
 	"attributes": {
 		"label": {
-			"type": "string"
+			"type": "string",
+			"role": "content"
 		},
 		"type": {
 			"type": "string"
 		},
 		"description": {
-			"type": "string"
+			"type": "string",
+			"role": "content"
 		},
 		"rel": {
 			"type": "string"
@@ -33,10 +35,12 @@
 			"default": false
 		},
 		"url": {
-			"type": "string"
+			"type": "string",
+			"role": "content"
 		},
 		"title": {
-			"type": "string"
+			"type": "string",
+			"role": "content"
 		},
 		"kind": {
 			"type": "string"

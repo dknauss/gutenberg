@@ -16,13 +16,14 @@ function gutenberg_add_styles_submenu_item() {
 		global $submenu;
 
 		$styles_menu_item = array(
-			__( 'Styles', 'gutenberg' ),
+			__( 'Design', 'gutenberg' ),
 			'edit_theme_options',
-			'site-editor.php?path=/style-book',
+			'site-editor.php',
 		);
 		// If $submenu exists, insert the Styles submenu item at position 2.
 		if ( $submenu && isset( $submenu['themes.php'] ) ) {
-			array_splice( $submenu['themes.php'], 2, 0, array( $styles_menu_item ) );
+			// This might not work as expected if the submenu has already been modified.
+			array_splice( $submenu['themes.php'], 1, 1, array( $styles_menu_item ) );
 		}
 	}
 }
@@ -36,7 +37,7 @@ add_action( 'admin_init', 'gutenberg_add_styles_submenu_item' );
  * @return callable The default handler or a custom handler.
  */
 function gutenberg_styles_wp_die_handler( $default_handler ) {
-	if ( ! wp_is_block_theme() && str_contains( $_SERVER['REQUEST_URI'], 'site-editor.php' ) && isset( $_GET['path'] ) && 'style-book' === sanitize_key( $_GET['path'] ) ) {
+	if ( ! wp_is_block_theme() && str_contains( $_SERVER['REQUEST_URI'], 'site-editor.php' ) ) {
 		return '__return_false';
 	}
 	return $default_handler;

@@ -4,8 +4,9 @@
 import { __experimentalItemGroup as ItemGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { layout, symbol, navigation, styles, page } from '@wordpress/icons';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
+import { store as coreStore } from '@wordpress/core-data';
 
 /**
  * Internal dependencies
@@ -17,39 +18,47 @@ import { unlock } from '../../lock-unlock';
 import { store as editSiteStore } from '../../store';
 
 export function MainSidebarNavigationContent() {
+	const isBlockBasedTheme = useSelect(
+		( select ) => select( coreStore ).getCurrentTheme()?.is_block_theme,
+		[]
+	);
 	return (
 		<ItemGroup>
-			<SidebarNavigationItem
-				uid="navigation-navigation-item"
-				to="/navigation"
-				withChevron
-				icon={ navigation }
-			>
-				{ __( 'Navigation' ) }
-			</SidebarNavigationItem>
-			<SidebarNavigationItemGlobalStyles
-				to="/styles"
-				uid="global-styles-navigation-item"
-				icon={ styles }
-			>
-				{ __( 'Styles' ) }
-			</SidebarNavigationItemGlobalStyles>
-			<SidebarNavigationItem
-				uid="page-navigation-item"
-				to="/page"
-				withChevron
-				icon={ page }
-			>
-				{ __( 'Pages' ) }
-			</SidebarNavigationItem>
-			<SidebarNavigationItem
-				uid="template-navigation-item"
-				to="/template"
-				withChevron
-				icon={ layout }
-			>
-				{ __( 'Templates' ) }
-			</SidebarNavigationItem>
+			{ isBlockBasedTheme && (
+				<>
+					<SidebarNavigationItem
+						uid="navigation-navigation-item"
+						to="/navigation"
+						withChevron
+						icon={ navigation }
+					>
+						{ __( 'Navigation' ) }
+					</SidebarNavigationItem>
+					<SidebarNavigationItemGlobalStyles
+						to="/styles"
+						uid="global-styles-navigation-item"
+						icon={ styles }
+					>
+						{ __( 'Styles' ) }
+					</SidebarNavigationItemGlobalStyles>
+					<SidebarNavigationItem
+						uid="page-navigation-item"
+						to="/page"
+						withChevron
+						icon={ page }
+					>
+						{ __( 'Pages' ) }
+					</SidebarNavigationItem>
+					<SidebarNavigationItem
+						uid="template-navigation-item"
+						to="/template"
+						withChevron
+						icon={ layout }
+					>
+						{ __( 'Templates' ) }
+					</SidebarNavigationItem>
+				</>
+			) }
 			<SidebarNavigationItem
 				uid="patterns-navigation-item"
 				to="/pattern"

@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __experimentalVStack as VStack } from '@wordpress/components';
-import { useContext, useEffect, useMemo } from '@wordpress/element';
+import { useContext, useEffect, useMemo, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -48,9 +48,15 @@ export function DataFormLayout< Item >( {
 		[ form ]
 	);
 
+	const isFirstValidationAlreadyRunRef = useRef( false );
+
 	const { setTouchedFields, setErrors, touchedFields, messageErrors } = form;
 
 	useEffect( () => {
+		if ( isFirstValidationAlreadyRunRef.current ) {
+			return;
+		}
+
 		normalizedFormFields.forEach( ( formField ) => {
 			const { isValid, errorMessage } = formField.validation.callback( {
 				...data,
@@ -61,6 +67,8 @@ export function DataFormLayout< Item >( {
 				setErrors( formField.id, undefined );
 			}
 		} );
+
+		isFirstValidationAlreadyRunRef.current = true;
 	}, [ data, normalizedFormFields, setErrors ] );
 
 	return (
@@ -89,36 +97,38 @@ export function DataFormLayout< Item >( {
 					return children( FieldLayout, formField );
 				}
 
+				const shouldShowError = formField.validation
+					.showErrorOnlyWhenDirty
+					? touchedFields.includes( formField.id )
+					: true;
+
+				const errorMessage = shouldShowError
+					? messageErrors[ formField.id ]
+					: undefined;
+
 				return (
 					<FieldLayout
 						key={ formField.id }
 						data={ data }
 						field={ formField }
-						errorMessage={
-							( formField.validation.showErrorOnlyWhenDirty &&
-								touchedFields.includes( formField.id ) ) ||
-							( ! formField.validation.showErrorOnlyWhenDirty &&
-								messageErrors[ formField.id ] )
-								? messageErrors[ formField.id ]
-								: undefined
-						}
+						errorMessage={ errorMessage }
 						onChange={ ( value ) => {
+							onChange( value );
+
 							if ( ! touchedFields.includes( formField.id ) ) {
 								setTouchedFields( [
-									// @ts-ignore
-									...form.touchedFields,
+									...touchedFields,
 									formField.id,
 								] );
 							}
 
-							onChange( value );
-							const { isValid, errorMessage } =
+							const { isValid, errorMessage: message } =
 								formField.validation.callback( {
 									...data,
 									...value,
 								} );
 							if ( ! isValid ) {
-								setErrors( formField.id, errorMessage );
+								setErrors( formField.id, message );
 							} else {
 								setErrors( formField.id, undefined );
 							}

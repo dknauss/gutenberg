@@ -18,20 +18,20 @@ export const useForm = < Item >(
 	} );
 
 	const setTouchedFields = ( touchedFields: string[] ) => {
-		setForm( {
-			...form,
+		setForm( ( prevForm ) => ( {
+			...prevForm,
 			touchedFields,
-		} );
+		} ) );
 	};
 
 	const setErrors = ( field: string, error: string | undefined ) => {
-		setForm( {
-			...form,
+		setForm( ( prevForm ) => ( {
+			...prevForm,
 			messageErrors: {
 				...form.messageErrors,
 				[ field ]: error,
 			},
-		} );
+		} ) );
 	};
 
 	const isFormValid = ( data: Item ) => {

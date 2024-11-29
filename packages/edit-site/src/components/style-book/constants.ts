@@ -6,7 +6,52 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { StyleBookCategory } from './types';
+import type { StyleBookCategory, StyleBookColorGroup } from './types';
+
+export const STYLE_BOOK_COLOR_GROUPS: StyleBookColorGroup[] = [
+	{
+		slug: 'theme-colors',
+		title: __( 'Theme Colors' ),
+		origin: 'theme',
+		type: 'colors',
+	},
+	{
+		slug: 'theme-gradients',
+		title: __( 'Theme Gradients' ),
+		origin: 'theme',
+		type: 'gradients',
+	},
+	{
+		slug: 'custom-colors',
+		title: __( 'Custom Colors' ),
+		origin: 'custom',
+		type: 'colors',
+	},
+	{
+		slug: 'custom-gradients',
+		title: __( 'Custom Gradients' ),
+		origin: 'custom', // User.
+		type: 'gradients',
+	},
+	{
+		slug: 'duotones',
+		title: __( 'Duotones' ),
+		origin: 'theme',
+		type: 'duotones',
+	},
+	{
+		slug: 'default-colors',
+		title: __( 'Default Colors' ),
+		origin: 'default',
+		type: 'colors',
+	},
+	{
+		slug: 'default-gradients',
+		title: __( 'Default Gradients' ),
+		origin: 'default',
+		type: 'gradients',
+	},
+];
 
 export const STYLE_BOOK_THEME_SUBCATEGORIES: Omit<
 	StyleBookCategory,
@@ -63,6 +108,11 @@ export const STYLE_BOOK_THEME_SUBCATEGORIES: Omit<
 
 export const STYLE_BOOK_CATEGORIES: StyleBookCategory[] = [
 	{
+		slug: 'overview',
+		title: __( 'Overview' ),
+		blocks: [],
+	},
+	{
 		slug: 'text',
 		title: __( 'Text' ),
 		blocks: [
@@ -74,7 +124,7 @@ export const STYLE_BOOK_CATEGORIES: StyleBookCategory[] = [
 	{
 		slug: 'colors',
 		title: __( 'Colors' ),
-		blocks: [ 'custom/colors' ],
+		blocks: [],
 	},
 	{
 		slug: 'theme',
@@ -98,6 +148,13 @@ export const STYLE_BOOK_CATEGORIES: StyleBookCategory[] = [
 	},
 ];
 
+// Forming a "block formatting context" to prevent margin collapsing.
+// @see https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Block_formatting_context
+const ROOT_CONTAINER = `
+	.is-root-container {
+		display: flow-root;
+	}
+`;
 // The content area of the Style Book is rendered within an iframe so that global styles
 // are applied to elements within the entire content area. To support elements that are
 // not part of the block previews, such as headings and layout for the block previews,
@@ -106,16 +163,12 @@ export const STYLE_BOOK_CATEGORIES: StyleBookCategory[] = [
 // applied to the `button` element, targeted via `.edit-site-style-book__example`.
 // This is to ensure that browser default styles for buttons are not applied to the previews.
 export const STYLE_BOOK_IFRAME_STYLES = `
-	// Forming a "block formatting context" to prevent margin collapsing.
-	// @see https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Block_formatting_context
-	.is-root-container {
-		display: flow-root;
-	}
-	
 	body {
 		position: relative;
 		padding: 32px !important;
 	}
+
+	${ ROOT_CONTAINER }
 
 	.edit-site-style-book__examples {
 		max-width: 1200px;
@@ -141,15 +194,40 @@ export const STYLE_BOOK_IFRAME_STYLES = `
 		box-shadow: 0 0 0 1px var(--wp-components-color-accent, var(--wp-admin-theme-color, #007cba));
 	}
 
+	.edit-site-style-book__example.is-disabled-example {
+		pointer-events: none;
+	}
+
 	.edit-site-style-book__example:focus:not(:disabled) {
 		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) var(--wp-components-color-accent, var(--wp-admin-theme-color, #007cba));
 		outline: 3px solid transparent;
 	}
 
+	.edit-site-style-book__duotone-example > div:first-child {
+		display: flex;
+		aspect-ratio: 16 / 9;
+		grid-row: span 1;
+		grid-column: span 2;
+	}
+	.edit-site-style-book__duotone-example img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.edit-site-style-book__duotone-example > div:not(:first-child) {
+		height: 20px;
+		border: 1px solid #ddd;
+	}
+
+	.edit-site-style-book__color-example {
+		height: 52px;
+		border: 1px solid #ddd;
+	}
+
 	.edit-site-style-book__examples.is-wide .edit-site-style-book__example {
 		flex-direction: row;
 	}
-	
+
 	.edit-site-style-book__subcategory-title,
 	.edit-site-style-book__example-title {
 		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -160,7 +238,7 @@ export const STYLE_BOOK_IFRAME_STYLES = `
 		text-align: left;
 		text-transform: uppercase;
 	}
-	
+
 	.edit-site-style-book__subcategory-title {
 		font-size: 16px;
 		margin-bottom: 40px;
@@ -176,16 +254,19 @@ export const STYLE_BOOK_IFRAME_STYLES = `
 	.edit-site-style-book__example-preview {
 		width: 100%;
 	}
+	
+	.is-wide .edit-site-style-book__example-preview {
+		width: calc(100% - 120px);
+	}
 
 	.edit-site-style-book__example-preview .block-editor-block-list__insertion-point,
 	.edit-site-style-book__example-preview .block-list-appender {
 		display: none;
 	}
-
-	.edit-site-style-book__example-preview .is-root-container > .wp-block:first-child {
+	:where(.is-root-container > .wp-block:first-child) {
 		margin-top: 0;
 	}
-	.edit-site-style-book__example-preview .is-root-container > .wp-block:last-child {
+	:where(.is-root-container > .wp-block:last-child) {
 		margin-bottom: 0;
 	}
 `;

@@ -23,6 +23,7 @@ import { ToggleGroupControlAsButtonGroup } from './as-button-group';
 import { useTrackElementOffsetRect } from '../../utils/element-rect';
 import { useMergeRefs } from '@wordpress/compose';
 import { useAnimatedOffsetRect } from '../../utils/hooks/use-animated-offset-rect';
+import { maybeWarnDeprecated36pxSize } from '../../utils/deprecated-36px-size';
 
 function UnconnectedToggleGroupControl(
 	props: WordPressComponentProps< ToggleGroupControlProps, 'div', false >,
@@ -31,6 +32,7 @@ function UnconnectedToggleGroupControl(
 	const {
 		__nextHasNoMarginBottom = false,
 		__next40pxDefaultSize = false,
+		__shouldNotWarnDeprecated36pxSize,
 		className,
 		isAdaptiveWidth = false,
 		isBlock = false,
@@ -52,12 +54,13 @@ function UnconnectedToggleGroupControl(
 	const [ controlElement, setControlElement ] = useState< HTMLElement >();
 	const refs = useMergeRefs( [ setControlElement, forwardedRef ] );
 	const selectedRect = useTrackElementOffsetRect(
-		value ? selectedElement : undefined
+		value || value === 0 ? selectedElement : undefined
 	);
 	useAnimatedOffsetRect( controlElement, selectedRect, {
 		prefix: 'selected',
 		dataAttribute: 'indicator-animated',
 		transitionEndFilter: ( event ) => event.pseudoElement === '::before',
+		roundRect: true,
 	} );
 
 	const cx = useCx();
@@ -79,6 +82,13 @@ function UnconnectedToggleGroupControl(
 	const MainControl = isDeselectable
 		? ToggleGroupControlAsButtonGroup
 		: ToggleGroupControlAsRadioGroup;
+
+	maybeWarnDeprecated36pxSize( {
+		componentName: 'ToggleGroupControl',
+		size,
+		__next40pxDefaultSize,
+		__shouldNotWarnDeprecated36pxSize,
+	} );
 
 	return (
 		<BaseControl
@@ -134,6 +144,7 @@ function UnconnectedToggleGroupControl(
  *       value="vertical"
  *       isBlock
  *       __nextHasNoMarginBottom
+ *       __next40pxDefaultSize
  *     >
  *       <ToggleGroupControlOption value="horizontal" label="Horizontal" />
  *       <ToggleGroupControlOption value="vertical" label="Vertical" />

@@ -20,6 +20,7 @@ import { store as preferencesStore } from '@wordpress/preferences';
 import { moreVertical } from '@wordpress/icons';
 import { store as coreStore } from '@wordpress/core-data';
 import { useEffect } from '@wordpress/element';
+import { usePrevious } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -45,6 +46,7 @@ import ScreenCSS from './screen-css';
 import ScreenRevisions from './screen-revisions';
 import { unlock } from '../../lock-unlock';
 import { store as editSiteStore } from '../../store';
+import { STYLE_BOOK_COLOR_GROUPS } from '../style-book/constants';
 
 const SLOT_FILL_NAME = 'GlobalStylesMenu';
 const { useGlobalStylesReset } = unlock( blockEditorPrivateApis );
@@ -191,6 +193,21 @@ function GlobalStylesStyleBook() {
 				)
 			}
 			onSelect={ ( blockName ) => {
+				if (
+					STYLE_BOOK_COLOR_GROUPS.find(
+						( group ) => group.slug === blockName
+					)
+				) {
+					// Go to color palettes Global Styles.
+					navigator.goTo( '/colors/palette' );
+					return;
+				}
+				if ( blockName === 'typography' ) {
+					// Go to typography Global Styles.
+					navigator.goTo( '/typography' );
+					return;
+				}
+
 				// Now go to the selected block.
 				navigator.goTo( '/blocks/' + encodeURIComponent( blockName ) );
 			} }
@@ -280,18 +297,52 @@ function GlobalStylesEditorCanvasContainerLink() {
 	}, [ editorCanvasContainerView, isRevisionsOpen, goTo ] );
 }
 
-function GlobalStylesUI() {
+function useNavigatorSync( parentPath, onPathChange ) {
+	const navigator = useNavigator();
+	const { path: childPath } = navigator.location;
+	const previousParentPath = usePrevious( parentPath );
+	const previousChildPath = usePrevious( childPath );
+	useEffect( () => {
+		if ( parentPath !== childPath ) {
+			if ( parentPath !== previousParentPath ) {
+				navigator.goTo( parentPath );
+			} else if ( childPath !== previousChildPath ) {
+				onPathChange( childPath );
+			}
+		}
+	}, [
+		onPathChange,
+		parentPath,
+		previousChildPath,
+		previousParentPath,
+		childPath,
+		navigator,
+	] );
+}
+
+// This component is used to wrap the hook in order to conditionally execute it
+// when the parent component is used on controlled mode.
+function NavigationSync( { path: parentPath, onPathChange, children } ) {
+	useNavigatorSync( parentPath, onPathChange );
+	return children;
+}
+
+function GlobalStylesUI( { path, onPathChange } ) {
 	const blocks = getBlockTypes();
 	const editorCanvasContainerView = useSelect(
 		( select ) =>
 			unlock( select( editSiteStore ) ).getEditorCanvasContainerView(),
 		[]
 	);
+
 	return (
 		<Navigator
 			className="edit-site-global-styles-sidebar__navigator-provider"
 			initialPath="/"
 		>
+			{ path && onPathChange && (
+				<NavigationSync path={ path } onPathChange={ onPathChange } />
+			) }
 			<GlobalStylesNavigationScreen path="/">
 				<ScreenRoot />
 			</GlobalStylesNavigationScreen>

@@ -15,7 +15,6 @@ import {
 import { useSelect } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
-import { privateApis as blockEditorPrivateApis } from '@wordpress/block-editor';
 import { debounce } from '@wordpress/compose';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 
@@ -28,11 +27,9 @@ import ParentControl from './parent-control';
 import { TaxonomyControls } from './taxonomy-controls';
 import FormatControls from './format-controls';
 import StickyControl from './sticky-control';
-import CreateNewPostLink from './create-new-post-link';
 import PerPageControl from './per-page-control';
 import OffsetControl from './offset-controls';
 import PagesControl from './pages-control';
-import { unlock } from '../../../lock-unlock';
 import {
 	usePostTypes,
 	useIsPostTypeHierarchical,
@@ -42,10 +39,8 @@ import {
 } from '../../utils';
 import { useToolsPanelDropdownMenuProps } from '../../../utils/hooks';
 
-const { BlockInfo } = unlock( blockEditorPrivateApis );
-
 export default function QueryInspectorControls( props ) {
-	const { attributes, setQuery, setDisplayLayout, isTemplate } = props;
+	const { attributes, setQuery, setDisplayLayout, isSingular } = props;
 	const { query, displayLayout } = attributes;
 	const {
 		order,
@@ -118,7 +113,7 @@ export default function QueryInspectorControls( props ) {
 	}, [ querySearch, onChangeDebounced ] );
 
 	const showInheritControl =
-		isTemplate && isControlAllowed( allowedControls, 'inherit' );
+		! isSingular && isControlAllowed( allowedControls, 'inherit' );
 	const showPostTypeControl =
 		! inherit && isControlAllowed( allowedControls, 'postType' );
 	const postTypeControlLabel = __( 'Post type' );
@@ -191,11 +186,6 @@ export default function QueryInspectorControls( props ) {
 
 	return (
 		<>
-			{ !! postType && (
-				<BlockInfo>
-					<CreateNewPostLink postType={ postType } />
-				</BlockInfo>
-			) }
 			{ showSettingsPanel && (
 				<PanelBody title={ __( 'Settings' ) }>
 					{ showInheritControl && (

@@ -19,7 +19,6 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { keyboardReturn } from '@wordpress/icons';
-import { pasteHandler } from '@wordpress/blocks';
 import deprecated from '@wordpress/deprecated';
 
 /**
@@ -29,6 +28,7 @@ import MediaUpload from '../media-upload';
 import MediaUploadCheck from '../media-upload/check';
 import URLPopover from '../url-popover';
 import { store as blockEditorStore } from '../../store';
+import { parseDropEvent } from '../use-on-block-drop';
 
 const noop = () => {};
 
@@ -229,56 +229,45 @@ export function MediaPlaceholder( {
 		} );
 	};
 
-	async function handleBlocksDrop( blocks ) {
-		if ( ! blocks || ! Array.isArray( blocks ) ) {
-			return;
-		}
+	async function handleBlocksDrop( event ) {
+		const { blocks } = parseDropEvent( event );
 
-		function recursivelyFindMediaFromBlocks( _blocks ) {
-			return _blocks.flatMap( ( block ) =>
-				( block.name === 'core/image' ||
-					block.name === 'core/audio' ||
-					block.name === 'core/video' ) &&
-				block.attributes.url
-					? [ block ]
-					: recursivelyFindMediaFromBlocks( block.innerBlocks )
-			);
-		}
-
-		const mediaBlocks = recursivelyFindMediaFromBlocks( blocks );
-
-		if ( ! mediaBlocks.length ) {
+		if ( ! blocks?.length ) {
 			return;
 		}
 
 		const uploadedMediaList = await Promise.all(
-			mediaBlocks.map( ( block ) =>
-				block.attributes.id
-					? block.attributes
-					: new Promise( ( resolve, reject ) => {
-							window
-								.fetch( block.attributes.url )
-								.then( ( response ) => response.blob() )
-								.then( ( blob ) =>
-									mediaUpload( {
-										filesList: [ blob ],
-										additionalData: {
-											title: block.attributes.title,
-											alt_text: block.attributes.alt,
-											caption: block.attributes.caption,
-										},
-										onFileChange: ( [ media ] ) => {
-											if ( media.id ) {
-												resolve( media );
-											}
-										},
-										allowedTypes,
-										onError: reject,
-									} )
-								)
-								.catch( () => resolve( block.attributes.url ) );
-					  } )
-			)
+			blocks.map( ( block ) => {
+				const blockType = block.name.split( '/' )[ 1 ];
+				if ( block.attributes.id ) {
+					block.attributes.type = blockType;
+					return block.attributes;
+				}
+				return new Promise( ( resolve, reject ) => {
+					window
+						.fetch( block.attributes.url )
+						.then( ( response ) => response.blob() )
+						.then( ( blob ) =>
+							mediaUpload( {
+								filesList: [ blob ],
+								additionalData: {
+									title: block.attributes.title,
+									alt_text: block.attributes.alt,
+									caption: block.attributes.caption,
+									type: blockType,
+								},
+								onFileChange: ( [ media ] ) => {
+									if ( media.id ) {
+										resolve( media );
+									}
+								},
+								allowedTypes,
+								onError: reject,
+							} )
+						)
+						.catch( () => resolve( block.attributes.url ) );
+				} );
+			} )
 		).catch( ( err ) => onError( err ) );
 
 		if ( multiple ) {
@@ -286,11 +275,6 @@ export function MediaPlaceholder( {
 		} else {
 			onSelect( uploadedMediaList[ 0 ] );
 		}
-	}
-
-	async function onHTMLDrop( HTML ) {
-		const blocks = pasteHandler( { HTML } );
-		return await handleBlocksDrop( blocks );
 	}
 
 	const onUpload = ( event ) => {
@@ -317,20 +301,20 @@ export function MediaPlaceholder( {
 
 			if ( instructions === undefined && mediaUpload ) {
 				instructions = __(
-					'Upload a media file or pick one from your media library.'
+					'Drag and drop an image or video, upload, or choose from your library.'
 				);
 
 				if ( isAudio ) {
 					instructions = __(
-						'Upload or drag an audio file here, or pick one from your library.'
+						'Drag and drop an audio file, upload, or choose from your library.'
 					);
 				} else if ( isImage ) {
 					instructions = __(
-						'Upload or drag an image file here, or pick one from your library.'
+						'Drag and drop an image, upload, or choose from your library.'
 					);
 				} else if ( isVideo ) {
 					instructions = __(
-						'Upload or drag a video file here, or pick one from your library.'
+						'Drag and drop a video, upload, or choose from your library.'
 					);
 				}
 			}
@@ -380,7 +364,24 @@ export function MediaPlaceholder( {
 		}
 
 		return (
-			<DropZone onFilesDrop={ onFilesUpload } onHTMLDrop={ onHTMLDrop } />
+			<DropZone
+				onFilesDrop={ onFilesUpload }
+				onDrop={ handleBlocksDrop }
+				isEligible={ ( dataTransfer ) => {
+					const prefix = 'wp-block:core/';
+					const types = [];
+					for ( const type of dataTransfer.types ) {
+						if ( type.startsWith( prefix ) ) {
+							types.push( type.slice( prefix.length ) );
+						}
+					}
+					return (
+						types.every( ( type ) =>
+							allowedTypes.includes( type )
+						) && ( multiple ? true : types.length === 1 )
+					);
+				} }
+			/>
 		);
 	};
 

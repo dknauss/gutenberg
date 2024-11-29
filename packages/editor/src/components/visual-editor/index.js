@@ -16,7 +16,7 @@ import {
 	privateApis as blockEditorPrivateApis,
 	__experimentalUseResizeCanvas as useResizeCanvas,
 } from '@wordpress/block-editor';
-import { useEffect, useRef, useMemo } from '@wordpress/element';
+import { useEffect, useRef, useMemo, useState } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { parse } from '@wordpress/blocks';
 import { store as coreStore } from '@wordpress/core-data';
@@ -41,6 +41,7 @@ import {
 	TEMPLATE_PART_POST_TYPE,
 	TEMPLATE_POST_TYPE,
 } from '../../store/constants';
+import { useZoomOutModeExit } from './use-zoom-out-mode-exit';
 
 const {
 	LayoutStyle,
@@ -48,7 +49,6 @@ const {
 	useLayoutStyles,
 	ExperimentalBlockCanvas: BlockCanvas,
 	useFlashEditableBlocks,
-	useZoomOutModeExit,
 } = unlock( blockEditorPrivateApis );
 
 /**
@@ -106,7 +106,10 @@ function VisualEditor( {
 	contentRef,
 	className,
 } ) {
-	const [ resizeObserver, sizes ] = useResizeObserver();
+	const [ contentHeight, setContentHeight ] = useState( '' );
+	const effectContentHeight = useResizeObserver( ( [ entry ] ) => {
+		setContentHeight( entry.borderBoxSize[ 0 ].blockSize );
+	} );
 	const isMobileViewport = useViewportMatch( 'small', '<' );
 	const {
 		renderingMode,
@@ -166,7 +169,7 @@ function VisualEditor( {
 			deviceType: getDeviceType(),
 			isFocusedEntity: !! editorSettings.onNavigateToPreviousEntityRecord,
 			postType: postTypeSlug,
-			isPreview: editorSettings.__unstableIsPreviewMode,
+			isPreview: editorSettings.isPreviewMode,
 		};
 	}, [] );
 	const { isCleanNewPost } = useSelect( editorStore );
@@ -323,21 +326,6 @@ function VisualEditor( {
 		.is-root-container.alignfull { max-width: none; margin-left: auto; margin-right: auto;}
 		.is-root-container.alignfull:where(.is-layout-flow) > :not(.alignleft):not(.alignright) { max-width: none;}`;
 
-	const localRef = useRef();
-	const typewriterRef = useTypewriter();
-	contentRef = useMergeRefs( [
-		localRef,
-		contentRef,
-		renderingMode === 'post-only' ? typewriterRef : null,
-		useFlashEditableBlocks( {
-			isEnabled: renderingMode === 'template-locked',
-		} ),
-		useSelectNearestEditableBlock( {
-			isEnabled: renderingMode === 'template-locked',
-		} ),
-		useZoomOutModeExit(),
-	] );
-
 	const forceFullHeight = postType === NAVIGATION_POST_TYPE;
 	const enableResizing =
 		[
@@ -356,7 +344,10 @@ function VisualEditor( {
 		return [
 			...( styles ?? [] ),
 			{
-				css: `.is-root-container{display:flow-root;${
+				// Ensures margins of children are contained so that the body background paints behind them.
+				// Otherwise, the background of html (when zoomed out) would show there and appear broken. It’s
+				// important mostly for post-only views yet conceivably an issue in templated views too.
+				css: `:where(.block-editor-iframe__body){display:flow-root;}.is-root-container{display:flow-root;${
 					// Some themes will have `min-height: 100vh` for the root container,
 					// which isn't a requirement in auto resize mode.
 					enableResizing ? 'min-height:0!important;' : ''
@@ -364,6 +355,24 @@ function VisualEditor( {
 			},
 		];
 	}, [ styles, enableResizing ] );
+
+	const localRef = useRef();
+	const typewriterRef = useTypewriter();
+	contentRef = useMergeRefs( [
+		localRef,
+		contentRef,
+		renderingMode === 'post-only' ? typewriterRef : null,
+		useFlashEditableBlocks( {
+			isEnabled: renderingMode === 'template-locked',
+		} ),
+		useSelectNearestEditableBlock( {
+			isEnabled: renderingMode === 'template-locked',
+		} ),
+		useZoomOutModeExit(),
+		// Avoid resize listeners when not needed, these will trigger
+		// unnecessary re-renders when animating the iframe width.
+		enableResizing ? effectContentHeight : null,
+	] );
 
 	return (
 		<div
@@ -382,7 +391,7 @@ function VisualEditor( {
 			<ResizableEditor
 				enableResizing={ enableResizing }
 				height={
-					sizes.height && ! forceFullHeight ? sizes.height : '100%'
+					contentHeight && ! forceFullHeight ? contentHeight : '100%'
 				}
 			>
 				<BlockCanvas
@@ -453,7 +462,13 @@ function VisualEditor( {
 								renderingMode !== 'post-only' ||
 									isDesignPostType
 									? 'wp-site-blocks'
-									: `${ blockListLayoutClass } wp-block-post-content` // Ensure root level blocks receive default/flow blockGap styling rules.
+									: `${ blockListLayoutClass } wp-block-post-content`, // Ensure root level blocks receive default/flow blockGap styling rules.
+								{
+									'has-global-padding':
+										renderingMode === 'post-only' &&
+										! isDesignPostType &&
+										hasRootPaddingAwareAlignments,
+								}
 							) }
 							layout={ blockListLayout }
 							dropZoneElement={
@@ -476,12 +491,6 @@ function VisualEditor( {
 							/>
 						) }
 					</RecursionProvider>
-					{
-						// Avoid resize listeners when not needed,
-						// these will trigger unnecessary re-renders
-						// when animating the iframe width.
-						enableResizing && resizeObserver
-					}
 				</BlockCanvas>
 			</ResizableEditor>
 		</div>

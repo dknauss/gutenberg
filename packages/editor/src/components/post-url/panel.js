@@ -19,7 +19,7 @@ import { store as editorStore } from '../../store';
 /**
  * Renders the `PostURLPanel` component.
  *
- * @return {JSX.Element} The rendered PostURLPanel component.
+ * @return {React.ReactNode} The rendered PostURLPanel component.
  */
 export default function PostURLPanel() {
 	const { isFrontPage } = useSelect( ( select ) => {
@@ -93,8 +93,10 @@ function PostURLToggle( { isOpen, onClick } ) {
 			className="editor-post-url__panel-toggle"
 			variant="tertiary"
 			aria-expanded={ isOpen }
-			// translators: %s: Current post link.
-			aria-label={ sprintf( __( 'Change link: %s' ), decodedSlug ) }
+			aria-label={
+				// translators: %s: Current post link.
+				sprintf( __( 'Change link: %s' ), decodedSlug )
+			}
 			onClick={ onClick }
 		>
 			<>{ decodedSlug }</>

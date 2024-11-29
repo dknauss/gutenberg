@@ -10,6 +10,7 @@ import {
 	__unstableMotion as motion,
 	__unstableAnimatePresence as AnimatePresence,
 	__unstableUseNavigateRegions as useNavigateRegions,
+	SlotFillProvider,
 } from '@wordpress/components';
 import {
 	useReducedMotion,
@@ -23,6 +24,7 @@ import { CommandMenu } from '@wordpress/commands';
 import { privateApis as blockEditorPrivateApis } from '@wordpress/block-editor';
 import {
 	EditorSnackbars,
+	UnsavedChangesWarning,
 	privateApis as editorPrivateApis,
 } from '@wordpress/editor';
 import { privateApis as coreCommandsPrivateApis } from '@wordpress/core-commands';
@@ -35,8 +37,7 @@ import ErrorBoundary from '../error-boundary';
 import { default as SiteHub, SiteHubMobile } from '../site-hub';
 import ResizableFrame from '../resizable-frame';
 import { unlock } from '../../lock-unlock';
-import KeyboardShortcutsRegister from '../keyboard-shortcuts/register';
-import KeyboardShortcutsGlobal from '../keyboard-shortcuts/global';
+import SaveKeyboardShortcut from '../save-keyboard-shortcut';
 import { useIsSiteEditorLoading } from './hooks';
 import useMovingAnimation from './animation';
 import SidebarContent from '../sidebar';
@@ -45,14 +46,14 @@ import SavePanel from '../save-panel';
 
 const { useCommands } = unlock( coreCommandsPrivateApis );
 const { useGlobalStyle } = unlock( blockEditorPrivateApis );
-const { NavigableRegion } = unlock( editorPrivateApis );
+const { NavigableRegion, GlobalStylesProvider } = unlock( editorPrivateApis );
 const { useLocation } = unlock( routerPrivateApis );
 
 const ANIMATION_DURATION = 0.3;
 
-export default function Layout( { route } ) {
-	const { params } = useLocation();
-	const { canvas = 'view' } = params;
+function Layout() {
+	const { query, name: routeKey, areas, widths } = useLocation();
+	const { canvas = 'view' } = query;
 	useCommands();
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 	const toggleRef = useRef();
@@ -62,7 +63,6 @@ export default function Layout( { route } ) {
 	const isEditorLoading = useIsSiteEditorLoading();
 	const [ isResizableFrameOversized, setIsResizableFrameOversized ] =
 		useState( false );
-	const { name: routeKey, areas, widths } = route;
 	const animationRef = useMovingAnimation( {
 		triggerAnimationOnChange: routeKey + '-' + canvas,
 	} );
@@ -75,14 +75,13 @@ export default function Layout( { route } ) {
 			toggleRef.current?.focus();
 		}
 		// Should not depend on the previous canvas mode value but the next.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ canvas ] );
 
 	return (
 		<>
+			<UnsavedChangesWarning />
 			<CommandMenu />
-			<KeyboardShortcutsRegister />
-			<KeyboardShortcutsGlobal />
+			{ canvas === 'view' && <SaveKeyboardShortcut /> }
 			<div
 				{ ...navigateRegionsProps }
 				ref={ navigateRegionsProps.ref }
@@ -128,7 +127,12 @@ export default function Layout( { route } ) {
 												isResizableFrameOversized
 											}
 										/>
-										<SidebarContent routeKey={ routeKey }>
+										<SidebarContent
+											shouldAnimate={
+												routeKey !== 'styles-view'
+											}
+											routeKey={ routeKey }
+										>
 											{ areas.sidebar }
 										</SidebarContent>
 										<SaveHub />
@@ -227,5 +231,15 @@ export default function Layout( { route } ) {
 				</div>
 			</div>
 		</>
+	);
+}
+
+export default function LayoutWithGlobalStylesProvider( props ) {
+	return (
+		<SlotFillProvider>
+			<GlobalStylesProvider>
+				<Layout { ...props } />
+			</GlobalStylesProvider>
+		</SlotFillProvider>
 	);
 }

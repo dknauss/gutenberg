@@ -122,6 +122,7 @@ const UnconnectedBorderControl = (
 						value={ widthValue || undefined }
 						withInputField={ false }
 						__next40pxDefaultSize={ __next40pxDefaultSize }
+						__shouldNotWarnDeprecated36pxSize
 					/>
 				) }
 			</HStack>
@@ -154,6 +155,7 @@ const UnconnectedBorderControl = (
  *
  * 	return (
  * 		<BorderControl
+ * 			__next40pxDefaultSize
  * 			colors={ colors }
  * 			label={ __( 'Border' ) }
  * 			onChange={ onChange }

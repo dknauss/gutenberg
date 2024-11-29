@@ -16,7 +16,7 @@ import DataViewsContext from '../dataviews-context';
 import {
 	default as DataViewsFilters,
 	useFilters,
-	FilterVisibilityToggle,
+	FiltersToggle,
 } from '../dataviews-filters';
 import DataViewsLayout from '../dataviews-layout';
 import DataViewsFooter from '../dataviews-footer';
@@ -44,12 +44,17 @@ type DataViewsProps< Item > = {
 	defaultLayouts: SupportedLayouts;
 	selection?: string[];
 	onChangeSelection?: ( items: string[] ) => void;
+	onClickItem?: ( item: Item ) => void;
+	isItemClickable?: ( item: Item ) => boolean;
 	header?: ReactNode;
 } & ( Item extends ItemWithId
 	? { getItemId?: ( item: Item ) => string }
 	: { getItemId: ( item: Item ) => string } );
 
 const defaultGetItemId = ( item: ItemWithId ) => item.id;
+const defaultIsItemClickable = () => false;
+const defaultOnClickItem = () => {};
+const EMPTY_ARRAY: any[] = [];
 
 export default function DataViews< Item >( {
 	view,
@@ -57,7 +62,7 @@ export default function DataViews< Item >( {
 	fields,
 	search = true,
 	searchLabel = undefined,
-	actions = [],
+	actions = EMPTY_ARRAY,
 	data,
 	getItemId = defaultGetItemId,
 	isLoading = false,
@@ -65,10 +70,11 @@ export default function DataViews< Item >( {
 	defaultLayouts,
 	selection: selectionProperty,
 	onChangeSelection,
+	onClickItem = defaultOnClickItem,
+	isItemClickable = defaultIsItemClickable,
 	header,
 }: DataViewsProps< Item > ) {
 	const [ selectionState, setSelectionState ] = useState< string[] >( [] );
-	const [ density, setDensity ] = useState< number >( 0 );
 	const isUncontrolled =
 		selectionProperty === undefined || onChangeSelection === undefined;
 	const selection = isUncontrolled ? selectionState : selectionProperty;
@@ -110,7 +116,8 @@ export default function DataViews< Item >( {
 				openedFilter,
 				setOpenedFilter,
 				getItemId,
-				density,
+				isItemClickable,
+				onClickItem,
 			} }
 		>
 			<div className="dataviews-wrapper">
@@ -126,7 +133,7 @@ export default function DataViews< Item >( {
 						className="dataviews__search"
 					>
 						{ search && <DataViewsSearch label={ searchLabel } /> }
-						<FilterVisibilityToggle
+						<FiltersToggle
 							filters={ filters }
 							view={ view }
 							onChangeView={ onChangeView }
@@ -142,8 +149,6 @@ export default function DataViews< Item >( {
 					>
 						<DataViewsViewConfig
 							defaultLayouts={ defaultLayouts }
-							density={ density }
-							setDensity={ setDensity }
 						/>
 						{ header }
 					</HStack>

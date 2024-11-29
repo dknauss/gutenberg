@@ -65,7 +65,7 @@ import useGetMedia from './use-get-media';
 import GapStyles from './gap-styles';
 
 const MAX_COLUMNS = 8;
-let linkOptions = [
+const LINK_OPTIONS = [
 	{
 		icon: customLink,
 		label: __( 'Link images to attachment pages' ),
@@ -96,7 +96,7 @@ const ALLOWED_MEDIA_TYPES = [ 'image' ];
 
 const PLACEHOLDER_TEXT = Platform.isNative
 	? __( 'Add media' )
-	: __( 'Drag images, upload new ones or select files from your library.' );
+	: __( 'Drag and drop images, upload, or choose from your library.' );
 
 const MOBILE_CONTROL_PROPS_RANGE_CONTROL = Platform.isNative
 	? { type: 'stepper' }
@@ -117,13 +117,13 @@ export default function GalleryEdit( props ) {
 		onFocus,
 	} = props;
 
-	const lightboxSetting = useSettings( 'blocks.core/image.lightbox' )[ 0 ];
+	const [ lightboxSetting ] = useSettings( 'blocks.core/image.lightbox' );
 
-	if ( ! lightboxSetting?.allowEditing ) {
-		linkOptions = linkOptions.filter(
-			( option ) => option.value !== LINK_DESTINATION_LIGHTBOX
-		);
-	}
+	const linkOptions = ! lightboxSetting?.allowEditing
+		? LINK_OPTIONS.filter(
+				( option ) => option.value !== LINK_DESTINATION_LIGHTBOX
+		  )
+		: LINK_OPTIONS;
 
 	const { columns, imageCrop, randomOrder, linkTarget, linkTo, sizeSlug } =
 		attributes;

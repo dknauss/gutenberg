@@ -152,8 +152,7 @@ function CoverEdit( {
 				isUserOverlayColor: isUserOverlayColor || false,
 			} );
 		} )();
-		// Disable reason: Update the block only when the featured image changes.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// Update the block only when the featured image changes.
 	}, [ mediaUrl ] );
 
 	// instead of destructuring the attributes
@@ -202,17 +201,29 @@ function CoverEdit( {
 			averageBackgroundColor
 		);
 
-		if ( backgroundType === IMAGE_BACKGROUND_TYPE && mediaAttributes.id ) {
+		if ( backgroundType === IMAGE_BACKGROUND_TYPE && mediaAttributes?.id ) {
 			const { imageDefaultSize } = getSettings();
 
 			// Try to use the previous selected image size if it's available
 			// otherwise try the default image size or fallback to full size.
-			if ( sizeSlug && newMedia?.sizes?.[ sizeSlug ] ) {
+			if (
+				sizeSlug &&
+				( newMedia?.sizes?.[ sizeSlug ] ||
+					newMedia?.media_details?.sizes?.[ sizeSlug ] )
+			) {
 				mediaAttributes.sizeSlug = sizeSlug;
-				mediaAttributes.url = newMedia?.sizes?.[ sizeSlug ]?.url;
-			} else if ( newMedia?.sizes?.[ imageDefaultSize ] ) {
+				mediaAttributes.url =
+					newMedia?.sizes?.[ sizeSlug ]?.url ||
+					newMedia?.media_details?.sizes?.[ sizeSlug ]?.source_url;
+			} else if (
+				newMedia?.sizes?.[ imageDefaultSize ] ||
+				newMedia?.media_details?.sizes?.[ imageDefaultSize ]
+			) {
 				mediaAttributes.sizeSlug = imageDefaultSize;
-				mediaAttributes.url = newMedia?.sizes?.[ sizeSlug ]?.url;
+				mediaAttributes.url =
+					newMedia?.sizes?.[ imageDefaultSize ]?.url ||
+					newMedia?.media_details?.sizes?.[ imageDefaultSize ]
+						?.source_url;
 			} else {
 				mediaAttributes.sizeSlug = DEFAULT_MEDIA_SIZE_SLUG;
 			}
@@ -460,7 +471,7 @@ function CoverEdit( {
 			setAttributes( { minHeight: newMinHeight } );
 		},
 		// Hide the resize handle if an aspect ratio is set, as the aspect ratio takes precedence.
-		showHandle: ! attributes.style?.dimensions?.aspectRatio ? true : false,
+		showHandle: ! attributes.style?.dimensions?.aspectRatio,
 		size: resizableBoxDimensions,
 		width,
 	};
@@ -528,27 +539,6 @@ function CoverEdit( {
 				data-url={ url }
 			>
 				{ resizeListener }
-				{ showOverlay && (
-					<span
-						aria-hidden="true"
-						className={ clsx(
-							'wp-block-cover__background',
-							dimRatioToClass( dimRatio ),
-							{
-								[ overlayColor.class ]: overlayColor.class,
-								'has-background-dim': dimRatio !== undefined,
-								// For backwards compatibility. Former versions of the Cover Block applied
-								// `.wp-block-cover__gradient-background` in the presence of
-								// media, a gradient and a dim.
-								'wp-block-cover__gradient-background':
-									url && gradientValue && dimRatio !== 0,
-								'has-background-gradient': gradientValue,
-								[ gradientClass ]: gradientClass,
-							}
-						) }
-						style={ { backgroundImage: gradientValue, ...bgStyle } }
-					/>
-				) }
 
 				{ ! url && useFeaturedImage && (
 					<Placeholder
@@ -590,7 +580,31 @@ function CoverEdit( {
 						style={ mediaStyle }
 					/>
 				) }
+
+				{ showOverlay && (
+					<span
+						aria-hidden="true"
+						className={ clsx(
+							'wp-block-cover__background',
+							dimRatioToClass( dimRatio ),
+							{
+								[ overlayColor.class ]: overlayColor.class,
+								'has-background-dim': dimRatio !== undefined,
+								// For backwards compatibility. Former versions of the Cover Block applied
+								// `.wp-block-cover__gradient-background` in the presence of
+								// media, a gradient and a dim.
+								'wp-block-cover__gradient-background':
+									url && gradientValue && dimRatio !== 0,
+								'has-background-gradient': gradientValue,
+								[ gradientClass ]: gradientClass,
+							}
+						) }
+						style={ { backgroundImage: gradientValue, ...bgStyle } }
+					/>
+				) }
+
 				{ isUploadingMedia && <Spinner /> }
+
 				<CoverPlaceholder
 					disableMediaButtons
 					onSelectMedia={ onSelectMedia }

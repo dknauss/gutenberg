@@ -22,13 +22,15 @@ export const Tab = forwardRef<
 	HTMLButtonElement,
 	Omit< WordPressComponentProps< TabProps, 'button', false >, 'id' >
 >( function Tab( { children, tabId, disabled, render, ...otherProps }, ref ) {
-	const context = useTabsContext();
-	if ( ! context ) {
+	const { store, instanceId } = useTabsContext() ?? {};
+
+	if ( ! store ) {
 		warning( '`Tabs.Tab` must be wrapped in a `Tabs` component.' );
 		return null;
 	}
-	const { store, instanceId } = context;
+
 	const instancedTabId = `${ instanceId }-${ tabId }`;
+
 	return (
 		<StyledTab
 			ref={ ref }

@@ -34,7 +34,7 @@ import { store as editorStore } from '../../store';
  *
  * @param {Function} onClose Callback function to be executed when the popover is closed.
  *
- * @return {Component} The rendered PostURL component.
+ * @return {React.ReactNode} The rendered PostURL component.
  */
 export default function PostURL( { onClose } ) {
 	const {
@@ -76,7 +76,7 @@ export default function PostURL( { onClose } ) {
 		} );
 	} );
 	const postUrlSlugDescriptionId =
-		'editor-post-url__slug-descriotion-' + useInstanceId( PostURL );
+		'editor-post-url__slug-description-' + useInstanceId( PostURL );
 
 	return (
 		<div className="editor-post-url">

@@ -2,14 +2,24 @@
  * Internal dependencies
  */
 import getFieldTypeDefinition from './field-types';
-import type {
-	CombinedFormField,
-	Field,
-	NormalizedField,
-	NormalizedCombinedFormField,
-} from './types';
+import type { Field, NormalizedField } from './types';
 import { getControl } from './dataform-controls';
-import DataFormCombinedEdit from './components/dataform-combined-edit';
+
+const getValueFromId =
+	( id: string ) =>
+	( { item }: { item: any } ) => {
+		const path = id.split( '.' );
+		let value = item;
+		for ( const segment of path ) {
+			if ( value.hasOwnProperty( segment ) ) {
+				value = value[ segment ];
+			} else {
+				value = undefined;
+			}
+		}
+
+		return value;
+	};
 
 /**
  * Apply default values and normalize the fields config.
@@ -23,8 +33,7 @@ export function normalizeFields< Item >(
 	return fields.map( ( field ) => {
 		const fieldTypeDefinition = getFieldTypeDefinition( field.type );
 
-		const getValue =
-			field.getValue || ( ( { item } ) => ( item as any )[ field.id ] );
+		const getValue = field.getValue || getValueFromId( field.id );
 
 		const sort =
 			field.sort ??
@@ -69,32 +78,6 @@ export function normalizeFields< Item >(
 			Edit,
 			enableHiding: field.enableHiding ?? true,
 			enableSorting: field.enableSorting ?? true,
-		};
-	} );
-}
-
-/**
- * Apply default values and normalize the fields config.
- *
- * @param combinedFields combined field list.
- * @param fields         Fields config.
- * @return Normalized fields config.
- */
-export function normalizeCombinedFields< Item >(
-	combinedFields: CombinedFormField< Item >[],
-	fields: Field< Item >[]
-): NormalizedCombinedFormField< Item >[] {
-	return combinedFields.map( ( combinedField ) => {
-		return {
-			...combinedField,
-			Edit: DataFormCombinedEdit,
-			fields: normalizeFields(
-				combinedField.children
-					.map( ( fieldId ) =>
-						fields.find( ( { id } ) => id === fieldId )
-					)
-					.filter( ( field ): field is Field< Item > => !! field )
-			),
 		};
 	} );
 }

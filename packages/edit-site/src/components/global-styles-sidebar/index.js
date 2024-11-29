@@ -5,12 +5,13 @@ import { FlexItem, Flex, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { styles, seen, backup } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 import { store as preferencesStore } from '@wordpress/preferences';
 import {
 	store as editorStore,
 	privateApis as editorPrivateApis,
 } from '@wordpress/editor';
+import { useViewportMatch } from '@wordpress/compose';
 import { privateApis as routerPrivateApis } from '@wordpress/router';
 
 /**
@@ -27,8 +28,8 @@ const { interfaceStore } = unlock( editorPrivateApis );
 const { useLocation } = unlock( routerPrivateApis );
 
 export default function GlobalStylesSidebar() {
-	const { params } = useLocation();
-	const { canvas = 'view' } = params;
+	const { query } = useLocation();
+	const { canvas = 'view', name } = query;
 	const {
 		shouldClearCanvasContainerView,
 		isStyleBookOpened,
@@ -81,6 +82,7 @@ export default function GlobalStylesSidebar() {
 	const { setEditorCanvasContainerView } = unlock(
 		useDispatch( editSiteStore )
 	);
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
 
 	useEffect( () => {
 		if ( shouldClearCanvasContainerView ) {
@@ -126,6 +128,20 @@ export default function GlobalStylesSidebar() {
 		);
 	};
 
+	const { getActiveComplementaryArea } = useSelect( interfaceStore );
+	const { enableComplementaryArea } = useDispatch( interfaceStore );
+	const previousActiveAreaRef = useRef( null );
+
+	useEffect( () => {
+		if ( name === 'styles' && canvas === 'edit' ) {
+			previousActiveAreaRef.current =
+				getActiveComplementaryArea( 'core' );
+			enableComplementaryArea( 'core', 'edit-site/global-styles' );
+		} else if ( previousActiveAreaRef.current ) {
+			enableComplementaryArea( 'core', previousActiveAreaRef.current );
+		}
+	}, [ name, enableComplementaryArea, canvas, getActiveComplementaryArea ] );
+
 	return (
 		<DefaultSidebar
 			className="edit-site-global-styles-sidebar"
@@ -149,20 +165,22 @@ export default function GlobalStylesSidebar() {
 						gap={ 1 }
 						className="edit-site-global-styles-sidebar__header-actions"
 					>
-						<FlexItem>
-							<Button
-								icon={ seen }
-								label={ __( 'Style Book' ) }
-								isPressed={
-									isStyleBookOpened ||
-									isRevisionsStyleBookOpened
-								}
-								accessibleWhenDisabled
-								disabled={ shouldClearCanvasContainerView }
-								onClick={ toggleStyleBook }
-								size="compact"
-							/>
-						</FlexItem>
+						{ ! isMobileViewport && (
+							<FlexItem>
+								<Button
+									icon={ seen }
+									label={ __( 'Style Book' ) }
+									isPressed={
+										isStyleBookOpened ||
+										isRevisionsStyleBookOpened
+									}
+									accessibleWhenDisabled
+									disabled={ shouldClearCanvasContainerView }
+									onClick={ toggleStyleBook }
+									size="compact"
+								/>
+							</FlexItem>
+						) }
 						<FlexItem>
 							<Button
 								label={ __( 'Revisions' ) }

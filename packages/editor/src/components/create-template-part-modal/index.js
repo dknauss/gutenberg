@@ -27,7 +27,6 @@ import { serialize } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import { store as editorStore } from '../../store';
 import {
 	TEMPLATE_PART_POST_TYPE,
 	TEMPLATE_PART_AREA_DEFAULT_CATEGORY,
@@ -81,9 +80,11 @@ export function CreateTemplatePartModalContents( {
 
 	const templatePartAreas = useSelect(
 		( select ) =>
-			select( editorStore ).__experimentalGetDefaultTemplatePartAreas(),
+			select( coreStore ).getEntityRecord( 'root', '__unstableBase' )
+				?.default_template_part_areas || [],
 		[]
 	);
+
 	async function createTemplatePart() {
 		if ( ! title || isSubmitting ) {
 			return;
@@ -158,6 +159,7 @@ export function CreateTemplatePartModalContents( {
 						{ templatePartAreas.map(
 							( { icon, label, area: value, description } ) => (
 								<Radio
+									__next40pxDefaultSize
 									key={ label }
 									value={ value }
 									className="editor-create-template-part-modal__area-radio"

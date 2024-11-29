@@ -51,7 +51,7 @@ import {
 } from './shadow-utils';
 
 const { useGlobalSetting } = unlock( blockEditorPrivateApis );
-const { DropdownMenuV2 } = unlock( componentsPrivateApis );
+const { Menu } = unlock( componentsPrivateApis );
 
 const customShadowMenuItems = [
 	{
@@ -163,7 +163,7 @@ export default function ShadowsEditPanel() {
 				<ScreenHeader title={ selectedShadow.name } />
 				<FlexItem>
 					<Spacer marginTop={ 2 } marginBottom={ 0 } paddingX={ 4 }>
-						<DropdownMenuV2
+						<Menu
 							trigger={
 								<Button
 									size="small"
@@ -176,7 +176,7 @@ export default function ShadowsEditPanel() {
 								? customShadowMenuItems
 								: presetShadowMenuItems
 							).map( ( item ) => (
-								<DropdownMenuV2.Item
+								<Menu.Item
 									key={ item.action }
 									onClick={ () => onMenuClick( item.action ) }
 									disabled={
@@ -185,12 +185,12 @@ export default function ShadowsEditPanel() {
 											baseSelectedShadow.shadow
 									}
 								>
-									<DropdownMenuV2.ItemLabel>
+									<Menu.ItemLabel>
 										{ item.label }
-									</DropdownMenuV2.ItemLabel>
-								</DropdownMenuV2.Item>
+									</Menu.ItemLabel>
+								</Menu.Item>
 							) ) }
-						</DropdownMenuV2>
+						</Menu>
 					</Spacer>
 				</FlexItem>
 			</HStack>
@@ -215,8 +215,10 @@ export default function ShadowsEditPanel() {
 					size="medium"
 				>
 					{ sprintf(
-						// translators: %s: name of the shadow
-						'Are you sure you want to delete "%s"?',
+						/* translators: %s: Name of the shadow preset. */
+						__(
+							'Are you sure you want to delete "%s" shadow preset?'
+						),
 						selectedShadow.name
 					) }
 				</ConfirmDialog>
@@ -301,18 +303,17 @@ function ShadowEditor( { shadow, onChange } ) {
 	const shadowParts = useMemo( () => getShadowParts( shadow ), [ shadow ] );
 
 	const onChangeShadowPart = ( index, part ) => {
-		shadowParts[ index ] = part;
-		onChange( shadowParts.join( ', ' ) );
+		const newShadowParts = [ ...shadowParts ];
+		newShadowParts[ index ] = part;
+		onChange( newShadowParts.join( ', ' ) );
 	};
 
 	const onAddShadowPart = () => {
-		shadowParts.push( defaultShadow );
-		onChange( shadowParts.join( ', ' ) );
+		onChange( [ ...shadowParts, defaultShadow ].join( ', ' ) );
 	};
 
 	const onRemoveShadowPart = ( index ) => {
-		shadowParts.splice( index, 1 );
-		onChange( shadowParts.join( ', ' ) );
+		onChange( shadowParts.filter( ( p, i ) => i !== index ).join( ', ' ) );
 	};
 
 	return (

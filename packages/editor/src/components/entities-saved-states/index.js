@@ -33,7 +33,7 @@ function identity( values ) {
  * @param {Function} props.close        The function to close the dialog.
  * @param {Function} props.renderDialog The function to render the dialog.
  *
- * @return {JSX.Element} The rendered component.
+ * @return {React.ReactNode} The rendered component.
  */
 export default function EntitiesSavedStates( {
 	close,
@@ -64,7 +64,7 @@ export default function EntitiesSavedStates( {
  * @param {Function} props.setUnselectedEntities Function to set unselected entities.
  * @param {Array}    props.unselectedEntities    Array of unselected entities.
  *
- * @return {JSX.Element} The rendered component.
+ * @return {React.ReactNode} The rendered component.
  */
 export function EntitiesSavedStatesExtensible( {
 	additionalPrompt = undefined,
@@ -177,9 +177,9 @@ export function EntitiesSavedStatesExtensible( {
 									_n(
 										'There is <strong>%d site change</strong> waiting to be saved.',
 										'There are <strong>%d site changes</strong> waiting to be saved.',
-										sortedPartitionedSavables.length
+										dirtyEntityRecords.length
 									),
-									sortedPartitionedSavables.length
+									dirtyEntityRecords.length
 								),
 								{ strong: <strong /> }
 						  )

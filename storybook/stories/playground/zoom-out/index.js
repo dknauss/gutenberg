@@ -27,17 +27,17 @@ const { unlock } = __dangerousOptInToUnstableAPIsOnlyForCoreModules(
 	'@wordpress/edit-site'
 );
 
-function EnableZoomOut() {
+function EnableZoomOut( { zoomLevel } ) {
 	const { setZoomLevel } = unlock( useDispatch( blockEditorStore ) );
 
 	useEffect( () => {
-		setZoomLevel( 50 );
-	}, [ setZoomLevel ] );
+		setZoomLevel( zoomLevel ? zoomLevel / 100 : 'auto-scaled' );
+	}, [ setZoomLevel, zoomLevel ] );
 
 	return null;
 }
 
-export default function EditorZoomOut() {
+export default function EditorZoomOut( { zoomLevel } ) {
 	const [ blocks, updateBlocks ] = useState( [] );
 
 	useEffect( () => {
@@ -50,14 +50,14 @@ export default function EditorZoomOut() {
 		<div
 			className="editor-zoom-out"
 			onKeyDown={ ( event ) => event.stopPropagation() }
-			style={ { background: '#ddd', border: '1px solid gray' } }
+			style={ { border: '1px solid gray' } }
 		>
 			<BlockEditorProvider
 				value={ blocks }
 				onInput={ updateBlocks }
 				onChange={ updateBlocks }
 			>
-				<EnableZoomOut />
+				<EnableZoomOut zoomLevel={ zoomLevel } />
 				<BlockCanvas height="500px" styles={ editorStyles }>
 					<style>{ contentCss }</style>
 					<BlockList />

@@ -1,6 +1,6 @@
 {
 	"name": "@wordpress/priority-queue",
-	"version": "3.10.0",
+	"version": "3.13.0",
 	"description": "Generic browser priority queue.",
 	"author": "The WordPress Contributors",
 	"license": "GPL-2.0-or-later",
@@ -26,6 +26,7 @@
 	"main": "build/index.js",
 	"module": "build-module/index.js",
 	"react-native": "src/index",
+	"wpScript": true,
 	"types": "build-types",
 	"sideEffects": false,
 	"dependencies": {

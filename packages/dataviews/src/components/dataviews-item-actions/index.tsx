@@ -72,7 +72,7 @@ interface ActionsListProps< Item > {
 	ActionTrigger: ( props: ActionTriggerProps< Item > ) => ReactElement;
 }
 
-function ButtonTrigger< Item >( {
+function ActionButtonTrigger< Item >( {
 	action,
 	onClick,
 	items,
@@ -90,7 +90,7 @@ function ButtonTrigger< Item >( {
 	);
 }
 
-function MenuItemTrigger< Item >( {
+function ActionMenuItemTrigger< Item >( {
 	action,
 	onClick,
 	items,
@@ -170,7 +170,7 @@ export function ActionsMenuGroup< Item >( {
 				actions={ actions }
 				item={ item }
 				registry={ registry }
-				ActionTrigger={ MenuItemTrigger }
+				ActionTrigger={ ActionMenuItemTrigger }
 			/>
 		</Menu.Group>
 	);
@@ -250,20 +250,22 @@ function CompactItemActions< Item >( {
 	isSmall,
 }: CompactItemActionsProps< Item > ) {
 	return (
-		<Menu
-			trigger={
-				<Button
-					size={ isSmall ? 'small' : 'compact' }
-					icon={ moreVertical }
-					label={ __( 'Actions' ) }
-					accessibleWhenDisabled
-					disabled={ ! actions.length }
-					className="dataviews-all-actions-button"
-				/>
-			}
-			placement="bottom-end"
-		>
-			<ActionsMenuGroup actions={ actions } item={ item } />
+		<Menu placement="bottom-end">
+			<Menu.TriggerButton
+				render={
+					<Button
+						size={ isSmall ? 'small' : 'compact' }
+						icon={ moreVertical }
+						label={ __( 'Actions' ) }
+						accessibleWhenDisabled
+						disabled={ ! actions.length }
+						className="dataviews-all-actions-button"
+					/>
+				}
+			/>
+			<Menu.Popover>
+				<ActionsMenuGroup actions={ actions } item={ item } />
+			</Menu.Popover>
 		</Menu>
 	);
 }
@@ -281,7 +283,7 @@ function PrimaryActions< Item >( {
 			actions={ actions }
 			item={ item }
 			registry={ registry }
-			ActionTrigger={ ButtonTrigger }
+			ActionTrigger={ ActionButtonTrigger }
 		/>
 	);
 }

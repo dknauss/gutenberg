@@ -94,7 +94,7 @@ export default function SearchEdit( {
 			const { name, ...metadata } = attributes.metadata || {};
 			setAttributes( { metadata } );
 		}
-	}, [ isEnhancedPagination, setAttributes, label, attributes.metadata ] );
+	}, [ isEnhancedPagination, setAttributes ] );
 
 	const wasJustInsertedIntoNavigationBlock = useSelect(
 		( select ) => {

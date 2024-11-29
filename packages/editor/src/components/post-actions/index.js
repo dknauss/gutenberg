@@ -56,29 +56,33 @@ export default function PostActions( { postType, postId, onActionPerformed } ) {
 	return (
 		<Menu
 			open={ isActionsMenuOpen }
-			trigger={
-				<Button
-					size="small"
-					icon={ moreVertical }
-					label={ __( 'Actions' ) }
-					disabled={ ! actions.length }
-					accessibleWhenDisabled
-					className="editor-all-actions-button"
-					onClick={ () =>
-						setIsActionsMenuOpen( ! isActionsMenuOpen )
-					}
-				/>
-			}
 			onOpenChange={ setIsActionsMenuOpen }
 			placement="bottom-end"
 		>
-			<ActionsDropdownMenuGroup
-				actions={ actions }
-				item={ itemWithPermissions }
-				onClose={ () => {
-					setIsActionsMenuOpen( false );
-				} }
+			<Menu.TriggerButton
+				render={
+					<Button
+						size="small"
+						icon={ moreVertical }
+						label={ __( 'Actions' ) }
+						disabled={ ! actions.length }
+						accessibleWhenDisabled
+						className="editor-all-actions-button"
+						onClick={ () =>
+							setIsActionsMenuOpen( ! isActionsMenuOpen )
+						}
+					/>
+				}
 			/>
+			<Menu.Popover>
+				<ActionsDropdownMenuGroup
+					actions={ actions }
+					item={ itemWithPermissions }
+					onClose={ () => {
+						setIsActionsMenuOpen( false );
+					} }
+				/>
+			</Menu.Popover>
 		</Menu>
 	);
 }

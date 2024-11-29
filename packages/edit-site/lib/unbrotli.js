@@ -30,6 +30,7 @@
 
 /* eslint eslint-comments/no-unlimited-disable: 0 */
 /* eslint-disable */
+// @ts-nocheck
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.unbrotli = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 /* Copyright 2013 Google Inc. All Rights Reserved.
 
@@ -1703,11 +1704,19 @@ function fromByteArray (uint8) {
    decoding of the block lengths, literal insertion lengths and copy lengths.
 */
 
-/* Represents the range of values belonging to a prefix code: */
-/* [offset, offset + 2^nbits) */
-function PrefixCodeRange(offset, nbits) {
-  this.offset = offset;
-  this.nbits = nbits;
+/**
+ * Represents the range of values belonging to a prefix code.
+ * [offset, offset + 2^nbits)
+ *
+ * @param {number} offset The starting offset of the range.
+ * @param {number} nbits  The number of bits defining the range.
+ * @constructor
+ */
+class PrefixCodeRange {
+  constructor( offset, nbits ) {
+    this.offset = offset;
+    this.nbits = nbits;
+  }
 }
 
 exports.kBlockLengthPrefixCode = [
@@ -1824,16 +1833,26 @@ var kOmitFirst7     = 18;
 var kOmitFirst8     = 19;
 var kOmitFirst9     = 20;
 
-function Transform(prefix, transform, suffix) {
-  this.prefix = new Uint8Array(prefix.length);
-  this.transform = transform;
-  this.suffix = new Uint8Array(suffix.length);
+/**
+ * Represents a transformation with a prefix, a transform type, and a suffix.
+ *
+ * @param {string} prefix - The prefix string.
+ * @param {number} transform - The transform type.
+ * @param {string} suffix - The suffix string.
+ * @constructor
+ */
+class Transform {
+  constructor( prefix, transform, suffix ) {
+    this.prefix = new Uint8Array( prefix.length );
+    this.transform = transform;
+    this.suffix = new Uint8Array(suffix.length);
 
-  for (var i = 0; i < prefix.length; i++)
-    this.prefix[i] = prefix.charCodeAt(i);
+    for ( var i = 0; i < prefix.length; i++ )
+      this.prefix[i] = prefix.charCodeAt( i );
 
-  for (var i = 0; i < suffix.length; i++)
-    this.suffix[i] = suffix.charCodeAt(i);
+    for ( var i = 0; i < suffix.length; i++ )
+      this.suffix[i] = suffix.charCodeAt( i );
+  }
 }
 
 var kTransforms = [

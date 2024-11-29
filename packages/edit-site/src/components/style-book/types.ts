@@ -42,6 +42,11 @@ export type Duotone = {
 	slug: string;
 };
 
+export type ColorExampleProps = {
+	colors: Color[] | Gradient[];
+	type: string;
+};
+
 export type ColorOrigin = {
 	name: string;
 	slug: string;
@@ -57,4 +62,17 @@ export type MultiOriginPalettes = {
 	colors: Omit< ColorOrigin, 'gradients' | 'duotones' >;
 	duotones: Omit< ColorOrigin, 'colors' | 'gradients' >;
 	gradients: Omit< ColorOrigin, 'colors' | 'duotones' >;
+};
+
+/*
+ * Typing the items from getBlockTypes from '@wordpress/blocks'
+ * to appease the TS linter.
+ */
+export type BlockType = {
+	name: string;
+	title: string;
+	category: string;
+	example: BlockType;
+	attributes: Record< string, unknown >;
+	supports: Record< string, unknown >;
 };

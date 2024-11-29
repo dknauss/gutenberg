@@ -11,14 +11,18 @@ import { View } from '@wordpress/primitives';
 import {
 	getColorClassName,
 	__experimentalGetGradientClass,
+	// @ts-ignore
 } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
  */
-import type { Color, Gradient } from './types';
+import type { Color, Gradient, ColorExampleProps } from './types';
 
-const ColorExamples = ( { colors, type } ): JSX.Element | null => {
+const ColorExamples = ( {
+	colors,
+	type,
+}: ColorExampleProps ): JSX.Element | null => {
 	if ( ! colors ) {
 		return null;
 	}

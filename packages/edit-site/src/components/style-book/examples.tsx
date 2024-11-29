@@ -3,9 +3,13 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import {
+	// @ts-ignore
 	getBlockType,
+	// @ts-ignore
 	getBlockTypes,
+	// @ts-ignore
 	getBlockFromExample,
+	// @ts-ignore
 	createBlock,
 	// @ts-ignore
 } from '@wordpress/blocks';

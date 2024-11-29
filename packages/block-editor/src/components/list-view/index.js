@@ -10,6 +10,7 @@ import {
 	useInstanceId,
 	useMergeRefs,
 	__experimentalUseFixedWindowList as useFixedWindowList,
+	useDebouncedInput,
 } from '@wordpress/compose';
 import {
 	__experimentalTreeGrid as TreeGrid,
@@ -45,6 +46,7 @@ import { store as blockEditorStore } from '../../store';
 import { BlockSettingsDropdown } from '../block-settings-menu/block-settings-dropdown';
 import { focusListItem } from './utils';
 import useClipboardHandler from './use-clipboard-handler';
+import FocusWrapper from './focus-wrapper';
 
 const expanded = ( state, action ) => {
 	if ( action.type === 'clear' ) {
@@ -117,16 +119,21 @@ function ListViewComponent(
 	const instanceId = useInstanceId( ListViewComponent );
 	const { clientIdsTree, draggedClientIds, selectedClientIds } =
 		useListViewClientIds( { blocks, rootClientId } );
-	const [ searchInput, setSearchInput ] = useState( '' );
+	const [ showSearch, setShowSearch ] = useState( false );
+	const [ searchInput, setSearchInput, debouncedSearch ] =
+		useDebouncedInput();
 	const filteredClientIdsTree = useMemo( () => {
 		if ( ! searchInput ) {
 			return clientIdsTree;
 		}
-		const searchRegex = new RegExp( searchInput, 'i' );
+		const searchRegex = new RegExp( debouncedSearch, 'i' );
 		const found = new Set();
 		const filter = ( block ) => {
 			if ( searchRegex.test( block.blockTitle ) ) {
-				found.add( block );
+				found.add( {
+					...block,
+					innerBlocks: [],
+				} );
 			}
 			for ( const innerBlock of block.innerBlocks ) {
 				filter( innerBlock );
@@ -136,9 +143,9 @@ function ListViewComponent(
 			filter( block );
 		}
 		return Array.from( found );
-	}, [ searchInput, clientIdsTree ] );
+	}, [ debouncedSearch, clientIdsTree ] );
 	const blockIndexes = useListViewBlockIndexes( filteredClientIdsTree );
-
+	const searchRef = useRef( null );
 	const { getBlock } = useSelect( blockEditorStore );
 	const { visibleBlockCount } = useSelect(
 		( select ) => {
@@ -387,6 +394,18 @@ function ListViewComponent(
 	const describedById =
 		description && `block-editor-list-view-description-${ instanceId }`;
 
+	const handleKeyDown = ( event ) => {
+		const isCharacter = /^[\p{L}\p{N}\p{P}\p{S}]$/u.test( event.key );
+
+		if ( ! showSearch && isCharacter ) {
+			console.log( `Character pressed: ${ event.key }` );
+			setSearchInput( event.key );
+			setShowSearch( true );
+		} else {
+			console.log( 'Non-character key pressed' );
+			// Your logic for handling non-character keys goes here
+		}
+	};
 	return (
 		<AsyncModeProvider value>
 			<ListViewDropIndicatorPreview
@@ -400,48 +419,69 @@ function ListViewComponent(
 				</VisuallyHidden>
 			) }
 			{ /* @TODO how should this be activated? Cmd+f? Expandable icon? */ }
-			<SearchControl
-				__nextHasNoMarginBottom
-				value={ searchInput }
-				onChange={ setSearchInput }
-			/>
-			<TreeGrid
-				id={ id }
-				className={ clsx( 'block-editor-list-view-tree', {
-					'is-dragging':
-						draggedClientIds?.length > 0 &&
-						blockDropTargetIndex !== undefined,
-				} ) }
-				aria-label={ __( 'Block navigation structure' ) }
-				ref={ treeGridRef }
-				onCollapseRow={ collapseRow }
-				onExpandRow={ expandRow }
-				onFocusRow={ focusRow }
-				applicationAriaLabel={ __( 'Block navigation structure' ) }
-				aria-describedby={ describedById }
-				style={ {
-					'--wp-admin--list-view-dragged-items-height':
-						draggedClientIds?.length
-							? `${
-									BLOCK_LIST_ITEM_HEIGHT *
-									( draggedClientIds.length - 1 )
-							  }px`
-							: null,
+			{ showSearch && (
+				<SearchControl
+					__nextHasNoMarginBottom
+					value={ searchInput }
+					onChange={ ( value ) => {
+						// If the search input is empty, hide the search input.
+						// @TODO does the search control need a callback when the X clear button is clicked?
+						console.log( { value } );
+						if ( value ) {
+							setSearchInput( value );
+						}
+						if ( ! searchInput && ! value ) {
+							setShowSearch( false );
+						}
+					} }
+					ref={ searchRef }
+				/>
+			) }
+			<FocusWrapper
+				onKeyDown={ handleKeyDown }
+				onBlurWithin={ () => {
+					setSearchInput( '' );
+					setShowSearch( false );
 				} }
 			>
-				<ListViewContext.Provider value={ contextValue }>
-					<ListViewBranch
-						blocks={ filteredClientIdsTree }
-						parentId={ rootClientId }
-						selectBlock={ selectEditorBlock }
-						showBlockMovers={ showBlockMovers }
-						fixedListWindow={ fixedListWindow }
-						selectedClientIds={ selectedClientIds }
-						isExpanded={ isExpanded }
-						showAppender={ showAppender }
-					/>
-				</ListViewContext.Provider>
-			</TreeGrid>
+				<TreeGrid
+					id={ id }
+					className={ clsx( 'block-editor-list-view-tree', {
+						'is-dragging':
+							draggedClientIds?.length > 0 &&
+							blockDropTargetIndex !== undefined,
+					} ) }
+					aria-label={ __( 'Block navigation structure' ) }
+					ref={ treeGridRef }
+					onCollapseRow={ collapseRow }
+					onExpandRow={ expandRow }
+					onFocusRow={ focusRow }
+					applicationAriaLabel={ __( 'Block navigation structure' ) }
+					aria-describedby={ describedById }
+					style={ {
+						'--wp-admin--list-view-dragged-items-height':
+							draggedClientIds?.length
+								? `${
+										BLOCK_LIST_ITEM_HEIGHT *
+										( draggedClientIds.length - 1 )
+								  }px`
+								: null,
+					} }
+				>
+					<ListViewContext.Provider value={ contextValue }>
+						<ListViewBranch
+							blocks={ filteredClientIdsTree }
+							parentId={ rootClientId }
+							selectBlock={ selectEditorBlock }
+							showBlockMovers={ showBlockMovers }
+							fixedListWindow={ fixedListWindow }
+							selectedClientIds={ selectedClientIds }
+							isExpanded={ isExpanded }
+							showAppender={ showAppender }
+						/>
+					</ListViewContext.Provider>
+				</TreeGrid>
+			</FocusWrapper>
 		</AsyncModeProvider>
 	);
 }

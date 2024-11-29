@@ -2,9 +2,19 @@
 
 ## Unreleased
 
+### Deprecations
+
+-   `BoxControl`: Passive deprecate `onMouseOver`/`onMouseOut`. Pass to the `inputProps` prop instead ([#67332](https://github.com/WordPress/gutenberg/pull/67332)).
+-   `BoxControl`: Deprecate 36px default size ([#66704](https://github.com/WordPress/gutenberg/pull/66704)).
+
+### Experimental
+
+-   `Menu`: throw when subcomponents are not rendered inside top level `Menu` ([#67411](https://github.com/WordPress/gutenberg/pull/67411)).
+
 ### Internal
 
 -   Upgraded `@ariakit/react` (v0.4.13) and `@ariakit/test` (v0.4.5) ([#65907](https://github.com/WordPress/gutenberg/pull/65907)).
+-   Upgraded `@ariakit/react` (v0.4.15) and `@ariakit/test` (v0.4.7) ([#67404](https://github.com/WordPress/gutenberg/pull/67404)).
 
 ## 28.13.0 (2024-11-27)
 

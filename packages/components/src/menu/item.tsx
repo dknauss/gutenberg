@@ -20,13 +20,19 @@ export const MenuItem = forwardRef<
 ) {
 	const menuContext = useContext( MenuContext );
 
+	if ( ! menuContext?.store ) {
+		throw new Error(
+			'Menu.Item can only be rendered inside a Menu component'
+		);
+	}
+
 	return (
 		<Styled.MenuItem
 			ref={ ref }
 			{ ...props }
 			accessibleWhenDisabled
 			hideOnClick={ hideOnClick }
-			store={ menuContext?.store }
+			store={ menuContext.store }
 		>
 			<Styled.ItemPrefixWrapper>{ prefix }</Styled.ItemPrefixWrapper>
 

@@ -28,36 +28,43 @@ const GlobalStylesPageActions = ( {
 	setIsStyleBookOpened,
 } ) => {
 	return (
-		<Menu
-			trigger={
-				<Button __next40pxDefaultSize variant="tertiary" size="compact">
-					{ __( 'Preview' ) }
-				</Button>
-			}
-		>
-			<Menu.RadioItem
-				value
-				checked={ isStyleBookOpened }
-				name="styles-preview-actions"
-				onChange={ () => setIsStyleBookOpened( true ) }
-				defaultChecked
+		<Menu>
+			<Menu.TriggerButton
+				render={
+					<Button
+						__next40pxDefaultSize
+						variant="tertiary"
+						size="compact"
+					/>
+				}
 			>
-				<Menu.ItemLabel>{ __( 'Style book' ) }</Menu.ItemLabel>
-				<Menu.ItemHelpText>
-					{ __( 'Preview blocks and styles.' ) }
-				</Menu.ItemHelpText>
-			</Menu.RadioItem>
-			<Menu.RadioItem
-				value={ false }
-				checked={ ! isStyleBookOpened }
-				name="styles-preview-actions"
-				onChange={ () => setIsStyleBookOpened( false ) }
-			>
-				<Menu.ItemLabel>{ __( 'Site' ) }</Menu.ItemLabel>
-				<Menu.ItemHelpText>
-					{ __( 'Preview your site.' ) }
-				</Menu.ItemHelpText>
-			</Menu.RadioItem>
+				{ __( 'Preview' ) }
+			</Menu.TriggerButton>
+			<Menu.Popover>
+				<Menu.RadioItem
+					value
+					checked={ isStyleBookOpened }
+					name="styles-preview-actions"
+					onChange={ () => setIsStyleBookOpened( true ) }
+					defaultChecked
+				>
+					<Menu.ItemLabel>{ __( 'Style book' ) }</Menu.ItemLabel>
+					<Menu.ItemHelpText>
+						{ __( 'Preview blocks and styles.' ) }
+					</Menu.ItemHelpText>
+				</Menu.RadioItem>
+				<Menu.RadioItem
+					value={ false }
+					checked={ ! isStyleBookOpened }
+					name="styles-preview-actions"
+					onChange={ () => setIsStyleBookOpened( false ) }
+				>
+					<Menu.ItemLabel>{ __( 'Site' ) }</Menu.ItemLabel>
+					<Menu.ItemHelpText>
+						{ __( 'Preview your site.' ) }
+					</Menu.ItemHelpText>
+				</Menu.RadioItem>
+			</Menu.Popover>
 		</Menu>
 	);
 };

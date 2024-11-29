@@ -42,6 +42,5 @@
 		{ "path": "../url" },
 		{ "path": "../wordcount" }
 	],
-	"include": [ "src/**/*" ],
-	"exclude": [ "lib" ]
+	"include": [ "src/**/*" ]
 }

@@ -40,7 +40,6 @@
 		"**/benchmark",
 		"packages/*/build-*/**",
 		"packages/*/build/**",
-		"packages/edit-site/lib",
 		"**/test/**",
 		"packages/**/react-native-*/**"
 	]

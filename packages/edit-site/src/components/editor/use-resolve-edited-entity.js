@@ -51,7 +51,7 @@ function getPostType( name ) {
 
 export function useResolveEditedEntity() {
 	const { name, params = {}, query } = useLocation();
-	const { _postId = query?.postId } = params; // Fallback to query param for postId for list view routes.
+	const { postId: _postId = query?.postId } = params; // Fallback to query param for postId for list view routes.
 	const _postType = getPostType( name );
 
 	const homePage = useSelect( ( select ) => {

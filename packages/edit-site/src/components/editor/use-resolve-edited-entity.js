@@ -30,7 +30,7 @@ const postTypesWithoutParentTemplate = [
 
 const authorizedPostTypes = [ 'page', 'post' ];
 
-function getPostType( name ) {
+function getPostType( name, postId ) {
 	let postType;
 	if ( name === 'navigation-item' ) {
 		postType = NAVIGATION_POST_TYPE;
@@ -38,7 +38,11 @@ function getPostType( name ) {
 		postType = PATTERN_TYPES.user;
 	} else if ( name === 'template-part-item' ) {
 		postType = TEMPLATE_PART_POST_TYPE;
-	} else if ( name === 'template-item' || name === 'templates' ) {
+	} else if ( name === 'templates' ) {
+		postType = /^\d+$/.test( postId )
+			? TEMPLATE_POST_TYPE
+			: '_wp_static_template';
+	} else if ( name === 'template-item' ) {
 		postType = TEMPLATE_POST_TYPE;
 	} else if ( name === 'static-template-item' ) {
 		postType = '_wp_static_template';
@@ -54,7 +58,7 @@ function getPostType( name ) {
 export function useResolveEditedEntity() {
 	const { name, params = {}, query } = useLocation();
 	const { postId: _postId = query?.postId } = params; // Fallback to query param for postId for list view routes.
-	const _postType = getPostType( name );
+	const _postType = getPostType( name, _postId );
 
 	const homePage = useSelect( ( select ) => {
 		const { getHomePage } = unlock( select( coreDataStore ) );

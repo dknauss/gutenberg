@@ -401,11 +401,13 @@ function ListViewComponent(
 			console.log( `Character pressed: ${ event.key }` );
 			setSearchInput( event.key );
 			setShowSearch( true );
+			setTimeout( () => { searchRef.current.focus(); }, 0 );
 		} else {
 			console.log( 'Non-character key pressed' );
 			// Your logic for handling non-character keys goes here
 		}
 	};
+	console.log( { showSearch, searchInput } );
 	return (
 		<AsyncModeProvider value>
 			<ListViewDropIndicatorPreview
@@ -426,11 +428,12 @@ function ListViewComponent(
 					onChange={ ( value ) => {
 						// If the search input is empty, hide the search input.
 						// @TODO does the search control need a callback when the X clear button is clicked?
-						console.log( { value } );
 						if ( value ) {
 							setSearchInput( value );
 						}
-						if ( ! searchInput && ! value ) {
+						if ( ! value ) {
+							console.log( 'should hide' );
+							setSearchInput( '' );
 							setShowSearch( false );
 						}
 					} }
@@ -440,8 +443,9 @@ function ListViewComponent(
 			<FocusWrapper
 				onKeyDown={ handleKeyDown }
 				onBlurWithin={ () => {
-					setSearchInput( '' );
-					setShowSearch( false );
+					console.log( 'onBlurWithin' );
+					// setSearchInput( '' );
+					// setShowSearch( false );
 				} }
 			>
 				<TreeGrid

@@ -1703,11 +1703,19 @@ function fromByteArray (uint8) {
    decoding of the block lengths, literal insertion lengths and copy lengths.
 */
 
-/* Represents the range of values belonging to a prefix code: */
-/* [offset, offset + 2^nbits) */
-function PrefixCodeRange(offset, nbits) {
-  this.offset = offset;
-  this.nbits = nbits;
+/**
+ * Represents the range of values belonging to a prefix code.
+ * [offset, offset + 2^nbits)
+ *
+ * @param {number} offset The starting offset of the range.
+ * @param {number} nbits  The number of bits defining the range.
+ * @constructor
+ */
+class PrefixCodeRange {
+  constructor( offset, nbits ) {
+    this.offset = offset;
+    this.nbits = nbits;
+  }
 }
 
 exports.kBlockLengthPrefixCode = [
@@ -1824,16 +1832,26 @@ var kOmitFirst7     = 18;
 var kOmitFirst8     = 19;
 var kOmitFirst9     = 20;
 
-function Transform(prefix, transform, suffix) {
-  this.prefix = new Uint8Array(prefix.length);
-  this.transform = transform;
-  this.suffix = new Uint8Array(suffix.length);
+/**
+ * Represents a transformation with a prefix, a transform type, and a suffix.
+ *
+ * @param {string} prefix - The prefix string.
+ * @param {number} transform - The transform type.
+ * @param {string} suffix - The suffix string.
+ * @constructor
+ */
+class Transform {
+  constructor( prefix, transform, suffix ) {
+    this.prefix = new Uint8Array( prefix.length );
+    this.transform = transform;
+    this.suffix = new Uint8Array(suffix.length);
 
-  for (var i = 0; i < prefix.length; i++)
-    this.prefix[i] = prefix.charCodeAt(i);
+    for ( var i = 0; i < prefix.length; i++ )
+      this.prefix[i] = prefix.charCodeAt( i );
 
-  for (var i = 0; i < suffix.length; i++)
-    this.suffix[i] = suffix.charCodeAt(i);
+    for ( var i = 0; i < suffix.length; i++ )
+      this.suffix[i] = suffix.charCodeAt( i );
+  }
 }
 
 var kTransforms = [

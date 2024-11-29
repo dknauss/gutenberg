@@ -15,7 +15,7 @@ export const MenuItem = forwardRef<
 	HTMLDivElement,
 	WordPressComponentProps< MenuItemProps, 'div', false >
 >( function MenuItem(
-	{ prefix, suffix, children, hideOnClick = true, ...props },
+	{ prefix, suffix, children, hideOnClick = true, store, ...props },
 	ref
 ) {
 	const menuContext = useContext( MenuContext );
@@ -26,13 +26,15 @@ export const MenuItem = forwardRef<
 		);
 	}
 
+	const computedStore = store ?? menuContext.store;
+
 	return (
 		<Styled.MenuItem
 			ref={ ref }
 			{ ...props }
 			accessibleWhenDisabled
 			hideOnClick={ hideOnClick }
-			store={ menuContext.store }
+			store={ computedStore }
 		>
 			<Styled.ItemPrefixWrapper>{ prefix }</Styled.ItemPrefixWrapper>
 

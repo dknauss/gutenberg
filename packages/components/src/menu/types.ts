@@ -118,6 +118,11 @@ export interface MenuItemProps {
 	 * Determines if the element is disabled.
 	 */
 	disabled?: boolean;
+	render?: Ariakit.MenuItemProps[ 'render' ];
+	/**
+	 * @ignore
+	 */
+	store?: Ariakit.MenuItemProps[ 'store' ];
 }
 
 export interface MenuCheckboxItemProps

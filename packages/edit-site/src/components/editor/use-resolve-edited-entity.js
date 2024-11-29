@@ -30,9 +30,7 @@ const postTypesWithoutParentTemplate = [
 
 const authorizedPostTypes = [ 'page', 'post' ];
 
-export function useResolveEditedEntity() {
-	const { name, params = {}, query } = useLocation();
-	let { postId = query?.postId } = params; // Fallback to query param for postId for list view routes.
+function getPostType( name ) {
 	let postType;
 	if ( name === 'navigation-item' ) {
 		postType = NAVIGATION_POST_TYPE;
@@ -48,24 +46,32 @@ export function useResolveEditedEntity() {
 		postType = 'post';
 	}
 
+	return postType;
+}
+
+export function useResolveEditedEntity() {
+	const { name, params = {}, query } = useLocation();
+	const { _postId = query?.postId } = params; // Fallback to query param for postId for list view routes.
+	const _postType = getPostType( name );
+
 	const homePage = useSelect( ( select ) => {
 		const { getHomePage } = unlock( select( coreDataStore ) );
 		return getHomePage();
 	}, [] );
 
-	[ postType, postId ] = useSelect(
+	const [ postType, postId ] = useSelect(
 		( select ) => {
-			if ( params.postType !== '_wp_static_template' ) {
-				return [ params.postType, params.postId ];
+			if ( _postType !== '_wp_static_template' ) {
+				return [ _postType, _postId ];
 			}
 			return [
 				TEMPLATE_POST_TYPE,
 				unlock( select( coreDataStore ) ).getTemplateAutoDraftId(
-					params.postId
+					_postId
 				),
 			];
 		},
-		[ params.postType, params.postId ]
+		[ _postType, _postId ]
 	);
 
 	/**

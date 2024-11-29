@@ -247,14 +247,12 @@ export const withBlockBindingsSupport = createHigherOrderComponent(
 		);
 
 		return (
-			<>
-				<BlockEdit
-					{ ...props }
-					attributes={ { ...props.attributes, ...boundAttributes } }
-					setAttributes={ _setAttributes }
-					context={ { ...context, ...updatedContext } }
-				/>
-			</>
+			<BlockEdit
+				{ ...props }
+				attributes={ { ...props.attributes, ...boundAttributes } }
+				setAttributes={ _setAttributes }
+				context={ { ...context, ...updatedContext } }
+			/>
 		);
 	},
 	'withBlockBindingSupport'

@@ -8,7 +8,6 @@ import { hasBlockSupport } from '@wordpress/blocks';
  * Internal dependencies
  */
 import Edit from './edit';
-import { withBlockBindingsSupport } from './with-block-bindings-support';
 import {
 	BlockEditContextProvider,
 	useBlockEditContext,
@@ -20,9 +19,6 @@ import {
 } from './context';
 import { MultipleUsageWarning } from './multiple-usage-warning';
 import { PrivateBlockContext } from '../block-list/private-block-context';
-import { canBindBlock } from '../../utils/block-bindings';
-
-const BlockEditWithBindings = withBlockBindingsSupport( Edit );
 
 /**
  * The `useBlockEditContext` hook provides information about the block this hook is being used in.
@@ -56,7 +52,6 @@ export default function BlockEdit( {
 		hasBlockSupport( name, 'layout', false ) ||
 		hasBlockSupport( name, '__experimentalLayout', false );
 	const { originalBlockClientId } = useContext( PrivateBlockContext );
-	const EditComponent = canBindBlock( name ) ? BlockEditWithBindings : Edit;
 
 	return (
 		<BlockEditContextProvider
@@ -93,7 +88,7 @@ export default function BlockEdit( {
 				]
 			) }
 		>
-			<EditComponent { ...props } />
+			<Edit { ...props } />
 			{ originalBlockClientId && (
 				<MultipleUsageWarning
 					originalBlockClientId={ originalBlockClientId }

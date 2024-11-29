@@ -94,6 +94,13 @@ export default function SearchEdit( {
 			const { name, ...metadata } = attributes.metadata || {};
 			setAttributes( { metadata } );
 		}
+
+		// We disable the exhaustive-deps warning because the effect should not depend
+		// on the attributes.metadata value. We only want to re-run the effect when the
+		// isEnhancedPagination value changes.
+
+		// eslint-disable-next-line react-compiler/react-compiler
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ isEnhancedPagination, setAttributes ] );
 
 	const wasJustInsertedIntoNavigationBlock = useSelect(

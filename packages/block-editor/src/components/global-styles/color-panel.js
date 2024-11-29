@@ -209,7 +209,7 @@ function ColorPanelDropdown( {
 } ) {
 	const currentTab = tabs.find( ( tab ) => tab.userValue !== undefined );
 	const { key: firstTabKey, ...firstTab } = tabs[ 0 ] ?? {};
-	const colorGradientDropdownButtonRef = useRef();
+	const colorGradientDropdownButtonRef = useRef( undefined );
 	return (
 		<ToolsPanelItem
 			className="block-editor-tools-panel-color-gradient-settings__item"
@@ -245,16 +245,14 @@ function ColorPanelDropdown( {
 								<Button
 									__next40pxDefaultSize
 									label={ __( 'Reset' ) }
-									aria-label={
-										sprintf(
-											/* translators: %s: The name of the color property being reset e.g. "Background" */
-											__( 'Reset %s' ),
-											label.toLowerCase()
-										)
-									}
+									aria-label={ sprintf(
+										/* translators: %s: The name of the color property being reset e.g. "Background" */
+										__( 'Reset %s' ),
+										label.toLowerCase()
+									) }
 									className="block-editor-panel-color-gradient-settings__reset"
 									icon={ resetIcon }
-									onClick={() => {
+									onClick={ () => {
 										resetValue();
 										// Return focus to parent button
 										colorGradientDropdownButtonRef.current?.focus();

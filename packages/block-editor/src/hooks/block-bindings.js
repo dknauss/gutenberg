@@ -118,6 +118,7 @@ function EditableBlockBindingsPanelItems( {
 		{
 			id: 'label',
 			label: 'Label',
+			type: 'text',
 			enableGlobalSearch: true,
 		},
 		{
@@ -224,7 +225,6 @@ function EditableBlockBindingsPanelItems( {
 					className="block-editor-bindings__modal"
 				>
 					<DataViews
-						getItemId={ ( item ) => item.label }
 						data={ data }
 						fields={ fields }
 						view={ view }

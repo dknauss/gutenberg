@@ -13,8 +13,8 @@ import { GLOBAL_POST_TYPES } from '../../store/constants';
 /**
  * Wrapper component that renders its children only if the post can trashed.
  *
- * @param {Object}             props          - The component props.
- * @param {React.ReactElement} props.children - The child components to render.
+ * @param {Object}        props          - The component props.
+ * @param {React.ReactEl} props.children - The child components to render.
  *
  * @return {React.ReactElement} The rendered child components or null if the post can not trashed.
  */

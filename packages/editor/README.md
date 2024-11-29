@@ -1483,7 +1483,7 @@ Wrapper component that renders its children only if the post can trashed.
 _Parameters_
 
 -   _props_ `Object`: - The component props.
--   _props.children_ `React.ReactElement`: - The child components to render.
+-   _props.children_ `React.ReactEl`: - The child components to render.
 
 _Returns_
 
@@ -1515,8 +1515,7 @@ _Usage_
 
 _Parameters_
 
--   _props_ `{ onClose: () => void }`: The props for the component.
--   _props.onClose_ `() => void`: Callback function to be executed when the popover is closed.
+-   _onClose_ `Function`: Callback function to be executed when the popover is closed.
 
 _Returns_
 

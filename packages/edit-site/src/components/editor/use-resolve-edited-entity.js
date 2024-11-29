@@ -40,6 +40,8 @@ function getPostType( name ) {
 		postType = TEMPLATE_PART_POST_TYPE;
 	} else if ( name === 'template-item' || name === 'templates' ) {
 		postType = TEMPLATE_POST_TYPE;
+	} else if ( name === 'static-template-item' ) {
+		postType = '_wp_static_template';
 	} else if ( name === 'page-item' || name === 'pages' ) {
 		postType = 'page';
 	} else if ( name === 'post-item' || name === 'posts' ) {

@@ -198,30 +198,34 @@ function ListItem< Item >( {
 			) }
 			{ ! hasOnlyOnePrimaryAction && (
 				<div role="gridcell">
-					<Menu
-						trigger={
-							<Composite.Item
-								id={ generateDropdownTriggerCompositeId(
-									idPrefix
-								) }
-								render={
-									<Button
-										size="small"
-										icon={ moreVertical }
-										label={ __( 'Actions' ) }
-										accessibleWhenDisabled
-										disabled={ ! actions.length }
-										onKeyDown={ onDropdownTriggerKeyDown }
-									/>
-								}
-							/>
-						}
-						placement="bottom-end"
-					>
-						<ActionsMenuGroup
-							actions={ eligibleActions }
-							item={ item }
+					<Menu placement="bottom-end">
+						<Menu.TriggerButton
+							render={
+								<Composite.Item
+									id={ generateDropdownTriggerCompositeId(
+										idPrefix
+									) }
+									render={
+										<Button
+											size="small"
+											icon={ moreVertical }
+											label={ __( 'Actions' ) }
+											accessibleWhenDisabled
+											disabled={ ! actions.length }
+											onKeyDown={
+												onDropdownTriggerKeyDown
+											}
+										/>
+									}
+								/>
+							}
 						/>
+						<Menu.Popover>
+							<ActionsMenuGroup
+								actions={ eligibleActions }
+								item={ item }
+							/>
+						</Menu.Popover>
 					</Menu>
 				</div>
 			) }

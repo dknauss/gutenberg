@@ -25,13 +25,14 @@ const postTypesWithoutParentTemplate = [
 	TEMPLATE_PART_POST_TYPE,
 	NAVIGATION_POST_TYPE,
 	PATTERN_TYPES.user,
+	'_wp_static_template',
 ];
 
 const authorizedPostTypes = [ 'page', 'post' ];
 
 export function useResolveEditedEntity() {
 	const { name, params = {}, query } = useLocation();
-	const { postId = query?.postId } = params; // Fallback to query param for postId for list view routes.
+	let { postId = query?.postId } = params; // Fallback to query param for postId for list view routes.
 	let postType;
 	if ( name === 'navigation-item' ) {
 		postType = NAVIGATION_POST_TYPE;
@@ -51,6 +52,21 @@ export function useResolveEditedEntity() {
 		const { getHomePage } = unlock( select( coreDataStore ) );
 		return getHomePage();
 	}, [] );
+
+	[ postType, postId ] = useSelect(
+		( select ) => {
+			if ( params.postType !== '_wp_static_template' ) {
+				return [ params.postType, params.postId ];
+			}
+			return [
+				TEMPLATE_POST_TYPE,
+				unlock( select( coreDataStore ) ).getTemplateAutoDraftId(
+					params.postId
+				),
+			];
+		},
+		[ params.postType, params.postId ]
+	);
 
 	/**
 	 * This is a hook that recreates the logic to resolve a template for a given WordPress postID postTypeId
@@ -98,6 +114,18 @@ export function useResolveEditedEntity() {
 		[ homePage, postId, postType ]
 	);
 
+	const editableResolvedTemplateId = useSelect(
+		( select ) => {
+			if ( typeof resolvedTemplateId !== 'string' ) {
+				return resolvedTemplateId;
+			}
+			return unlock( select( coreDataStore ) ).getTemplateAutoDraftId(
+				resolvedTemplateId
+			);
+		},
+		[ resolvedTemplateId ]
+	);
+
 	const context = useMemo( () => {
 		if ( postTypesWithoutParentTemplate.includes( postType ) && postId ) {
 			return {};
@@ -121,9 +149,9 @@ export function useResolveEditedEntity() {
 
 	if ( !! homePage ) {
 		return {
-			isReady: resolvedTemplateId !== undefined,
+			isReady: editableResolvedTemplateId !== undefined,
 			postType: TEMPLATE_POST_TYPE,
-			postId: resolvedTemplateId,
+			postId: editableResolvedTemplateId,
 			context,
 		};
 	}

@@ -647,6 +647,12 @@ export function registeredPostMeta( state = {}, action ) {
 	return state;
 }
 
+export function templateAutoDraftId( state = {}, action ) {
+	return action.type === 'RECEIVE_TEMPLATE_AUTO_DRAFT_ID'
+		? { ...state, [ action.target ]: action.id }
+		: state;
+}
+
 export default combineReducers( {
 	terms,
 	users,
@@ -669,4 +675,5 @@ export default combineReducers( {
 	navigationFallbackId,
 	defaultTemplates,
 	registeredPostMeta,
+	templateAutoDraftId,
 } );

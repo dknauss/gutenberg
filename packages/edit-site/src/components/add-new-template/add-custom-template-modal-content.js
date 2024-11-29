@@ -166,9 +166,7 @@ function SuggestionList( { entityForSuggestions, onSelect } ) {
 }
 
 function AddCustomTemplateModalContent( { onSelect, entityForSuggestions } ) {
-	const [ showSearchEntities, setShowSearchEntities ] = useState(
-		entityForSuggestions.hasGeneralTemplate
-	);
+	const [ showSearchEntities, setShowSearchEntities ] = useState( false );
 	return (
 		<VStack
 			spacing={ 4 }

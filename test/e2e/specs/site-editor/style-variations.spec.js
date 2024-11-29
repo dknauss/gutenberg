@@ -36,7 +36,7 @@ test.describe( 'Global styles variations', () => {
 	} ) => {
 		await admin.visitSiteEditor( {
 			postId: 'gutenberg-test-themes/style-variations//index',
-			postType: 'wp_template',
+			postType: '_wp_static_template',
 			canvas: 'edit',
 		} );
 
@@ -72,7 +72,7 @@ test.describe( 'Global styles variations', () => {
 	} ) => {
 		await admin.visitSiteEditor( {
 			postId: 'gutenberg-test-themes/style-variations//index',
-			postType: 'wp_template',
+			postType: '_wp_static_template',
 			canvas: 'edit',
 		} );
 		await siteEditorStyleVariations.browseStyles();
@@ -108,7 +108,7 @@ test.describe( 'Global styles variations', () => {
 	} ) => {
 		await admin.visitSiteEditor( {
 			postId: 'gutenberg-test-themes/style-variations//index',
-			postType: 'wp_template',
+			postType: '_wp_static_template',
 			canvas: 'edit',
 		} );
 		await siteEditorStyleVariations.browseStyles();
@@ -150,7 +150,7 @@ test.describe( 'Global styles variations', () => {
 	} ) => {
 		await admin.visitSiteEditor( {
 			postId: 'gutenberg-test-themes/style-variations//index',
-			postType: 'wp_template',
+			postType: '_wp_static_template',
 			canvas: 'edit',
 		} );
 		await siteEditorStyleVariations.browseStyles();
@@ -180,7 +180,7 @@ test.describe( 'Global styles variations', () => {
 	} ) => {
 		await admin.visitSiteEditor( {
 			postId: 'gutenberg-test-themes/style-variations//index',
-			postType: 'wp_template',
+			postType: '_wp_static_template',
 			canvas: 'edit',
 		} );
 		await siteEditorStyleVariations.browseStyles();

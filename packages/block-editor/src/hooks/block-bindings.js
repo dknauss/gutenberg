@@ -1,11 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	getBlockBindingsSource,
 	getBlockBindingsSources,
-	getBlockType,
 } from '@wordpress/blocks';
 import {
 	__experimentalItemGroup as ItemGroup,
@@ -15,9 +14,10 @@ import {
 	__experimentalToolsPanelItem as ToolsPanelItem,
 	__experimentalVStack as VStack,
 	privateApis as componentsPrivateApis,
+	ComboboxControl,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useContext, Fragment } from '@wordpress/element';
+import { useContext, useState } from '@wordpress/element';
 import { useViewportMatch } from '@wordpress/compose';
 
 /**
@@ -30,7 +30,6 @@ import {
 import { unlock } from '../lock-unlock';
 import InspectorControls from '../components/inspector-controls';
 import BlockContext from '../components/block-context';
-import { useBlockEditContext } from '../components/block-edit';
 import { useBlockBindingsUtils } from '../utils/block-bindings';
 import { store as blockEditorStore } from '../store';
 
@@ -51,65 +50,73 @@ const useToolsPanelDropdownMenuProps = () => {
 		: {};
 };
 
-function BlockBindingsPanelDropdown( { fieldsList, attribute, binding } ) {
-	const { clientId } = useBlockEditContext();
-	const registeredSources = getBlockBindingsSources();
+function BlockBindingsPanelDropdown( { fieldsList, attribute } ) {
 	const { updateBlockBindings } = useBlockBindingsUtils();
-	const currentKey = binding?.args?.key;
-	const attributeType = useSelect(
-		( select ) => {
-			const { name: blockName } =
-				select( blockEditorStore ).getBlock( clientId );
-			const _attributeType =
-				getBlockType( blockName ).attributes?.[ attribute ]?.type;
-			return _attributeType === 'rich-text' ? 'string' : _attributeType;
-		},
-		[ clientId, attribute ]
+	// Transform fieldsList into array of options.
+	const transformFieldsToOptions = ( fields ) => {
+		return Object.entries( fields ).flatMap(
+			( [ sourceName, sourceFields ] ) =>
+				Object.entries( sourceFields ).map( ( [ key, field ] ) => ( {
+					key,
+					label: field.label || key,
+					source: sourceName,
+					value:
+						field.value === ''
+							? sprintf( 'Add %1s', field.label || key )
+							: field.value,
+				} ) )
+		);
+	};
+	const [ filteredOptions, setFilteredOptions ] = useState(
+		transformFieldsToOptions( fieldsList )
 	);
+
 	return (
-		<>
-			{ Object.entries( fieldsList ).map( ( [ name, fields ], i ) => (
-				<Fragment key={ name }>
-					<Menu.Group>
-						{ Object.keys( fieldsList ).length > 1 && (
-							<Menu.GroupLabel>
-								{ registeredSources[ name ].label }
-							</Menu.GroupLabel>
-						) }
-						{ Object.entries( fields )
-							.filter(
-								( [ , args ] ) => args?.type === attributeType
-							)
-							.map( ( [ key, args ] ) => (
-								<Menu.RadioItem
-									key={ key }
-									onChange={ () =>
-										updateBlockBindings( {
-											[ attribute ]: {
-												source: name,
-												args: { key },
-											},
-										} )
-									}
-									name={ attribute + '-binding' }
-									value={ key }
-									checked={ key === currentKey }
-								>
-									<Menu.ItemLabel>
-										{ args?.label }
-									</Menu.ItemLabel>
-									<Menu.ItemHelpText>
-										{ args?.value }
-									</Menu.ItemHelpText>
-								</Menu.RadioItem>
-							) ) }
-					</Menu.Group>
-					{ i !== Object.keys( fieldsList ).length - 1 && (
-						<Menu.Separator />
-					) }
-				</Fragment>
-			) ) }
-		</>
+		<ComboboxControl
+			__next40pxDefaultSize
+			__nextHasNoMarginBottom
+			allowReset
+			expandOnFocus={ false }
+			label={ __( 'Connect attributes' ) }
+			options={ filteredOptions }
+			__experimentalRenderItem={ ( element ) => {
+				const { label, source, value } = element.item;
+				return (
+					<div>
+						<div style={ { marginBottom: '0.2rem' } }>
+							{ label }
+						</div>
+						<small>
+							{ sprintf( 'Value: %1s', value ) },{ ' ' }
+							{ sprintf( 'Source: %1s', source ) }
+						</small>
+					</div>
+				);
+			} }
+			onFilterValueChange={ ( value ) => {
+				const allOptions = transformFieldsToOptions( fieldsList );
+				setFilteredOptions(
+					allOptions.filter( ( option ) =>
+						option.label
+							.toLowerCase()
+							.startsWith( value.toLowerCase() )
+					)
+				);
+			} }
+			onChange={ ( value ) => {
+				const allOptions = transformFieldsToOptions( fieldsList );
+				const optionSelected = allOptions.find(
+					( option ) => option.value === value
+				);
+
+				updateBlockBindings( {
+					[ attribute ]: {
+						source: optionSelected.source,
+						args: { key: optionSelected.key },
+					},
+				} );
+			} }
+		/>
 	);
 }
 
@@ -176,9 +183,7 @@ function EditableBlockBindingsPanelItems( {
 						} }
 					>
 						<Menu
-							placement={
-								isMobile ? 'bottom-start' : 'left-start'
-							}
+							placement={ isMobile ? 'bottom-start' : 'left-end' }
 							gutter={ isMobile ? 8 : 36 }
 							trigger={
 								<Item>

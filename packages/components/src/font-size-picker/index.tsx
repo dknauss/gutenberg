@@ -212,6 +212,7 @@ const UnforwardedFontSizePicker = (
 						<FlexItem isBlock>
 							<UnitControl
 								__next40pxDefaultSize={ __next40pxDefaultSize }
+								__shouldNotWarnDeprecated36pxSize
 								label={ __( 'Custom' ) }
 								labelPosition="top"
 								hideLabelFromVision
@@ -242,6 +243,7 @@ const UnforwardedFontSizePicker = (
 										__next40pxDefaultSize={
 											__next40pxDefaultSize
 										}
+										__shouldNotWarnDeprecated36pxSize
 										className="components-font-size-picker__custom-input"
 										label={ __( 'Custom Size' ) }
 										hideLabelFromVision

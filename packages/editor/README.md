@@ -1312,27 +1312,6 @@ _Returns_
 
 -   `React.ReactNode`: The rendered component.
 
-### PostSlug
-
-Renders the PostSlug component. It provide a control for editing the post slug.
-
-_Returns_
-
--   `React.ReactNode`: The rendered component.
-
-### PostSlugCheck
-
-Wrapper component that renders its children only if the post type supports the slug.
-
-_Parameters_
-
--   _props_ `Object`: Props.
--   _props.children_ `React.ReactNode`: Children to be rendered.
-
-_Returns_
-
--   `React.ReactNode`: The rendered component.
-
 ### PostSticky
 
 Renders the PostSticky component. It provides a checkbox control for the sticky post feature.
@@ -1483,11 +1462,11 @@ Wrapper component that renders its children only if the post can trashed.
 _Parameters_
 
 -   _props_ `Object`: - The component props.
--   _props.children_ `React.ReactEl`: - The child components to render.
+-   _props.children_ `React.ReactNode`: - The child components to render.
 
 _Returns_
 
--   `React.ReactElement`: The rendered child components or null if the post can not trashed.
+-   `React.ReactNode`: The rendered child components or null if the post can not trashed.
 
 ### PostTypeSupportCheck
 
@@ -1515,7 +1494,8 @@ _Usage_
 
 _Parameters_
 
--   _onClose_ `Function`: Callback function to be executed when the popover is closed.
+-   _props_ `{ onClose: () => void }`: The props for the component.
+-   _props.onClose_ `() => void`: Callback function to be executed when the popover is closed.
 
 _Returns_
 

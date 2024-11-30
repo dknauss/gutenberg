@@ -42,8 +42,8 @@
 		text-align: center;
 	}
 
-	&.alignfull a,
-	&.alignwide a {
+	&.alignfull > a,
+	&.alignwide > a {
 		width: 100%;
 	}
 

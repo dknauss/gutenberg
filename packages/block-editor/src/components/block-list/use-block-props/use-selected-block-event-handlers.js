@@ -119,31 +119,34 @@ export function useEventHandlers( { clientId, isSelected } ) {
 
 				const rect = node.getBoundingClientRect();
 
-				node.style.transition = 'transform 0.3s ease-out';
+				const clone = node.cloneNode( true );
+				clone.style.visibility = 'hidden';
+
 				node.style.zIndex = '1000';
+				node.style.transformOrigin = '0 0';
 
-				setTimeout( () => {
-					node.style.transition = 'none';
-				}, 300 );
+				let hasStarted = false;
 
-				const initialScrollX = defaultView.pageXOffset;
-				const initialScrollY = defaultView.pageYOffset;
+				node.style.position = 'fixed';
+				node.style.top = `0px`;
+				node.style.left = `0px`;
+				node.style.width = `${ rect.width }px`;
+				node.style.transform = `translate( ${ rect.left }px, ${ rect.top }px )`;
+
+				node.after( clone );
 
 				function over( e ) {
-					node.style.transform = `translate( ${
-						10 +
-						e.clientX -
-						rect.left +
-						defaultView.pageXOffset -
-						initialScrollX
-					}px, ${
-						10 +
-						e.clientY -
-						rect.top +
-						defaultView.pageYOffset -
-						initialScrollY
+					if ( ! hasStarted ) {
+						node.style.transition = 'transform 0.2s ease-out';
+						setTimeout( () => {
+							node.style.transition = 'none';
+						}, 200 );
+						hasStarted = true;
+					}
+
+					node.style.transform = `translate( ${ 10 + e.clientX }px, ${
+						10 + e.clientY
 					}px ) scale( 0.5 )`;
-					node.style.transformOrigin = '0 0';
 				}
 
 				function end() {
@@ -152,6 +155,10 @@ export function useEventHandlers( { clientId, isSelected } ) {
 					node.style.transform = '';
 					node.style.transition = '';
 					node.style.zIndex = '';
+					node.style.position = '';
+					node.style.top = '';
+					node.style.left = '';
+					clone.remove();
 					dragElement.remove();
 					stopDraggingBlocks();
 					document.body.classList.remove(
@@ -160,13 +167,11 @@ export function useEventHandlers( { clientId, isSelected } ) {
 					ownerDocument.documentElement.classList.remove(
 						'is-dragging'
 					);
-					ownerDocument.removeEventListener( 'scroll', over );
 				}
 
 				ownerDocument.addEventListener( 'dragover', over );
 				ownerDocument.addEventListener( 'dragend', end );
 				ownerDocument.addEventListener( 'drop', end );
-				ownerDocument.addEventListener( 'scroll', over );
 
 				startDraggingBlocks( [ clientId ] );
 				// Important because it hides the block toolbar.

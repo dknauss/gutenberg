@@ -127,10 +127,25 @@ export function useEventHandlers( { clientId, isSelected } ) {
 
 				let hasStarted = false;
 
+				let _scale = 1;
+
+				let parentElement = node;
+
+				while ( ( parentElement = parentElement.parentElement ) ) {
+					const { scale } =
+						defaultView.getComputedStyle( parentElement );
+					if ( scale && scale !== 'none' ) {
+						_scale = parseFloat( scale );
+						break;
+					}
+				}
+
+				const inverted = 1 / _scale;
+
 				node.style.position = 'fixed';
 				node.style.top = `0px`;
 				node.style.left = `0px`;
-				node.style.width = `${ rect.width }px`;
+				node.style.width = `${ rect.width * inverted }px`;
 				node.style.transform = `translate( ${ rect.left }px, ${ rect.top }px )`;
 
 				node.after( clone );
@@ -144,9 +159,9 @@ export function useEventHandlers( { clientId, isSelected } ) {
 						hasStarted = true;
 					}
 
-					node.style.transform = `translate( ${ 10 + e.clientX }px, ${
-						10 + e.clientY
-					}px ) scale( 0.5 )`;
+					node.style.transform = `translate( ${
+						e.clientX * inverted
+					}px, ${ e.clientY * inverted }px ) scale( 0.5 )`;
 				}
 
 				function end() {
@@ -158,6 +173,7 @@ export function useEventHandlers( { clientId, isSelected } ) {
 					node.style.position = '';
 					node.style.top = '';
 					node.style.left = '';
+					node.style.width = '';
 					clone.remove();
 					dragElement.remove();
 					stopDraggingBlocks();

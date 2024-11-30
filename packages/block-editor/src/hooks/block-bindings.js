@@ -99,31 +99,39 @@ function EditableBlockBindingsPanelItems( {
 } ) {
 	const { updateBlockBindings } = useBlockBindingsUtils();
 	const [ isOuterModalOpen, setOuterModalOpen ] = useState( false );
-	const dataSet = Object.entries( fieldsList[ 'core/post-meta' ] ).map(
-		( [ key, field ] ) => {
-			const value =
-				field.value === undefined
-					? `${ field.label } value`
-					: field.value;
+	const dataSet = Object.entries( fieldsList ).flatMap(
+		( [ sourceName, fields ] ) =>
+			Object.entries( fields ).map( ( [ key, field ] ) => {
+				const value =
+					field.value === undefined
+						? `${ field.label } value`
+						: field.value;
 
-			return {
-				id: key,
-				label: field.label || key,
-				value: value !== '' ? value : `Add a new ${ field.label } `,
-			};
-		}
+				return {
+					id: key,
+					label: field.label || key,
+					value: value !== '' ? value : `Add a new ${ field.label }`,
+					source: sourceName,
+				};
+			} )
 	);
 
 	const fields = [
 		{
 			id: 'label',
-			label: 'Label',
+			label: __( 'Label' ),
 			type: 'text',
 			enableGlobalSearch: true,
 		},
 		{
 			id: 'value',
-			label: 'Value',
+			label: __( 'Value' ),
+			type: 'text',
+			enableGlobalSearch: true,
+		},
+		{
+			id: 'source',
+			label: __( 'Source' ),
 			type: 'text',
 			enableGlobalSearch: true,
 		},
@@ -149,9 +157,9 @@ function EditableBlockBindingsPanelItems( {
 		search: '',
 		filters: [],
 		page: 1,
-		perPage: 5,
+		perPage: 15,
 		sort: {},
-		fields: [ 'label', 'value' ],
+		fields: [ 'label', 'value', 'source' ],
 		layout: defaultLayouts.table.layout,
 	} );
 

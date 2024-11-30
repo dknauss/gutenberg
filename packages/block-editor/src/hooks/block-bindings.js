@@ -157,7 +157,7 @@ function EditableBlockBindingsPanelItems( {
 		search: '',
 		filters: [],
 		page: 1,
-		perPage: 15,
+		perPage: 5,
 		sort: {},
 		fields: [ 'label', 'value', 'source' ],
 		layout: defaultLayouts.table.layout,
@@ -173,7 +173,7 @@ function EditableBlockBindingsPanelItems( {
 	const actions = [
 		{
 			id: 'select',
-			label: 'Select binding',
+			label: __( 'Connect attribute' ),
 			isPrimary: true,
 			icon: connection,
 			callback: ( field ) => {

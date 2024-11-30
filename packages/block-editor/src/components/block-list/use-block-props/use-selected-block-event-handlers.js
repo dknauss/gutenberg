@@ -122,11 +122,6 @@ export function useEventHandlers( { clientId, isSelected } ) {
 				const clone = node.cloneNode( true );
 				clone.style.visibility = 'hidden';
 
-				node.style.zIndex = '1000';
-				node.style.transformOrigin = '0 0';
-
-				let hasStarted = false;
-
 				let _scale = 1;
 
 				let parentElement = node;
@@ -142,38 +137,47 @@ export function useEventHandlers( { clientId, isSelected } ) {
 
 				const inverted = 1 / _scale;
 
-				node.style.position = 'fixed';
-				node.style.top = `0px`;
-				node.style.left = `0px`;
-				node.style.width = `${ rect.width * inverted }px`;
-				node.style.transform = `translate( ${ rect.left }px, ${ rect.top }px )`;
-
 				node.after( clone );
+
+				node.style.position = 'fixed';
+				node.style.top = `${ rect.top }px`;
+				node.style.left = `${ rect.left }px`;
+				node.style.width = `${ rect.width * inverted }px`;
+
+				const originX = event.clientX - rect.left;
+				const originY = event.clientY - rect.top;
+
+				node.style.zIndex = '1000';
+				node.style.transformOrigin = '0 0';
+				node.style.transformOrigin = `${ originX }px ${ originY }px`;
+				node.style.transition = 'transform 0.2s ease-out';
+				node.style.transform = `scale( 0.5 )`;
+
+				let hasStarted = false;
 
 				function over( e ) {
 					if ( ! hasStarted ) {
-						node.style.transition = 'transform 0.2s ease-out';
-						setTimeout( () => {
-							node.style.transition = 'none';
-						}, 200 );
 						hasStarted = true;
+						node.style.pointerEvents = 'none';
+						node.draggable = false;
 					}
-
-					node.style.transform = `translate( ${
-						e.clientX * inverted
-					}px, ${ e.clientY * inverted }px ) scale( 0.5 )`;
+					node.style.top = `${ e.clientY * inverted - originY }px`;
+					node.style.left = `${ e.clientX * inverted - originX }px`;
 				}
 
 				function end() {
 					ownerDocument.removeEventListener( 'dragover', over );
 					ownerDocument.removeEventListener( 'dragend', end );
 					node.style.transform = '';
+					node.style.transformOrigin = '';
 					node.style.transition = '';
 					node.style.zIndex = '';
 					node.style.position = '';
 					node.style.top = '';
 					node.style.left = '';
 					node.style.width = '';
+					node.style.pointerEvents = '';
+					node.draggable = true;
 					clone.remove();
 					dragElement.remove();
 					stopDraggingBlocks();

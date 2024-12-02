@@ -28,6 +28,7 @@
 ### Experimental
 
 -   `Menu`: throw when subcomponents are not rendered inside top level `Menu` ([#67411](https://github.com/WordPress/gutenberg/pull/67411)).
+-   `Menu`: refactor to more granular sub-components ([#67422](https://github.com/WordPress/gutenberg/pull/67422)).
 
 ### Internal
 

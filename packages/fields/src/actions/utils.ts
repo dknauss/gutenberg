@@ -22,7 +22,7 @@ export function isTemplateOrTemplatePart(
 	return p.type === 'wp_template' || p.type === 'wp_template_part';
 }
 
-export function getItemTitle( item: Post ) {
+export function getItemTitle( item: Post ): string {
 	if ( typeof item.title === 'string' ) {
 		return decodeEntities( item.title );
 	}

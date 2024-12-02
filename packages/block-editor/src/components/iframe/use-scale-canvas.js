@@ -2,11 +2,7 @@
  * WordPress dependencies
  */
 import { useEffect, useRef, useCallback } from '@wordpress/element';
-import {
-	usePrevious,
-	useReducedMotion,
-	useResizeObserver,
-} from '@wordpress/compose';
+import { useReducedMotion, useResizeObserver } from '@wordpress/compose';
 
 /**
  * @typedef {Object} TransitionState
@@ -284,7 +280,8 @@ export function useScaleCanvas( {
 		transitionFromRef.current = transitionToRef.current;
 	}, [ iframeDocument ] );
 
-	const previousIsZoomedOut = usePrevious( isZoomedOut );
+	const previousIsZoomedOut = useRef( false );
+
 	/**
 	 * Runs when zoom out mode is toggled, and sets the startAnimation flag
 	 * so the animation will start when the next useEffect runs. We _only_
@@ -292,20 +289,26 @@ export function useScaleCanvas( {
 	 * changes due to the container resizing.
 	 */
 	useEffect( () => {
-		if ( ! iframeDocument || previousIsZoomedOut === isZoomedOut ) {
-			return;
-		}
+		const trigger =
+			iframeDocument && previousIsZoomedOut.current !== isZoomedOut;
 
-		if ( isZoomedOut ) {
-			iframeDocument.documentElement.classList.add( 'is-zoomed-out' );
+		previousIsZoomedOut.current = isZoomedOut;
+
+		if ( ! trigger ) {
+			return;
 		}
 
 		startAnimationRef.current = true;
 
+		if ( ! isZoomedOut ) {
+			return;
+		}
+
+		iframeDocument.documentElement.classList.add( 'is-zoomed-out' );
 		return () => {
 			iframeDocument.documentElement.classList.remove( 'is-zoomed-out' );
 		};
-	}, [ iframeDocument, isZoomedOut, previousIsZoomedOut ] );
+	}, [ iframeDocument, isZoomedOut ] );
 
 	/**
 	 * This handles:

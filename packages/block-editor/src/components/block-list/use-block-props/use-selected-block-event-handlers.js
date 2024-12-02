@@ -152,11 +152,14 @@ export function useEventHandlers( { clientId, isSelected } ) {
 				const originX = event.clientX - rect.left;
 				const originY = event.clientY - rect.top;
 
+				// Scale everything to 200px.
+				const dragScale = rect.height > 200 ? 200 / rect.height : 1;
+
 				node.style.zIndex = '1000';
 				node.style.transformOrigin = '0 0';
 				node.style.transformOrigin = `${ originX }px ${ originY }px`;
 				node.style.transition = 'transform 0.2s ease-out';
-				node.style.transform = `scale( 0.5 )`;
+				node.style.transform = `scale(${ dragScale })`;
 				node.style.margin = '0';
 
 				let hasStarted = false;

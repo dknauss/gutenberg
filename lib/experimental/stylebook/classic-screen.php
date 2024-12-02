@@ -28,18 +28,3 @@ function gutenberg_add_styles_submenu_item() {
 	}
 }
 add_action( 'admin_init', 'gutenberg_add_styles_submenu_item' );
-
-/**
- * Filter the `wp_die_handler` to allow access to the Site Editor's Styles page
- * for Classic themes.
- *
- * @param callable $default_handler The default handler.
- * @return callable The default handler or a custom handler.
- */
-function gutenberg_styles_wp_die_handler( $default_handler ) {
-	if ( ! wp_is_block_theme() && str_contains( $_SERVER['REQUEST_URI'], 'site-editor.php' ) ) {
-		return '__return_false';
-	}
-	return $default_handler;
-}
-add_filter( 'wp_die_handler', 'gutenberg_styles_wp_die_handler' );

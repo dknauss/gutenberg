@@ -76,6 +76,7 @@ function attributesFromMedia( {
 				mediaLink: undefined,
 				href: undefined,
 				focalPoint: undefined,
+				caption: undefined,
 			} );
 			return;
 		}
@@ -128,6 +129,7 @@ function attributesFromMedia( {
 			mediaLink: media.link || undefined,
 			href: newHref,
 			focalPoint: undefined,
+			caption: media.caption,
 		} );
 	};
 }
@@ -156,6 +158,7 @@ function MediaTextEdit( {
 		verticalAlignment,
 		allowedBlocks,
 		useFeaturedImage,
+		caption,
 	} = attributes;
 	const mediaSizeSlug = attributes.mediaSizeSlug || DEFAULT_MEDIA_SIZE_SLUG;
 
@@ -178,6 +181,9 @@ function MediaTextEdit( {
 		: '';
 	const featuredImageAlt = useFeaturedImage
 		? featuredImageMedia?.alt_text
+		: '';
+	const featuredImageCaption = useFeaturedImage
+		? featuredImageMedia?.caption?.rendered
 		: '';
 
 	const toggleUseFeaturedImage = () => {
@@ -483,6 +489,7 @@ function MediaTextEdit( {
 					refMedia={ refMedia }
 					enableResize={ blockEditingMode === 'default' }
 					toggleUseFeaturedImage={ toggleUseFeaturedImage }
+					setAttributes={ setAttributes }
 					{ ...{
 						focalPoint,
 						imageFill,
@@ -497,6 +504,9 @@ function MediaTextEdit( {
 						useFeaturedImage,
 						featuredImageURL,
 						featuredImageAlt,
+						caption: useFeaturedImage
+							? featuredImageCaption
+							: caption,
 					} }
 				/>
 				{ mediaPosition !== 'right' && <div { ...innerBlocksProps } /> }

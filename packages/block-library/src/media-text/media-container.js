@@ -26,6 +26,7 @@ import { media as icon } from '@wordpress/icons';
  * Internal dependencies
  */
 import { imageFillStyles } from './image-fill';
+import { Caption } from '../utils/caption';
 
 /**
  * Constants
@@ -122,6 +123,8 @@ function MediaContainer( props, ref ) {
 		featuredImageURL,
 		featuredImageAlt,
 		refMedia,
+		caption,
+		setAttributes,
 	} = props;
 
 	const isTemporaryMedia = ! mediaId && isBlobURL( mediaUrl );
@@ -211,6 +214,14 @@ function MediaContainer( props, ref ) {
 						withIllustration
 					/>
 				) }
+				<Caption
+					attributes={ { caption } }
+					setAttributes={ setAttributes }
+					isSelected={ isSelected }
+					label={ __( 'Audio caption text' ) }
+					showToolbarButton={ isSelected }
+					readOnly={ useFeaturedImage }
+				/>
 			</ResizableBoxContainer>
 		);
 	}

@@ -63,7 +63,7 @@ function getImageSourceUrlBySizeSlug( image, slug ) {
 }
 
 function attributesFromMedia( {
-	attributes: { linkDestination, href },
+	attributes: { linkDestination, href, mediaSizeSlug },
 	setAttributes,
 } ) {
 	return ( media ) => {
@@ -103,9 +103,8 @@ function attributesFromMedia( {
 		if ( mediaType === 'image' ) {
 			// Try the "large" size URL, falling back to the "full" size URL below.
 			src =
-				media.sizes?.large?.url ||
-				// eslint-disable-next-line camelcase
-				media.media_details?.sizes?.large?.source_url;
+				media.sizes?.[ mediaSizeSlug ]?.url ||
+				media?.media_details?.sizes?.[ mediaSizeSlug ]?.source_url;
 		}
 
 		let newHref = href;

@@ -53,7 +53,11 @@ Undocumented declaration.
 
 ### duplicateTemplatePart
 
-Undocumented declaration.
+This action is used to duplicate a template part.
+
+_Type_
+
+-   `Action< TemplatePart >`
 
 ### exportPattern
 

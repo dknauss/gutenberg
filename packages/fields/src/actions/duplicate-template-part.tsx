@@ -16,6 +16,9 @@ import type { Post, TemplatePart } from '../types';
 import { CreateTemplatePartModalContents } from '../components/create-template-part-modal';
 import { getItemTitle } from './utils';
 
+/**
+ * This action is used to duplicate a template part.
+ */
 const duplicateTemplatePart: Action< TemplatePart > = {
 	id: 'duplicate-template-part',
 	label: _x( 'Duplicate', 'action label' ),

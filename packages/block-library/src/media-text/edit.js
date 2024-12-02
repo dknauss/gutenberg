@@ -76,6 +76,7 @@ function attributesFromMedia( {
 				mediaLink: undefined,
 				href: undefined,
 				focalPoint: undefined,
+				useFeaturedImage: false,
 			} );
 			return;
 		}

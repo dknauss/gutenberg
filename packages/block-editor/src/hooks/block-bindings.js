@@ -300,13 +300,17 @@ export const BlockBindingsPanel = ( { name: blockName, metadata } ) => {
 						/>
 					) }
 				</ItemGroup>
-				<ItemGroup>
-					<Text variant="muted">
+				{ /*
+					Use a div element to make the ToolsPanelHiddenInnerWrapper
+					toggle the visibility of this help text automatically.
+				*/ }
+				<Text as="div" variant="muted">
+					<p>
 						{ __(
 							'Attributes connected to custom fields or other dynamic data.'
 						) }
-					</Text>
-				</ItemGroup>
+					</p>
+				</Text>
 			</ToolsPanel>
 		</InspectorControls>
 	);

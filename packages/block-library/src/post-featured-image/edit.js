@@ -255,7 +255,7 @@ export default function PostFeaturedImageEdit( {
 						<ToolsPanelItem
 							label={ __( 'Open in new tab' ) }
 							isShownByDefault
-							hasValue={ () => !! linkTarget }
+							hasValue={ () => '_self' !== linkTarget }
 							onDeselect={ () =>
 								setAttributes( {
 									linkTarget: '_self',

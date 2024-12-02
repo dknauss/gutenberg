@@ -20,6 +20,7 @@ export function useItem( props: WordPressComponentProps< ItemProps, 'div' > ) {
 		onClick,
 		role = 'listitem',
 		size: sizeProp,
+		__next40pxDefaultSize,
 		...otherProps
 	} = useContextSystem( props, 'Item' );
 
@@ -35,13 +36,13 @@ export function useItem( props: WordPressComponentProps< ItemProps, 'div' > ) {
 		() =>
 			cx(
 				( as === 'button' || as === 'a' ) &&
-					styles.unstyledButton( as ),
+					styles.unstyledButton( as, __next40pxDefaultSize ),
 				styles.itemSizes[ size ] || styles.itemSizes.medium,
 				styles.item,
 				spacedAround && styles.spacedAround,
 				className
 			),
-		[ as, className, cx, size, spacedAround ]
+		[ as, className, cx, size, spacedAround, __next40pxDefaultSize ]
 	);
 
 	const wrapperClassName = cx( styles.itemWrapper );

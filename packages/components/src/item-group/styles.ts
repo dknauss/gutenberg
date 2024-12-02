@@ -8,7 +8,10 @@ import { css } from '@emotion/react';
  */
 import { CONFIG, COLORS, font } from '../utils';
 
-export const unstyledButton = ( as: 'a' | 'button' ) => {
+export const unstyledButton = (
+	as: 'a' | 'button',
+	__next40pxDefaultSize: boolean | undefined
+) => {
 	return css`
 		font-size: ${ font( 'default.fontSize' ) };
 		font-family: inherit;
@@ -18,7 +21,9 @@ export const unstyledButton = ( as: 'a' | 'button' ) => {
 		background: none;
 		text-align: start;
 		text-decoration: ${ as === 'a' ? 'none' : undefined };
-
+		height: ${ __next40pxDefaultSize && as === 'button'
+			? '40px'
+			: undefined };
 		svg,
 		path {
 			fill: currentColor;

@@ -10,6 +10,6 @@ export const homeRoute = {
 	areas: {
 		sidebar: <SidebarNavigationScreenMain />,
 		preview: <HomeViewPreview />,
-		mobile: <HomeViewPreview />,
+		mobile: <SidebarNavigationScreenMain />,
 	},
 };

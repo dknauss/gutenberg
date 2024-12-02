@@ -57,7 +57,7 @@ type CreateTemplatePartModalContentsProps = {
  * @param {Object} props            The component props.
  * @param          props.modalTitle
  */
-export function CreateTemplatePartModal( {
+export default function CreateTemplatePartModal( {
 	modalTitle,
 	...restProps
 }: {

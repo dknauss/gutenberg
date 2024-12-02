@@ -31,21 +31,6 @@ _Parameters_
 -   _props_ `Object`: The component props.
 -   _props.modalTitle_ `{ modalTitle: string; } & CreateTemplatePartModalContentsProps[ 'modalTitle' ]`:
 
-### CreateTemplatePartModalContents
-
-A React component that renders the content of a model for creating a template part. This component should not live in this package; it should be moved to a dedicated package responsible for managing template.
-
-_Parameters_
-
--   _props_ `Object`: - The component props.
--   _props.defaultArea_ `[string]`: - The default area for the template part.
--   _props.blocks_ `[Array]`: - The blocks to be included in the template part.
--   _props.confirmLabel_ `[string]`: - The label for the confirm button.
--   _props.closeModal_ `Function`: - Function to close the modal.
--   _props.onCreate_ `Function`: - Function to call when the template part is successfully created.
--   _props.onError_ `[Function]`: - Function to call when there is an error creating the template part.
--   _props.defaultTitle_ `[string]`: - The default title for the template part.
-
 ### dateField
 
 Date field for BasePost.

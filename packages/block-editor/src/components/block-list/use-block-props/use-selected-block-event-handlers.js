@@ -140,6 +140,23 @@ export function useEventHandlers( { clientId, isSelected } ) {
 					}
 				}
 
+				let bgColor = 'transparent';
+
+				parentElement = node;
+
+				while ( ( parentElement = parentElement.parentElement ) ) {
+					const { backgroundColor } =
+						defaultView.getComputedStyle( parentElement );
+					if (
+						backgroundColor &&
+						backgroundColor !== 'transparent' &&
+						backgroundColor !== 'rgba(0, 0, 0, 0)'
+					) {
+						bgColor = backgroundColor;
+						break;
+					}
+				}
+
 				const inverted = 1 / _scale;
 
 				node.after( clone );
@@ -161,6 +178,8 @@ export function useEventHandlers( { clientId, isSelected } ) {
 				node.style.transition = 'transform 0.2s ease-out';
 				node.style.transform = `scale(${ dragScale })`;
 				node.style.margin = '0';
+				node.style.opacity = '0.9';
+				node.style.backgroundColor = bgColor;
 
 				let hasStarted = false;
 
@@ -186,6 +205,8 @@ export function useEventHandlers( { clientId, isSelected } ) {
 					node.style.width = '';
 					node.style.pointerEvents = '';
 					node.style.margin = '';
+					node.style.opacity = '';
+					node.style.backgroundColor = '';
 					clone.remove();
 					node.id = id;
 					dragElement.remove();

@@ -16,26 +16,38 @@ test.describe( 'Preload', () => {
 		page,
 		admin,
 	} ) => {
-		// Do not use `visitSiteEditor` because it waits for the iframe to load.
-		await admin.visitAdminPage( 'site-editor.php' );
-
 		const requests = [];
-		let isLoaded = false;
 
-		page.on( 'request', ( request ) => {
-			if ( request.resourceType() === 'document' ) {
-				// The iframe also "requests" a blob document. This is the most
-				// reliable way to wait for the iframe to start loading.
-				// `waitForSelector` is always a bit delayed, and we don't want
-				// to detect requests after the iframe mounts.
-				isLoaded = true;
-			} else if ( ! isLoaded && request.resourceType() === 'fetch' ) {
-				requests.push( request.url() );
+		function onRequest( request ) {
+			if (
+				request.resourceType() === 'document' &&
+				request.url().startsWith( 'blob:' )
+			) {
+				// Stop recording when the iframe is initialized.
+				page.off( 'request', onRequest );
+			} else if ( request.resourceType() === 'fetch' ) {
+				const url = request.url();
+				const urlObject = new URL( url );
+				const restRoute = urlObject.searchParams.get( 'rest_route' );
+				if ( restRoute ) {
+					requests.push( restRoute );
+				} else {
+					requests.push( url );
+				}
 			}
-		} );
+		}
 
-		await page.waitForFunction( ( _isLoaded ) => _isLoaded, [ isLoaded ] );
+		page.on( 'request', onRequest );
 
-		expect( requests ).toEqual( [] );
+		await admin.visitSiteEditor();
+
+		// To do: these should all be removed or preloaded.
+		expect( requests ).toEqual( [
+			// There are two separate settings OPTIONS requests. We should fix
+			// so the one for canUser and getEntityRecord are reused.
+			'/wp/v2/settings',
+			// Seems to be coming from `enableComplementaryArea`.
+			'/wp/v2/users/me',
+		] );
 	} );
 } );

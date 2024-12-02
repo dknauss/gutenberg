@@ -1,6 +1,7 @@
 .wp-block-image {
 
-	a {
+	> a,
+	> figure > a {
 		display: inline-block;
 	}
 

@@ -28,7 +28,7 @@ function doesCombinedFieldSupportBulkEdits< Item >(
 
 		return fieldDefinitions.find(
 			( fieldDefinition ) => fieldDefinition.id === fieldId
-		)?.supportsBulk;
+		)?.supportsBulkEditing;
 	} );
 }
 
@@ -97,7 +97,8 @@ export function DataFormLayout< Item extends object >( {
 							formField,
 							fieldDefinitions
 						) ) ||
-						( fieldDefinition && ! fieldDefinition.supportsBulk ) )
+						( fieldDefinition &&
+							! fieldDefinition.supportsBulkEditing ) )
 				) {
 					return null;
 				}

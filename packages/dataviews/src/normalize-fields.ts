@@ -66,8 +66,8 @@ export function normalizeFields< Item >(
 
 		let supportsBulk = true;
 		// If custom Edit component is passed in we default to false for bulk edit support.
-		if ( typeof field.Edit === 'function' || field.supportsBulk ) {
-			supportsBulk = field.supportsBulk ?? false;
+		if ( typeof field.Edit === 'function' || field.supportsBulkEditing ) {
+			supportsBulk = field.supportsBulkEditing ?? false;
 		}
 
 		const render =

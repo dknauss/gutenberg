@@ -160,9 +160,9 @@ export type Field< Item > = {
 	getValue?: ( args: { item: Item } ) => any;
 
 	/**
-	 * Whether the action can be used as a bulk action.
+	 * Whether the field supports bulk editing.
 	 */
-	supportsBulk?: boolean;
+	supportsBulkEditing?: boolean;
 };
 
 export type NormalizedField< Item > = Field< Item > & {

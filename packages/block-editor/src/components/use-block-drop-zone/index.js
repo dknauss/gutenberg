@@ -406,7 +406,13 @@ export default function useBlockDropZone( {
 					return;
 				}
 
-				const blocks = getBlocks( targetRootClientId );
+				// Don't include the dragged blocks in the block list, because
+				// they will have been dragged away, so the bounding client rect
+				// will be incorrect.
+				const blocks = getBlocks( targetRootClientId ).filter(
+					( block ) =>
+						! draggedBlockClientIds.includes( block.clientId )
+				);
 
 				// The block list is empty, don't show the insertion point but still allow dropping.
 				if ( blocks.length === 0 ) {

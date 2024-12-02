@@ -10,7 +10,7 @@ import {
 /**
  * Internal dependencies
  */
-import { store as editorStore } from '../store';
+import { store as editorStore } from '../../store';
 
 /**
  * Verifies if the caller (e.g. a block) supports this mime type.

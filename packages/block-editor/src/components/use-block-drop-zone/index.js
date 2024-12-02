@@ -456,12 +456,6 @@ export default function useBlockDropZone( {
 				const [ targetIndex, operation, nearestSide ] =
 					dropTargetPosition;
 
-				if (
-					targetIndex === getBlockIndex( draggedBlockClientIds[ 0 ] )
-				) {
-					return;
-				}
-
 				if ( isZoomOut() && operation !== 'insert' ) {
 					return;
 				}

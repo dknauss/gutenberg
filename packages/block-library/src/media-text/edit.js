@@ -174,7 +174,8 @@ function MediaTextEdit( {
 	);
 
 	const featuredImageURL = useFeaturedImage
-		? featuredImageMedia?.source_url
+		? featuredImageMedia?.media_details?.sizes?.[ mediaSizeSlug ]
+				?.source_url ?? featuredImageMedia?.source_url
 		: '';
 	const featuredImageAlt = useFeaturedImage
 		? featuredImageMedia?.alt_text
@@ -261,11 +262,17 @@ function MediaTextEdit( {
 		setAttributes( { verticalAlignment: alignment } );
 	};
 
+	const currentImageMedia = useFeaturedImage ? featuredImageMedia : image;
 	const imageSizeOptions = imageSizes
-		.filter( ( { slug } ) => getImageSourceUrlBySizeSlug( image, slug ) )
+		.filter( ( { slug } ) =>
+			getImageSourceUrlBySizeSlug( currentImageMedia, slug )
+		)
 		.map( ( { name, slug } ) => ( { value: slug, label: name } ) );
 	const updateImage = ( newMediaSizeSlug ) => {
-		const newUrl = getImageSourceUrlBySizeSlug( image, newMediaSizeSlug );
+		const newUrl = getImageSourceUrlBySizeSlug(
+			currentImageMedia,
+			newMediaSizeSlug
+		);
 
 		if ( ! newUrl ) {
 			return null;
@@ -408,7 +415,7 @@ function MediaTextEdit( {
 					/>
 				</ToolsPanelItem>
 			) }
-			{ mediaType === 'image' && ! useFeaturedImage && (
+			{ mediaType === 'image' && (
 				<ResolutionTool
 					value={ mediaSizeSlug }
 					options={ imageSizeOptions }

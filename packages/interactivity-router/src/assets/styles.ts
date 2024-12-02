@@ -32,11 +32,21 @@ const getCachedSheet = async (
 };
 
 const sheetFromLink = async (
-	{ id, href }: HTMLLinkElement,
+	{ id, href, sheet: elementSheet }: HTMLLinkElement,
 	baseUrl: string
 ) => {
 	const sheetId = id || href;
 	const sheetUrl = resolveUrl( href, baseUrl );
+
+	if ( elementSheet ) {
+		return getCachedSheet( sheetId, () => {
+			const sheet = new CSSStyleSheet();
+			for ( const { cssText } of elementSheet.cssRules ) {
+				sheet.insertRule( withAbsoluteUrls( cssText, sheetUrl ) );
+			}
+			return Promise.resolve( sheet );
+		} );
+	}
 	return getCachedSheet( sheetId, async () => {
 		const response = await fetch( href );
 		const text = await response.text();

@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { ItemStatus, type QueueItem, type Settings, type State } from './types';
+import type { QueueItem, Settings, State } from './types';
 
 /**
  * Returns all items currently being uploaded.

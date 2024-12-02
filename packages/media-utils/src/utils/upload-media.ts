@@ -63,6 +63,7 @@ export function uploadMedia( {
 	maxUploadFileSize,
 	onError,
 	onFileChange,
+	onSuccess,
 	signal,
 }: UploadMediaArgs ) {
 	const validFiles = [];
@@ -76,6 +77,7 @@ export function uploadMedia( {
 		onFileChange?.(
 			filesSet.filter( ( attachment ) => attachment !== null )
 		);
+		onSuccess?.( filesSet.filter( ( attachment ) => attachment !== null ) );
 	};
 
 	for ( const mediaFile of filesList ) {

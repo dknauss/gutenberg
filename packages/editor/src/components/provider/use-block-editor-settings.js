@@ -24,6 +24,8 @@ import {
 import inserterMediaCategories from '../media-categories';
 import { mediaUpload } from '../../utils';
 import { default as mediaSideload } from '../../utils/media-sideload';
+import { validateFileSize } from '../../utils/validate-file-size';
+import { validateMimeType } from '../../utils/validate-mime-type';
 import { store as editorStore } from '../../store';
 import { unlock } from '../../lock-unlock';
 import { useGlobalStylesContext } from '../global-styles-provider';
@@ -294,6 +296,8 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 			__experimentalMediaSideload: hasUploadPermissions
 				? mediaSideload
 				: undefined,
+			__experimentalValidateFileSize: validateFileSize,
+			__experimentalValidateMimeType: validateMimeType,
 			__experimentalBlockPatterns: blockPatterns,
 			[ selectBlockPatternsKey ]: ( select ) => {
 				const { hasFinishedResolution, getBlockPatternsForPostType } =

@@ -9,11 +9,9 @@ import {
 	ItemStatus,
 	type OperationFinishAction,
 	type OperationStartAction,
-	type PauseItemAction,
 	type PauseQueueAction,
 	type QueueItem,
 	type RemoveAction,
-	type ResumeItemAction,
 	type ResumeQueueAction,
 	type RevokeBlobUrlsAction,
 	type State,
@@ -37,8 +35,6 @@ type Action =
 	| AddAction
 	| RemoveAction
 	| CancelAction
-	| PauseItemAction
-	| ResumeItemAction
 	| PauseQueueAction
 	| ResumeQueueAction
 	| AddOperationsAction
@@ -53,6 +49,7 @@ function reducer(
 	state = DEFAULT_STATE,
 	action: Action = { type: Type.Unknown }
 ) {
+	console.log( 'reducer', state, action );
 	switch ( action.type ) {
 		case Type.PauseQueue: {
 			return {
@@ -92,34 +89,6 @@ function reducer(
 			return {
 				...state,
 				queue: state.queue.filter( ( item ) => item.id !== action.id ),
-			};
-
-		case Type.PauseItem:
-			return {
-				...state,
-				queue: state.queue.map(
-					( item ): QueueItem =>
-						item.id === action.id
-							? {
-									...item,
-									status: ItemStatus.Paused,
-							  }
-							: item
-				),
-			};
-
-		case Type.ResumeItem:
-			return {
-				...state,
-				queue: state.queue.map(
-					( item ): QueueItem =>
-						item.id === action.id
-							? {
-									...item,
-									status: ItemStatus.Processing,
-							  }
-							: item
-				),
 			};
 
 		case Type.OperationStart: {

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 /**
  * WordPress dependencies
  */
-import { createBlobURL, revokeBlobURL } from '@wordpress/blob';
+import { createBlobURL, isBlobURL, revokeBlobURL } from '@wordpress/blob';
 import type { createRegistry } from '@wordpress/data';
 
 type WPDataRegistry = ReturnType< typeof createRegistry >;
@@ -29,11 +29,9 @@ import type {
 	Operation,
 	OperationFinishAction,
 	OperationStartAction,
-	PauseItemAction,
 	PauseQueueAction,
 	QueueItem,
 	QueueItemId,
-	ResumeItemAction,
 	ResumeQueueAction,
 	RevokeBlobUrlsAction,
 	Settings,
@@ -51,7 +49,6 @@ type ActionCreators = {
 	processItem: typeof processItem;
 	finishOperation: typeof finishOperation;
 	uploadItem: typeof uploadItem;
-	resumeItem: typeof resumeItem;
 	revokeBlobUrls: typeof revokeBlobUrls;
 	< T = Record< string, unknown > >( args: T ): void;
 };
@@ -166,58 +163,6 @@ export function addItem( {
 	};
 }
 
-interface AddSideloadItemArgs {
-	file: File;
-	onChange?: OnChangeHandler;
-	additionalData?: AdditionalData;
-	operations?: Operation[];
-	batchId?: BatchId;
-}
-
-/**
- * Adds a new item to the upload queue for sideloading.
- *
- * This is typically a poster image or a client-side generated thumbnail.
- *
- * @param $0
- * @param $0.file             File
- * @param [$0.batchId]        Batch ID.
- * @param [$0.onChange]       Function called each time a file or a temporary representation of the file is available.
- * @param [$0.additionalData] Additional data to include in the request.
- * @param [$0.operations]     List of operations to perform. Defaults to automatically determined list, based on the file.
- */
-export function addSideloadItem( {
-	file,
-	onChange,
-	additionalData,
-	operations,
-	batchId,
-}: AddSideloadItemArgs ) {
-	return async ( { dispatch }: { dispatch: ActionCreators } ) => {
-		const itemId = uuidv4();
-		dispatch< AddAction >( {
-			type: Type.Add,
-			item: {
-				id: itemId,
-				batchId,
-				status: ItemStatus.Processing,
-				sourceFile: cloneFile( file ),
-				file,
-				onChange,
-				additionalData: {
-					...additionalData,
-				},
-				operations: Array.isArray( operations )
-					? operations
-					: [ OperationType.Prepare ],
-				abortController: new AbortController(),
-			},
-		} );
-
-		dispatch.processItem( itemId );
-	};
-}
-
 /**
  * Processes a single item in the queue.
  *
@@ -240,21 +185,6 @@ export function processItem( id: QueueItemId ) {
 			? item.operations[ 0 ][ 0 ]
 			: item.operations?.[ 0 ];
 
-		// If we're sideloading a thumbnail, pause upload to avoid race conditions.
-		// It will be resumed after the previous upload finishes.
-		if ( operation === OperationType.Upload && item.additionalData.post ) {
-			const isAlreadyUploading = select.isUploadingToPost(
-				item.additionalData.post as number
-			);
-			if ( isAlreadyUploading ) {
-				dispatch< PauseItemAction >( {
-					type: Type.PauseItem,
-					id,
-				} );
-				return;
-			}
-		}
-
 		if ( attachment ) {
 			onChange?.( [ attachment ] );
 		}
@@ -270,7 +200,7 @@ export function processItem( id: QueueItemId ) {
 				onSuccess?.( [ attachment ] );
 			}
 
-			dispatch.removeItem( id );
+			// dispatch.removeItem( id );
 			dispatch.revokeBlobUrls( id );
 
 			if ( batchId && select.isBatchUploaded( batchId ) ) {
@@ -304,24 +234,6 @@ export function processItem( id: QueueItemId ) {
 			case OperationType.Upload:
 				dispatch.uploadItem( id );
 				break;
-		}
-	};
-}
-
-/**
- * Resumes processing for a given post/attachment ID.
- *
- * @param postOrAttachmentId Post or attachment ID.
- */
-export function resumeItem( postOrAttachmentId: number ) {
-	return async ( { select, dispatch }: ThunkArgs ) => {
-		const item = select.getPausedUploadForPost( postOrAttachmentId );
-		if ( item ) {
-			dispatch< ResumeItemAction >( {
-				type: Type.ResumeItem,
-				id: item.id,
-			} );
-			dispatch.processItem( item.id );
 		}
 	};
 }
@@ -439,6 +351,13 @@ export function uploadItem( id: QueueItemId ) {
 			additionalData: item.additionalData,
 			signal: item.abortController?.signal,
 			onFileChange: ( [ attachment ] ) => {
+				if ( ! isBlobURL( attachment.url ) ) {
+					dispatch.finishOperation( id, {
+						attachment,
+					} );
+				}
+			},
+			onSuccess: ( [ attachment ] ) => {
 				dispatch.finishOperation( id, {
 					attachment,
 				} );

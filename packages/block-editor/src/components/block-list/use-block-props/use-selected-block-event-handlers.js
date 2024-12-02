@@ -122,6 +122,11 @@ export function useEventHandlers( { clientId, isSelected } ) {
 				const clone = node.cloneNode( true );
 				clone.style.visibility = 'hidden';
 
+				// Remove the id and leave it on the clone so that drop target
+				// calculations are correct.
+				const id = node.id;
+				node.id = null;
+
 				let _scale = 1;
 
 				let parentElement = node;
@@ -152,6 +157,7 @@ export function useEventHandlers( { clientId, isSelected } ) {
 				node.style.transformOrigin = `${ originX }px ${ originY }px`;
 				node.style.transition = 'transform 0.2s ease-out';
 				node.style.transform = `scale( 0.5 )`;
+				node.style.margin = '0';
 
 				let hasStarted = false;
 
@@ -159,7 +165,6 @@ export function useEventHandlers( { clientId, isSelected } ) {
 					if ( ! hasStarted ) {
 						hasStarted = true;
 						node.style.pointerEvents = 'none';
-						node.draggable = false;
 					}
 					node.style.top = `${ e.clientY * inverted - originY }px`;
 					node.style.left = `${ e.clientX * inverted - originX }px`;
@@ -177,8 +182,9 @@ export function useEventHandlers( { clientId, isSelected } ) {
 					node.style.left = '';
 					node.style.width = '';
 					node.style.pointerEvents = '';
-					node.draggable = true;
+					node.style.margin = '';
 					clone.remove();
+					node.id = id;
 					dragElement.remove();
 					stopDraggingBlocks();
 					document.body.classList.remove(

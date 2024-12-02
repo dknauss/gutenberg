@@ -105,28 +105,21 @@ export const ExperimentalBlockEditorProvider = withRegistryProvider(
 
 		const mediaUploadSettings = useMediaUploadSettings( _settings );
 
-		// Create a new variable so that the original props.settings.mediaUpload is not modified.
-		const settings = useMemo(
-			() => ( {
-				..._settings,
-				mediaUpload: _settings.mediaUpload
-					? mediaUpload.bind(
-							null,
-							registry,
-							_settings.experimentalValidateMimeType || noop,
-							_settings.validateFileSize || noop
-					  )
-					: undefined,
-			} ),
-			[ _settings, registry ]
-		);
+		let settings = _settings;
 
-		if ( window.__experimentalMediaProcessing && settings.mediaUpload ) {
-			settings.mediaUpload = mediaUpload.bind(
-				null,
-				registry,
-				settings.experimentalValidateMimeType || noop,
-				settings.validateFileSize || noop
+		if ( window.__experimentalMediaProcessing && _settings.mediaUpload ) {
+			// Create a new variable so that the original props.settings.mediaUpload is not modified.
+			settings = useMemo(
+				() => ( {
+					..._settings,
+					mediaUpload: mediaUpload.bind(
+						null,
+						registry,
+						_settings.experimentalValidateMimeType || noop,
+						_settings.validateFileSize || noop
+					),
+				} ),
+				[ _settings, registry ]
 			);
 		}
 

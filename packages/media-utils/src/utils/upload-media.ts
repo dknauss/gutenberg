@@ -52,6 +52,7 @@ interface UploadMediaArgs {
  * @param $0.maxUploadFileSize  Maximum upload size in bytes allowed for the site.
  * @param $0.onError            Function called when an error happens.
  * @param $0.onFileChange       Function called each time a file or a temporary representation of the file is available.
+ * @param $0.onSuccess          Function called after the final representation of the file is available.
  * @param $0.wpAllowedMimeTypes List of allowed mime types and file extensions.
  * @param $0.signal             Abort signal.
  */

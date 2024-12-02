@@ -6,7 +6,6 @@ import {
 	type AddOperationsAction,
 	type CacheBlobUrlAction,
 	type CancelAction,
-	ItemStatus,
 	type OperationFinishAction,
 	type OperationStartAction,
 	type PauseQueueAction,
@@ -49,7 +48,6 @@ function reducer(
 	state = DEFAULT_STATE,
 	action: Action = { type: Type.Unknown }
 ) {
-	console.log( 'reducer', state, action );
 	switch ( action.type ) {
 		case Type.PauseQueue: {
 			return {

@@ -59,6 +59,16 @@ export function MainSidebarNavigationContent() {
 					</SidebarNavigationItem>
 				</>
 			) }
+			{ ! isBlockBasedTheme && (
+				<SidebarNavigationItem
+					uid="stylebook-navigation-item"
+					to="/stylebook"
+					withChevron
+					icon={ styles }
+				>
+					{ __( 'Styles' ) }
+				</SidebarNavigationItem>
+			) }
 			<SidebarNavigationItem
 				uid="patterns-navigation-item"
 				to="/pattern"

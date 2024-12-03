@@ -10,6 +10,7 @@ import type { DataFormProps } from '../../types';
 import { DataFormProvider } from '../dataform-context';
 import { normalizeFields } from '../../normalize-fields';
 import { DataFormLayout } from '../../dataforms-layouts/data-form-layout';
+import { MIXED_VALUE } from '../../constants';
 
 /**
  * Loops through the list of data items and returns an object with the intersecting ( same ) key and values.
@@ -26,6 +27,8 @@ function getIntersectingValues< Item extends object >( data: Item[] ): Item {
 		} );
 		if ( intersects ) {
 			intersectingValues[ key ] = firstRecord[ key ];
+		} else {
+			intersectingValues[ key ] = MIXED_VALUE as Item[ keyof Item ];
 		}
 	}
 	return intersectingValues;

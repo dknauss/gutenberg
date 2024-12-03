@@ -26,6 +26,7 @@ import type {
 import DataFormContext from '../../components/dataform-context';
 import { DataFormLayout } from '../data-form-layout';
 import { isCombinedField } from '../is-combined-field';
+import { MIXED_VALUE } from '../../constants';
 
 function DropdownHeader( {
 	title,
@@ -114,8 +115,7 @@ function PanelDropdown< Item extends object >( {
 	);
 
 	const fieldValue = fieldDefinition.getValue( { item: data } );
-	const showMixedValue =
-		isBulkEditing && ( fieldValue === undefined || fieldValue === '' );
+	const showMixedValue = isBulkEditing && fieldValue === MIXED_VALUE;
 
 	return (
 		<Dropdown

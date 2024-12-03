@@ -4,3 +4,4 @@ export { VIEW_LAYOUTS } from './dataviews-layouts';
 export { filterSortAndPaginate } from './filter-and-sort-data-view';
 export type * from './types';
 export { isItemValid } from './validation';
+export { MIXED_VALUE as DATAFORM_MIXED_VALUE } from './constants';

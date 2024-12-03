@@ -68,3 +68,6 @@ export const sortIcons = {
 export const LAYOUT_TABLE = 'table';
 export const LAYOUT_GRID = 'grid';
 export const LAYOUT_LIST = 'list';
+
+// Dataform mixed value.
+export const MIXED_VALUE = Symbol.for( 'DATAFORM_MIXED_VALUE' );

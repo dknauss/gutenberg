@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import type { Field } from '@wordpress/dataviews';
+import { type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -16,7 +16,12 @@ const titleField: Field< BasePost > = {
 	id: 'title',
 	label: __( 'Title' ),
 	placeholder: __( 'No title' ),
-	getValue: ( { item } ) => getItemTitle( item ),
+	getValue: ( { item } ) => {
+		if ( typeof item.title === 'symbol' ) {
+			return item.title;
+		}
+		return getItemTitle( item );
+	},
 	render: TitleView,
 	enableHiding: false,
 };

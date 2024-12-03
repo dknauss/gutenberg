@@ -16,6 +16,7 @@ import type { BlockExample, ColorOrigin, MultiOriginPalettes } from './types';
 import ColorExamples from './color-examples';
 import DuotoneExamples from './duotone-examples';
 import { STYLE_BOOK_COLOR_GROUPS } from './constants';
+import ButtonExamples from './button-examples';
 
 /**
  * Returns examples color examples for each origin
@@ -177,11 +178,14 @@ function getOverviewBlockExamples(
  * @return {BlockExample[]} An array of block examples.
  */
 export function getExamples( colors: MultiOriginPalettes ): BlockExample[] {
+	// Exclude default examples from block to include custom examples for those blocks.
+	const excludedDefaultExamples = [ 'core/heading', 'core/button' ];
+
 	const nonHeadingBlockExamples = getBlockTypes()
 		.filter( ( blockType ) => {
 			const { name, example, supports } = blockType;
 			return (
-				name !== 'core/heading' &&
+				! excludedDefaultExamples.includes( name ) &&
 				!! example &&
 				supports?.inserter !== false
 			);
@@ -227,10 +231,17 @@ export function getExamples( colors: MultiOriginPalettes ): BlockExample[] {
 		} ),
 	};
 	const colorExamples = getColorExamples( colors );
-
 	const overviewBlockExamples = getOverviewBlockExamples( colors );
 
+	const buttonExample = {
+		name: 'core/button',
+		title: __( 'Button' ),
+		category: 'design',
+		content: <ButtonExamples />,
+	};
+
 	return [
+		buttonExample,
 		headingsExample,
 		...colorExamples,
 		...nonHeadingBlockExamples,

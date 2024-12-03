@@ -94,7 +94,11 @@ const { state, actions } = store(
 
 				// Debounce the search by 300ms to prevent multiple navigations.
 				supersedePreviousSearch?.();
-				const { promise, resolve, reject } = Promise.withResolvers();
+				let resolve, reject;
+				const promise = new Promise( ( res, rej ) => {
+					resolve = res;
+					reject = rej;
+				} );
 				const timeout = setTimeout( resolve, 300 );
 				supersedePreviousSearch = () => {
 					clearTimeout( timeout );

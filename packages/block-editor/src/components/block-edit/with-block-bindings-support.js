@@ -70,7 +70,7 @@ export const withBlockBindingsSupport = createHigherOrderComponent(
 		const sources = useSelect( ( select ) =>
 			unlock( select( blocksStore ) ).getAllBlockBindingsSources()
 		);
-		const { name, clientId, context, setAttributes } = props;
+		const { name, clientId, setAttributes } = props;
 		const { blockBindings, sourcesContext } = useMemo( () => {
 			const _sourcesContext = {};
 			if ( props.attributes?.metadata?.bindings ) {
@@ -262,7 +262,6 @@ export const withBlockBindingsSupport = createHigherOrderComponent(
 				{ ...props }
 				attributes={ { ...props.attributes, ...boundAttributes } }
 				setAttributes={ _setAttributes }
-				context={ { ...context, ...sourcesContext } }
 			/>
 		);
 	},

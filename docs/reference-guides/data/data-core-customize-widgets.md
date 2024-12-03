@@ -66,6 +66,7 @@ const ExampleComponent = () => {
 				setIsInserterOpened( ! isOpen );
 				setIsOpen( ! isOpen );
 			} }
+			__next40pxDefaultSize
 		>
 			{ __( 'Open/close inserter' ) }
 		</Button>

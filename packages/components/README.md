@@ -21,7 +21,7 @@ Within Gutenberg, these components can be accessed by importing from the `compon
 import { Button } from '@wordpress/components';
 
 export default function MyButton() {
-	return <Button>Click Me!</Button>;
+	return <Button __next40pxDefaultSize>Click Me!</Button>;
 }
 ```
 

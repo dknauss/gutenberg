@@ -54,7 +54,7 @@ const PluginSidebarExample = () => {
 					] }
 					onChange={ ( newSelect ) => setSelect( newSelect ) }
 				/>
-				<Button variant="primary">{ __( 'Primary Button' ) } </Button>
+				<Button variant="primary" __next40pxDefaultSize>{ __( 'Primary Button' ) } </Button>
 			</PanelBody>
 		</PluginSidebar>
 	);

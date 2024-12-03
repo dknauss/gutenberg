@@ -35,8 +35,8 @@ const MyDialog = () => {
 
 	return (
 		<div ref={ ref } { ...extraProps }>
-			<Button />
-			<Button />
+			<button />
+			<button />
 		</div>
 	);
 };

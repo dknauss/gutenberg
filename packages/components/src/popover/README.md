@@ -21,7 +21,7 @@ const MyPopover = () => {
 	};
 
 	return (
-		<Button variant="secondary" onClick={ toggleVisible }>
+		<Button variant="secondary" onClick={ toggleVisible } __next40pxDefaultSize>
 			Toggle Popover!
 			{ isVisible && <Popover>Popover is toggled!</Popover> }
 		</Button>
@@ -46,7 +46,7 @@ const MyPopover = () => {
 
 	return (
 		<p ref={ setPopoverAnchor }>Popover s anchor</p>
-		<Button variant="secondary" onClick={ toggleVisible }>
+		<Button variant="secondary" onClick={ toggleVisible } __next40pxDefaultSize>
 			Toggle Popover!
 		</Button>
 		{ isVisible && (

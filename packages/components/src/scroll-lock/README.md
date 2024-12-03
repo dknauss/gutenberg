@@ -19,7 +19,7 @@ const MyScrollLock = () => {
 
 	return (
 		<div>
-			<Button variant="secondary" onClick={ toggleLock }>
+			<Button variant="secondary" onClick={ toggleLock } __next40pxDefaultSize>
 				Toggle scroll lock
 			</Button>
 			{ isScrollLocked && <ScrollLock /> }

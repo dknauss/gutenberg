@@ -106,7 +106,7 @@ Renders a button with default style.
 ```jsx
 import { Button } from '@wordpress/components';
 
-const MyButton = () => <Button variant="secondary">Click me!</Button>;
+const MyButton = () => <Button variant="secondary" __next40pxDefaultSize>Click me!</Button>;
 ```
 
 ### Props

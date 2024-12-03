@@ -40,7 +40,7 @@ const MyComponentWithFocusReturn = () => {
 			/>
 			{ text && <EnhancedComponent /> }
 			{ text && (
-				<Button variant="secondary" onClick={ unmount }>
+				<Button variant="secondary" onClick={ unmount } __next40pxDefaultSize>
 					Unmount
 				</Button>
 			) }

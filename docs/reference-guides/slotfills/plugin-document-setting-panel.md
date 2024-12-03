@@ -65,6 +65,7 @@ const Example = () => {
 					'plugin-document-setting-panel-demo/custom-panel'
 				);
 			} }
+			__next40pxDefaultSize
 		>
 			Toggle Panels
 		</Button>
@@ -92,6 +93,7 @@ const Example = () => {
 					'plugin-document-setting-panel-demo/custom-panel'
 				);
 			} }
+			__next40pxDefaultSize
 		>
 			Toggle Panels
 		</Button>

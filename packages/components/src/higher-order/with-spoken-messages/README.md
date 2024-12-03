@@ -11,12 +11,14 @@ const MyComponentWithSpokenMessages = withSpokenMessages(
 			<Button
 				variant="secondary"
 				onClick={ () => speak( 'Spoken message' ) }
+				__next40pxDefaultSize
 			>
 				Speak
 			</Button>
 			<Button
 				variant="secondary"
 				onClick={ () => debouncedSpeak( 'Delayed message' ) }
+				__next40pxDefaultSize
 			>
 				Debounced Speak
 			</Button>

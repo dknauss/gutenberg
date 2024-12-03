@@ -34,7 +34,7 @@ npm install @wordpress/components
 import { Button } from '@wordpress/components';
 
 function MyApp() {
-	return <Button>Nice looking button</Button>;
+	return <Button __next40pxDefaultSize>Nice looking button</Button>;
 }
 ```
 
@@ -51,7 +51,7 @@ wp_register_script( 'myscript', 'pathtomyscript.js', array ('wp-components', "re
 const { Button } = wp.components;
 
 function MyApp() {
-	return <Button>Nice looking button</Button>;
+	return <Button __next40pxDefaultSize>Nice looking button</Button>;
 }
 ```
 

@@ -606,6 +606,7 @@ const ExampleComponent = () => {
 					label: __( 'Fancy Quote' ),
 				} );
 			} }
+			__next40pxDefaultSize
 		>
 			{ __( 'Add a new block style for core/quote' ) }
 		</Button>
@@ -669,6 +670,7 @@ const ExampleComponent = () => {
 					attributes: { providerNameSlug: 'custom' },
 				} );
 			} }
+			__next40pxDefaultSize
 		>
 			__( 'Add a custom variation for core/embed' ) }
 		</Button>
@@ -742,6 +744,7 @@ const ExampleComponent = () => {
 					{ title: 'Custom Category', slug: 'custom-category' },
 				] );
 			} }
+			__next40pxDefaultSize
 		>
 			{ __( 'Add a new custom block category' ) }
 		</Button>
@@ -764,7 +767,7 @@ import { setDefaultBlockName } from '@wordpress/blocks';
 
 const ExampleComponent = () => {
 	return (
-		<Button onClick={ () => setDefaultBlockName( 'core/heading' ) }>
+		<Button onClick={ () => setDefaultBlockName( 'core/heading' ) } __next40pxDefaultSize>
 			{ __( 'Set the default block to Heading' ) }
 		</Button>
 	);
@@ -796,7 +799,7 @@ import { setGroupingBlockName } from '@wordpress/blocks';
 
 const ExampleComponent = () => {
 	return (
-		<Button onClick={ () => setGroupingBlockName( 'core/columns' ) }>
+		<Button onClick={ () => setGroupingBlockName( 'core/columns' ) } __next40pxDefaultSize>
 			{ __( 'Wrap in columns' ) }
 		</Button>
 	);
@@ -892,6 +895,7 @@ const ExampleComponent = () => {
 			onClick={ () => {
 				unregisterBlockStyle( 'core/quote', 'plain' );
 			} }
+			__next40pxDefaultSize
 		>
 			{ __( 'Remove the "Plain" block style for core/quote' ) }
 		</Button>
@@ -918,6 +922,7 @@ const ExampleComponent = () => {
 	return (
 		<Button
 			onClick={ () => unregisterBlockType( 'my-collection/block-name' ) }
+			__next40pxDefaultSize
 		>
 			{ __( 'Unregister my custom block.' ) }
 		</Button>
@@ -950,6 +955,7 @@ const ExampleComponent = () => {
 			onClick={ () => {
 				unregisterBlockVariation( 'core/embed', 'youtube' );
 			} }
+			__next40pxDefaultSize
 		>
 			{ __( 'Remove the YouTube variation from core/embed' ) }
 		</Button>
@@ -979,6 +985,7 @@ const ExampleComponent = () => {
 			onClick={ () => {
 				updateCategory( 'text', { title: __( 'Written Word' ) } );
 			} }
+			__next40pxDefaultSize
 		>
 			{ __( 'Update Text category title' ) }
 		</Button>

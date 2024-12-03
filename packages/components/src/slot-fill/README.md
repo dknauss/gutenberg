@@ -109,7 +109,7 @@ const { Fill, Slot } = createSlotFill( 'Toolbar' );
 const ToolbarItem = () => (
 	<Fill>
 		{ ( { hideToolbar } ) => {
-			<Button onClick={ hideToolbar }>Hide</Button>;
+			<button onClick={ hideToolbar } >Hide</button>;
 		} }
 	</Fill>
 );

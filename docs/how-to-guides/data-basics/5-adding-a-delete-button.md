@@ -16,7 +16,7 @@ import { Button } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 
 const DeletePageButton = () => (
-	<Button variant="primary">
+	<Button variant="primary" __next40pxDefaultSize>
 		Delete
 	</Button>
 )
@@ -85,7 +85,7 @@ const DeletePageButton = ({ pageId }) => {
 	const { deleteEntityRecord } = useDispatch( coreDataStore );
 	const handleDelete = () => deleteEntityRecord( 'postType', 'page', pageId );
 	return (
-		<Button variant="primary" onClick={ handleDelete }>
+		<Button variant="primary" onClick={ handleDelete } __next40pxDefaultSize>
 			Delete
 		</Button>
 	);
@@ -108,7 +108,7 @@ const DeletePageButton = ({ pageId }) => {
 		[ pageId ]
 	)
 	return (
-		<Button variant="primary" onClick={ handleDelete } disabled={ isDeleting }>
+		<Button variant="primary" onClick={ handleDelete } disabled={ isDeleting } __next40pxDefaultSize>
 			{ isDeleting ? (
 				<>
 					<Spinner />
@@ -431,7 +431,7 @@ function DeletePageButton( { pageId } ) {
 	);
 
 	return (
-		<Button variant="primary" onClick={ handleDelete } disabled={ isDeleting }>
+		<Button variant="primary" onClick={ handleDelete } disabled={ isDeleting } __next40pxDefaultSize>
 			{ isDeleting ? (
 				<>
 					<Spinner />

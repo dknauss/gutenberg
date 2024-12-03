@@ -101,7 +101,7 @@ e.g., a button, but we want an additional visual label for that section equivale
 otherwise use if the `label` prop was passed.
 
 ```jsx
-import { BaseControl } from '@wordpress/components';
+import { BaseControl, Button } from '@wordpress/components';
 
 const MyBaseControl = () => (
 	<BaseControl
@@ -109,7 +109,7 @@ const MyBaseControl = () => (
 		help="This button is already accessibly labeled."
 	>
 		<BaseControl.VisualLabel>Author</BaseControl.VisualLabel>
-		<Button>Select an author</Button>
+		<Button __next40pxDefaultSize>Select an author</Button>
 	</BaseControl>
 );
 ```

@@ -45,8 +45,8 @@ import { Button, ButtonGroup } from '@wordpress/components';
 
 const MyButtonGroup = () => (
 	<ButtonGroup>
-		<Button variant="primary">Button 1</Button>
-		<Button variant="primary">Button 2</Button>
+		<Button variant="primary" __next40pxDefaultSize>Button 1</Button>
+		<Button variant="primary" __next40pxDefaultSize>Button 2</Button>
 	</ButtonGroup>
 );
 ```

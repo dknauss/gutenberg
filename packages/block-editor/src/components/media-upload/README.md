@@ -41,7 +41,7 @@ function MyMediaUploader() {
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 				value={ mediaId }
 				render={ ( { open } ) => (
-					<Button onClick={ open }>Open Media Library</Button>
+					<Button onClick={ open } __next40pxDefaultSize>Open Media Library</Button>
 				) }
 			/>
 		</MediaUploadCheck>

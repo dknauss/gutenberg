@@ -19,8 +19,8 @@ const ConstrainedTabbingExample = () => {
 	const ref = useConstrainedTabbing();
 	return (
 		<div ref={ ref }>
-			<Button />
-			<Button />
+			<button />
+			<button />
 		</div>
 	);
 };

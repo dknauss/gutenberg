@@ -58,7 +58,7 @@ class MyURLPopover extends Component {
 
 		return (
 			<>
-				<Button onClick={ this.openURLPopover }>Edit URL</Button>
+				<Button onClick={ this.openURLPopover } __next40pxDefaultSize>Edit URL</Button>
 				{ isVisible && (
 					<URLPopover
 						onClose={ this.closeURLPopover }
@@ -80,6 +80,7 @@ class MyURLPopover extends Component {
 								icon={ keyboardReturn }
 								label={ __( 'Apply' ) }
 								type="submit"
+								__next40pxDefaultSize
 							/>
 						</form>
 					</URLPopover>

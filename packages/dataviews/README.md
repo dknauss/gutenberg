@@ -335,6 +335,7 @@ const actions = [
 						onActionPerformed();
 						closeModal();
 					}}
+					__next40pxDefaultSize
 				>
 					Confirm Delete
 				</Button>
@@ -664,10 +665,10 @@ Component to render UI in a modal for the action.
 			<form onSubmit={ onSubmit }>
 				<p>Modal UI</p>
 				<HStack>
-					<Button variant="tertiary" onClick={ closeModal }>
+					<Button variant="tertiary" onClick={ closeModal } __next40pxDefaultSize>
 						Cancel
 					</Button>
-					<Button variant="primary" type="submit">
+					<Button variant="primary" type="submit" __next40pxDefaultSize>
 						Submit
 					</Button>
 				</HStack>

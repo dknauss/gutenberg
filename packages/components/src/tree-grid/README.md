@@ -27,36 +27,36 @@ function TreeMenu() {
 			<TreeGridRow level={ 1 } positionInSet={ 1 } setSize={ 2 }>
 				<TreeGridCell>
 					{ ( props ) => (
-						<Button onClick={ onSelect } { ...props }>Select</Button>
+						<button onClick={ onSelect } { ...props }>Select</button>
 					) }
 				</TreeGridCell>
 				<TreeGridCell>
 					{ ( props ) => (
-						<Button onClick={ onMove } { ...props }>Move</Button>
+						<button onClick={ onMove } { ...props }>Move</button>
 					) }
 				</TreeGridCell>
 			</TreeGridRow>
 			<TreeGridRow level={ 1 } positionInSet={ 2 } setSize={ 2 }>
 				<TreeGridCell>
 					{ ( props ) => (
-						<Button onClick={ onSelect } { ...props }>Select</Button>
+						<button onClick={ onSelect } { ...props }>Select</button>
 					) }
 				</TreeGridCell>
 				<TreeGridCell>
 					{ ( props ) => (
-						<Button onClick={ onMove } { ...props }>Move</Button>
+						<button onClick={ onMove } { ...props }>Move</button>
 					) }
 				</TreeGridCell>
 			</TreeGridRow>
 			<TreeGridRow level={ 2 } positionInSet={ 1 } setSize={ 1 }>
 				<TreeGridCell>
 					{ ( props ) => (
-						<Button onClick={ onSelect } { ...props }>Select</Button>
+						<button onClick={ onSelect } { ...props }>Select</button>
 					) }
 				</TreeGridCell>
 				<TreeGridCell>
 					{ ( props ) => (
-						<Button onClick={ onMove } { ...props }>Move</Button>
+						<button onClick={ onMove } { ...props }>Move</button>
 					) }
 				</TreeGridCell>
 			</TreeGridRow>
@@ -134,7 +134,7 @@ function TreeMenu() {
 			<TreeGridRow level={ 1 } positionInSet={ 1 } setSize={ 2 } isExpanded={ undefined } data-expanded={ false }>
 				<TreeGridCell>
 					{ ( props ) => (
-						<Button aria-expanded="false" onClick={ onSelect } { ...props }>Select</Button>
+						<button aria-expanded="false" onClick={ onSelect } { ...props }>Select</button>
 					) }
 				</TreeGridCell>
 			</TreeGridRow>
@@ -156,9 +156,9 @@ function TreeMenu() {
 ```jsx
 <TreeGridCell>
 	{ ( props ) => (
-		<Button onClick={ doSomething } { ...props }>
+		<button onClick={ doSomething } { ...props }>
 			Do something
-		</Button>
+		</button>
 	) }
 </TreeGridCell>
 ```

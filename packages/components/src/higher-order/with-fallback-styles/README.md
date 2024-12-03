@@ -18,7 +18,7 @@ const MyComponentWithFallbackStyles = withFallbackStyles(
 	}
 )( ( { fallbackTextColor, fallbackBackgroundColor } ) => (
 	<div>
-		<Button variant="primary">My button</Button>
+		<Button variant="primary" __next40pxDefaultSize>My button</Button>
 		<div>Text color: { fallbackTextColor }</div>
 		<div>Background color: { fallbackBackgroundColor }</div>
 	</div>

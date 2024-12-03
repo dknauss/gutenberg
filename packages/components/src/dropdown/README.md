@@ -19,6 +19,7 @@ const MyDropdown = () => (
 				variant="primary"
 				onClick={ onToggle }
 				aria-expanded={ isOpen }
+				__next40pxDefaultSize
 			>
 				Toggle Popover!
 			</Button>

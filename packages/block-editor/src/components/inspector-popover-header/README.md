@@ -15,6 +15,7 @@ const MyPostDatePopover = () => {
 				<Button
 					onClick={ onToggle }
 					aria-expanded={ isOpen }
+					__next40pxDefaultSize
 				>
 					Select post date
 				</Button>

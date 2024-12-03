@@ -71,6 +71,7 @@ const ExampleComponent = () => {
 					explicitDismiss: true,
 				} )
 			}
+			__next40pxDefaultSize
 		>
 			{ __(
 				'Generate an snackbar error notice with explicit dismiss button.'
@@ -114,6 +115,7 @@ const ExampleComponent = () => {
 					isDismissible: false,
 				} )
 			}
+			__next40pxDefaultSize
 		>
 			{ __( 'Generate a notice that cannot be dismissed.' ) }
 		</Button>
@@ -147,6 +149,7 @@ const ExampleComponent = () => {
 	return (
 		<Button
 			onClick={ () => createNotice( 'success', __( 'Notice message' ) ) }
+			__next40pxDefaultSize
 		>
 			{ __( 'Generate a success notice!' ) }
 		</Button>
@@ -199,6 +202,7 @@ const ExampleComponent = () => {
 					icon: '🔥',
 				} )
 			}
+			__next40pxDefaultSize
 		>
 			{ __( 'Generate a snackbar success notice!' ) }
 		</Button>
@@ -245,6 +249,7 @@ const ExampleComponent = () => {
 					},
 				} )
 			}
+			__next40pxDefaultSize
 		>
 			{ __( 'Generates a warning notice with onDismiss callback' ) }
 		</Button>
@@ -285,10 +290,10 @@ export const ExampleComponent = () => {
 					<li key={ notice.id }>{ notice.content }</li>
 				) ) }
 			</ul>
-			<Button onClick={ () => removeAllNotices() }>
+			<Button onClick={ () => removeAllNotices() } __next40pxDefaultSize>
 				{ __( 'Clear all notices', 'woo-gutenberg-products-block' ) }
 			</Button>
-			<Button onClick={ () => removeAllNotices( 'snackbar' ) }>
+			<Button onClick={ () => removeAllNotices( 'snackbar' ) } __next40pxDefaultSize>
 				{ __(
 					'Clear all snackbar notices',
 					'woo-gutenberg-products-block'
@@ -334,11 +339,12 @@ const ExampleComponent = () => {
 						isDismissible: false,
 					} )
 				}
+				__next40pxDefaultSize
 			>
 				{ __( 'Generate a notice' ) }
 			</Button>
 			{ notices.length > 0 && (
-				<Button onClick={ () => removeNotice( notices[ 0 ].id ) }>
+				<Button onClick={ () => removeNotice( notices[ 0 ].id ) } __next40pxDefaultSize>
 					{ __( 'Remove the notice' ) }
 				</Button>
 			) }
@@ -384,6 +390,7 @@ const ExampleComponent = () => {
 				onClick={ () =>
 					removeNotices( notices.map( ( { id } ) => id ) )
 				}
+				__next40pxDefaultSize
 			>
 				{ __( 'Clear all notices' ) }
 			</Button>

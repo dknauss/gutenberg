@@ -18,7 +18,7 @@ function CreatePageButton() {
 	const closeModal = () => setOpen( false );
 	return (
 		<>
-			<Button onClick={ openModal } variant="primary">
+			<Button onClick={ openModal } variant="primary" __next40pxDefaultSize>
 				Create a new Page
 			</Button>
 			{ isOpen && (
@@ -103,6 +103,7 @@ function PageForm( { title, onChangeTitle, hasEdits, lastError, isSaving, onCanc
 					onClick={ onSave }
 					variant="primary"
 					disabled={ !hasEdits || isSaving }
+					__next40pxDefaultSize
 				>
 					{ isSaving ? (
 						<>
@@ -115,6 +116,7 @@ function PageForm( { title, onChangeTitle, hasEdits, lastError, isSaving, onCanc
 					onClick={ onCancel }
 					variant="tertiary"
 					disabled={ isSaving }
+					__next40pxDefaultSize
 				>
 					Cancel
 				</Button>
@@ -364,6 +366,7 @@ function PageForm( { title, onChangeTitle, hasEdits, lastError, isSaving, onCanc
 					onClick={ onSave }
 					variant="primary"
 					disabled={ !hasEdits || isSaving }
+					__next40pxDefaultSize
 				>
 					{ isSaving ? (
 						<>
@@ -376,6 +379,7 @@ function PageForm( { title, onChangeTitle, hasEdits, lastError, isSaving, onCanc
 					onClick={ onCancel }
 					variant="tertiary"
 					disabled={ isSaving }
+					__next40pxDefaultSize
 				>
 					Cancel
 				</Button>

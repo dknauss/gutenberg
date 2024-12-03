@@ -49,7 +49,7 @@ const MyComponentWithNotices = withNotices(
 		return (
 			<div>
 				{ noticeUI }
-				<Button variant="secondary" onClick={ addError }>
+				<Button variant="secondary" onClick={ addError } __next40pxDefaultSize>
 					Add error
 				</Button>
 			</div>

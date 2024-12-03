@@ -47,7 +47,7 @@ const MyComponentWithConstrainedTabbing = () => {
 	return (
 		<div>
 			{ form }
-			<Button variant="secondary" onClick={ toggleConstrain }>
+			<Button variant="secondary" onClick={ toggleConstrain } __next40pxDefaultSize>
 				{ isConstrainedTabbing ? 'Disable' : 'Enable' } constrain
 				tabbing
 			</Button>

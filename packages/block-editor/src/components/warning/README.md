@@ -28,7 +28,7 @@ All of the following are optional.
 
 ```js
 <Warning
-	actions={ [ <Button onClick={ fixIssue }>{ __( 'Fix issue' ) }</Button> ] }
+	actions={ [ <Button onClick={ fixIssue } __next40pxDefaultSize>{ __( 'Fix issue' ) }</Button> ] }
 	secondaryActions={ [
 		{
 			title: __( 'Get help' ),

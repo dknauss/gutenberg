@@ -201,8 +201,8 @@ const ConstrainedTabbingExample = () => {
 	const constrainedTabbingRef = useConstrainedTabbing();
 	return (
 		<div ref={ constrainedTabbingRef }>
-			<Button />
-			<Button />
+			<button />
+			<button />
 		</div>
 	);
 };
@@ -349,8 +349,8 @@ const WithFocusOnMount = () => {
 	const ref = useFocusOnMount();
 	return (
 		<div ref={ ref }>
-			<Button />
-			<Button />
+			<button />
+			<button />
 		</div>
 	);
 };
@@ -377,8 +377,8 @@ const WithFocusReturn = () => {
 	const ref = useFocusReturn();
 	return (
 		<div ref={ ref }>
-			<Button />
-			<Button />
+			<button />
+			<button />
 		</div>
 	);
 };

@@ -19,8 +19,8 @@ const WithFocusOnMount = () => {
 	const ref = useFocusOnMount();
 	return (
 		<div ref={ ref }>
-			<Button />
-			<Button />
+			<button />
+			<button />
 		</div>
 	);
 };

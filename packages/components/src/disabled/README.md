@@ -32,7 +32,7 @@ const MyDisabled = () => {
 	return (
 		<div>
 			{ input }
-			<Button variant="primary" onClick={ toggleDisabled }>
+			<Button variant="primary" onClick={ toggleDisabled } __next40pxDefaultSize>
 				Toggle Disabled
 			</Button>
 		</div>

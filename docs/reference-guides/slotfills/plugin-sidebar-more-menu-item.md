@@ -61,7 +61,7 @@ const PluginSidebarMoreMenuItemTest = () => {
 						] }
 						onChange={ ( newSelect ) => setSelect( newSelect ) }
 					/>
-					<Button variant="primary">
+					<Button variant="primary" __next40pxDefaultSize>
 						{ __( 'Primary Button' ) }{ ' ' }
 					</Button>
 				</PanelBody>

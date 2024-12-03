@@ -34,7 +34,7 @@ const Example = () => (
 		<CardFooter>
 			<FlexBlock>Content</FlexBlock>
 			<FlexItem>
-				<Button>Action</Button>
+				<Button __next40pxDefaultSize>Action</Button>
 			</FlexItem>
 		</CardFooter>
 	</Card>

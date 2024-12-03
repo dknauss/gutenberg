@@ -20,7 +20,7 @@ Usage in React:
 import { Button } from '@wordpress/components';
 
 function MyApp() {
-	return <Button>Hello Button</Button>;
+	return <Button __next40pxDefaultSize>Hello Button</Button>;
 }
 ```
 

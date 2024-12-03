@@ -13,7 +13,7 @@ import { Button } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 
 const PageEditButton = () => (
-	<Button variant="primary">
+	<Button variant="primary" __next40pxDefaultSize>
 		Edit
 	</Button>
 )
@@ -69,10 +69,10 @@ function EditPageForm( { pageId, onCancel, onSaveFinished } ) {
 				label='Page title:'
 			/>
 			<div className="form-buttons">
-				<Button onClick={ onSaveFinished } variant="primary">
+				<Button onClick={ onSaveFinished } variant="primary" __next40pxDefaultSize>
 					Save
 				</Button>
-				<Button onClick={ onCancel } variant="tertiary">
+				<Button onClick={ onCancel } variant="tertiary" __next40pxDefaultSize>
 					Cancel
 				</Button>
 			</div>
@@ -95,6 +95,7 @@ function PageEditButton({ pageId }) {
 			<Button
 				onClick={ openModal }
 				variant="primary"
+				__next40pxDefaultSize
 			>
 				Edit
 			</Button>
@@ -246,10 +247,10 @@ function EditPageForm( { pageId, onCancel, onSaveFinished } ) {
 				onChange={ handleChange }
 			/>
 			<div className="form-buttons">
-				<Button onClick={ onSaveFinished } variant="primary">
+				<Button onClick={ onSaveFinished } variant="primary" __next40pxDefaultSize>
 					Save
 				</Button>
-				<Button onClick={ onCancel } variant="tertiary">
+				<Button onClick={ onCancel } variant="tertiary" __next40pxDefaultSize>
 					Cancel
 				</Button>
 			</div>
@@ -298,7 +299,7 @@ function EditPageForm( { pageId, onCancel, onSaveFinished } ) {
 		<div className="my-gutenberg-form">
 			{/* ... */}
 			<div className="form-buttons">
-				<Button onClick={ handleSave } variant="primary">
+				<Button onClick={ handleSave } variant="primary" __next40pxDefaultSize>
 					Save
 				</Button>
 				{/* ... */}
@@ -426,7 +427,7 @@ function EditPageForm( { pageId, onSaveFinished } ) {
 	return (
 		// ...
 		<div className="form-buttons">
-			<Button onClick={ handleSave } variant="primary" disabled={ ! hasEdits || isSaving }>
+			<Button onClick={ handleSave } variant="primary" disabled={ ! hasEdits || isSaving } __next40pxDefaultSize>
 				{ isSaving ? (
 					<>
 						<Spinner/>
@@ -438,6 +439,7 @@ function EditPageForm( { pageId, onSaveFinished } ) {
 				onClick={ onCancel }
 				variant="tertiary"
 				disabled={ isSaving }
+				__next40pxDefaultSize
 			>
 				Cancel
 			</Button>
@@ -470,7 +472,7 @@ function PageEditButton( { pageId } ) {
 	const closeModal = () => setOpen( false );
 	return (
 		<>
-			<Button onClick={ openModal } variant="primary">
+			<Button onClick={ openModal } variant="primary" __next40pxDefaultSize>
 				Edit
 			</Button>
 			{ isOpen && (
@@ -525,6 +527,7 @@ function EditPageForm( { pageId, onCancel, onSaveFinished } ) {
 					onClick={ handleSave }
 					variant="primary"
 					disabled={ ! hasEdits || isSaving }
+					__next40pxDefaultSize
 				>
 					{ isSaving ? (
 						<>
@@ -537,6 +540,7 @@ function EditPageForm( { pageId, onCancel, onSaveFinished } ) {
 					onClick={ onCancel }
 					variant="tertiary"
 					disabled={ isSaving }
+					__next40pxDefaultSize
 				>
 					Cancel
 				</Button>

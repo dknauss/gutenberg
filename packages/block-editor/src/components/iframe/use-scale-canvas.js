@@ -437,6 +437,10 @@ export function useScaleCanvas( {
 				}
 			}
 		}
+
+		return () => {
+			iframeDocument.documentElement.classList.remove( 'is-zoomed-out' );
+		};
 	}, [
 		startZoomOutAnimation,
 		finishZoomOutAnimation,

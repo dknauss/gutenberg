@@ -31,18 +31,18 @@ const meta = {
 
 export default meta;
 
-const Template = ( { onChange, ...args } ) => {
-	const [ value, setValue ] = useState();
-	return (
-		<BlockAlignmentToolbar
-			{ ...args }
-			onChange={ ( ...changeArgs ) => {
-				onChange( ...changeArgs );
-				setValue( ...changeArgs );
-			} }
-			value={ value }
-		/>
-	);
+export const Default = {
+	render: function Template( { onChange, ...args } ) {
+		const [ value, setValue ] = useState();
+		return (
+			<BlockAlignmentToolbar
+				{ ...args }
+				onChange={ ( ...changeArgs ) => {
+					onChange( ...changeArgs );
+					setValue( ...changeArgs );
+				} }
+				value={ value }
+			/>
+		);
+	},
 };
-
-export const Default = Template.bind();

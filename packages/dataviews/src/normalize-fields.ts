@@ -64,6 +64,12 @@ export function normalizeFields< Item >(
 			);
 		};
 
+		let supportsBulkEditing = true;
+		// If custom Edit component is passed in we default to false for bulk edit support.
+		if ( typeof field.Edit === 'function' || field.supportsBulkEditing ) {
+			supportsBulkEditing = field.supportsBulkEditing ?? false;
+		}
+
 		const render =
 			field.render || ( field.elements ? renderFromElements : getValue );
 
@@ -76,6 +82,7 @@ export function normalizeFields< Item >(
 			sort,
 			isValid,
 			Edit,
+			supportsBulkEditing,
 			enableHiding: field.enableHiding ?? true,
 			enableSorting: field.enableSorting ?? true,
 		};

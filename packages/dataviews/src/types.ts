@@ -158,6 +158,11 @@ export type Field< Item > = {
 	 * Defaults to `item[ field.id ]`.
 	 */
 	getValue?: ( args: { item: Item } ) => any;
+
+	/**
+	 * Whether the field supports bulk editing.
+	 */
+	supportsBulkEditing?: boolean;
 };
 
 export type NormalizedField< Item > = Field< Item > & {
@@ -564,7 +569,7 @@ export type Form = {
 };
 
 export interface DataFormProps< Item > {
-	data: Item;
+	data: Item | Item[];
 	fields: Field< Item >[];
 	form: Form;
 	onChange: ( value: Record< string, any > ) => void;
@@ -575,4 +580,5 @@ export interface FieldLayoutProps< Item > {
 	field: FormField;
 	onChange: ( value: any ) => void;
 	hideLabelFromVision?: boolean;
+	isBulkEditing?: boolean;
 }

@@ -11,7 +11,7 @@ import { DataForm } from '@wordpress/dataviews';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { __experimentalVStack as VStack } from '@wordpress/components';
-import { useState, useMemo, useEffect } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { privateApis as editorPrivateApis } from '@wordpress/editor';
 
 /**
@@ -24,17 +24,36 @@ import { privateApis as blockEditorPrivateApis } from '@wordpress/block-editor';
 
 const { PostCardPanel, usePostFields } = unlock( editorPrivateApis );
 
-const fieldsWithBulkEditSupport = [
-	'title',
-	'status',
-	'date',
-	'author',
-	'comment_status',
-];
+const DATAFORM_CONFIG = {
+	type: 'panel',
+	fields: [
+		{
+			id: 'featured_media',
+			layout: 'regular',
+		},
+		'title',
+		{
+			id: 'status',
+			label: __( 'Status & Visibility' ),
+			children: [ 'status', 'password' ],
+		},
+		'author',
+		'date',
+		'slug',
+		'parent',
+		'comment_status',
+		{
+			label: __( 'Template' ),
+			labelPosition: 'side',
+			id: 'template',
+			layout: 'regular',
+		},
+	],
+};
 
 function PostEditForm( { postType, postId } ) {
 	const ids = useMemo( () => postId.split( ',' ), [ postId ] );
-	const { record } = useSelect(
+	const { record, records } = useSelect(
 		( select ) => {
 			return {
 				record:
@@ -45,11 +64,20 @@ function PostEditForm( { postType, postId } ) {
 								ids[ 0 ]
 						  )
 						: null,
+				records:
+					ids.length > 1
+						? ids.map( ( id ) =>
+								select( coreDataStore ).getEditedEntityRecord(
+									'postType',
+									postType,
+									id
+								)
+						  )
+						: null,
 			};
 		},
 		[ postType, ids ]
 	);
-	const [ multiEdits, setMultiEdits ] = useState( {} );
 	const { editEntityRecord } = useDispatch( coreDataStore );
 	const { fields: _fields } = usePostFields( { postType } );
 	const fields = useMemo(
@@ -68,39 +96,6 @@ function PostEditForm( { postType, postId } ) {
 		[ _fields ]
 	);
 
-	const form = useMemo(
-		() => ( {
-			type: 'panel',
-			fields: [
-				{
-					id: 'featured_media',
-					layout: 'regular',
-				},
-				'title',
-				{
-					id: 'status',
-					label: __( 'Status & Visibility' ),
-					children: [ 'status', 'password' ],
-				},
-				'author',
-				'date',
-				'slug',
-				'parent',
-				'comment_status',
-				{
-					label: __( 'Template' ),
-					labelPosition: 'side',
-					id: 'template',
-					layout: 'regular',
-				},
-			].filter(
-				( field ) =>
-					ids.length === 1 ||
-					fieldsWithBulkEditSupport.includes( field )
-			),
-		} ),
-		[ ids ]
-	);
 	const onChange = ( edits ) => {
 		for ( const id of ids ) {
 			if (
@@ -119,17 +114,8 @@ function PostEditForm( { postType, postId } ) {
 				edits.password = '';
 			}
 			editEntityRecord( 'postType', postType, id, edits );
-			if ( ids.length > 1 ) {
-				setMultiEdits( ( prev ) => ( {
-					...prev,
-					...edits,
-				} ) );
-			}
 		}
 	};
-	useEffect( () => {
-		setMultiEdits( {} );
-	}, [ ids ] );
 
 	const { ExperimentalBlockEditorProvider } = unlock(
 		blockEditorPrivateApis
@@ -163,9 +149,9 @@ function PostEditForm( { postType, postId } ) {
 				<PostCardPanel postType={ postType } postId={ ids[ 0 ] } />
 			) }
 			<DataForm
-				data={ ids.length === 1 ? record : multiEdits }
+				data={ ids.length === 1 ? record : records }
 				fields={ fieldsWithDependency }
-				form={ form }
+				form={ DATAFORM_CONFIG }
 				onChange={ onChange }
 			/>
 		</VStack>

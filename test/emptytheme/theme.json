@@ -6,6 +6,44 @@
 		"layout": {
 			"contentSize": "840px",
 			"wideSize": "1100px"
+		},
+		"spacing": {
+			"spacingSizes": [
+				{
+					"name": "Small",
+					"slug": "small",
+					"size": "10px"
+				},
+				{
+					"name": "Medium",
+					"slug": "medium",
+					"size": "20px"
+				},
+				{
+					"name": "Large",
+					"slug": "large",
+					"size": "30px"
+				}
+			]
+		},
+		"border": {
+			"radiusSizes": [
+				{
+					"name": "Small",
+					"slug": "small",
+					"size": "2px"
+				},
+				{
+					"name": "Medium",
+					"slug": "medium",
+					"size": "4px"
+				},
+				{
+					"name": "Large",
+					"slug": "large",
+					"size": "6px"
+				}
+			]
 		}
 	},
 	"customTemplates": [

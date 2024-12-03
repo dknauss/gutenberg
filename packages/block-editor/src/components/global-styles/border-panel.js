@@ -277,6 +277,7 @@ export default function BorderPanel( {
 					panelId={ panelId }
 				>
 					<BorderRadiusControl
+						presets={ settings?.border?.radiusSizes }
 						values={ borderRadiusValues }
 						onChange={ ( newValue ) => {
 							setBorderRadius( newValue || undefined );

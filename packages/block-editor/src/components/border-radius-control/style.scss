@@ -1,8 +1,13 @@
+.components-border-radius-control__header {
+	height: $grid-unit-20;
+	margin-bottom: $grid-unit-15;
+}
+
 .components-border-radius-control {
 	margin-bottom: $grid-unit-15;
 
 	legend {
-		margin-bottom: $grid-unit-10;
+		margin-bottom: 0;
 	}
 
 	.components-border-radius-control__wrapper {
@@ -11,7 +16,6 @@
 		align-items: flex-start;
 
 		.components-border-radius-control__unit-control {
-			width: calc((100% - #{$grid-unit-20}) / 2);
 			margin-bottom: 0;
 			margin-right: $grid-unit-20;
 			flex-shrink: 0;
@@ -33,7 +37,6 @@
 	.component-border-radius-control__linked-button {
 		display: flex;
 		justify-content: center;
-		margin-top: $grid-unit-10;
 
 		svg {
 			margin-right: 0;

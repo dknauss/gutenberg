@@ -10,23 +10,6 @@
 		margin-bottom: 0;
 	}
 
-	.components-border-radius-control__wrapper {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-
-		.components-border-radius-control__unit-control {
-			margin-bottom: 0;
-			margin-right: $grid-unit-20;
-			flex-shrink: 0;
-		}
-
-		.components-border-radius-control__range-control {
-			flex: 1;
-			margin-right: $grid-unit-15;
-		}
-	}
-
 	.components-border-radius-control__input-controls-wrapper {
 		display: grid;
 		gap: $grid-unit-20;
@@ -42,4 +25,13 @@
 			margin-right: 0;
 		}
 	}
+}
+
+.components-border-radius-control__custom-select-control,
+.components-border-radius-control__range-control {
+	flex: 1;
+}
+
+.component-border-radius-control__custom-toggle {
+	flex: 0 0 auto;
 }

@@ -28,9 +28,9 @@ const DEFAULT_VALUES = {
 const RANGE_CONTROL_MAX_SIZE = 8;
 const EMPTY_ARRAY = [];
 function useBorderRadiusSizes( presets ) {
-	const defaultSizes = presets?.radiusSizes?.default ?? EMPTY_ARRAY;
-	const customSizes = presets?.radiusSizes?.custom ?? EMPTY_ARRAY;
-	const themeSizes = presets?.radiusSizes?.theme ?? EMPTY_ARRAY;
+	const defaultSizes = presets?.default ?? EMPTY_ARRAY;
+	const customSizes = presets?.custom ?? EMPTY_ARRAY;
+	const themeSizes = presets?.theme ?? EMPTY_ARRAY;
 
 	return useMemo( () => {
 		const sizes = [
@@ -99,39 +99,39 @@ export default function BorderRadiusControl( { onChange, values, presets } ) {
 				</BaseControl.VisualLabel>
 				<LinkedButton onClick={ toggleLinked } isLinked={ isLinked } />
 			</HStack>
-			<div className="components-border-radius-control__wrapper">
-				{ isLinked ? (
-					<>
+			{ isLinked ? (
+				<>
+					<SingleInputControl
+						onChange={ onChange }
+						selectedUnits={ selectedUnits }
+						setSelectedUnits={ setSelectedUnits }
+						values={ values }
+						units={ units }
+						corner="all"
+						presets={ options }
+					/>
+				</>
+			) : (
+				<VStack>
+					{ [
+						'topLeft',
+						'topRight',
+						'bottomLeft',
+						'bottomRight',
+					].map( ( corner ) => (
 						<SingleInputControl
+							key={ corner }
 							onChange={ onChange }
 							selectedUnits={ selectedUnits }
 							setSelectedUnits={ setSelectedUnits }
-							values={ values }
+							values={ values || DEFAULT_VALUES }
 							units={ units }
-							corner="all"
+							corner={ corner }
+							presets={ options }
 						/>
-					</>
-				) : (
-					<VStack>
-						{ [
-							'topLeft',
-							'topRight',
-							'bottomLeft',
-							'bottomRight',
-						].map( ( corner ) => (
-							<SingleInputControl
-								key={ corner }
-								onChange={ onChange }
-								selectedUnits={ selectedUnits }
-								setSelectedUnits={ setSelectedUnits }
-								values={ values || DEFAULT_VALUES }
-								units={ units }
-								corner={ corner }
-							/>
-						) ) }
-					</VStack>
-				) }
-			</div>
+					) ) }
+				</VStack>
+			) }
 		</fieldset>
 	);
 }

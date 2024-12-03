@@ -209,7 +209,7 @@ class WP_Theme_JSON_Gutenberg {
 			'prevent_override'  => false,
 			'use_default_names' => false,
 			'value_key'         => 'size',
-			'css_vars'          => '--wp--preset--border--radius--$slug',
+			'css_vars'          => '--wp--preset--border-radius--$slug',
 			'classes'           => array(),
 			'properties'        => array( 'border-radius' ),
 		),

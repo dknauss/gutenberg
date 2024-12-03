@@ -18,6 +18,7 @@ import { useContext, useMemo } from '@wordpress/element';
  * Internal dependencies
  */
 import BlockContext from '../block-context';
+import { withBlockBindingSupport } from '../../hooks/use-bindings-attributes';
 
 /**
  * Default value used for blocks which do not define their own context needs,
@@ -45,7 +46,9 @@ const Edit = ( props ) => {
 	return <Component { ...props } />;
 };
 
-const EditWithFilters = withFilters( 'editor.BlockEdit' )( Edit );
+const EditWithFilters = withBlockBindingSupport(
+	withFilters( 'editor.BlockEdit' )( Edit )
+);
 
 const EditWithGeneratedProps = ( props ) => {
 	const { attributes = {}, name } = props;

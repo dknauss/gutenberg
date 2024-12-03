@@ -5,7 +5,6 @@ import { store as blocksStore } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useRegistry, useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useContext } from '@wordpress/element';
-import { addFilter } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -103,29 +102,28 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 		const sources = useSelect( ( select ) =>
 			unlock( select( blocksStore ) ).getAllBlockBindingsSources()
 		);
-		const { name, clientId, context, setAttributes } = props;
-		const blockBindings = useMemo(
-			() =>
-				replacePatternOverrideDefaultBindings(
-					name,
-					props.attributes.metadata?.bindings
-				),
-			[ props.attributes.metadata?.bindings, name ]
-		);
+		const { name, clientId, context, attributes, setAttributes } = props;
+		const blockBindings = useMemo( () => {
+			if ( ! attributes.metadata?.bindings ) {
+				return attributes.metadata?.bindings;
+			}
+			return replacePatternOverrideDefaultBindings(
+				name,
+				attributes.metadata?.bindings
+			);
+		}, [ attributes.metadata?.bindings, name ] );
 
-		// While this hook doesn't directly call any selectors, `useSelect` is
-		// used purposely here to ensure `boundAttributes` is updated whenever
-		// there are attribute updates.
-		// `source.getValues` may also call a selector via `registry.select`.
-		const updatedContext = {};
-		const boundAttributes = useSelect(
+		const { computedAttributes, computedContext } = useSelect(
 			( select ) => {
 				if ( ! blockBindings ) {
-					return;
+					return {
+						computedAttributes: attributes,
+						computedContext: context,
+					};
 				}
 
-				const attributes = {};
-
+				const attributesFromSources = {};
+				const contextFromSources = {};
 				const blockBindingsBySource = new Map();
 
 				for ( const [ attributeName, binding ] of Object.entries(
@@ -142,7 +140,7 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 
 					// Populate context.
 					for ( const key of source.usesContext || [] ) {
-						updatedContext[ key ] = blockContext[ key ];
+						contextFromSources[ key ] = blockContext[ key ];
 					}
 
 					blockBindingsBySource.set( source, {
@@ -168,7 +166,7 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 						} else {
 							values = source.getValues( {
 								select,
-								context: updatedContext,
+								context: contextFromSources,
 								clientId,
 								bindings,
 							} );
@@ -181,32 +179,46 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 								( ! value || ! isURLLike( value ) )
 							) {
 								// Return null if value is not a valid URL.
-								attributes[ attributeName ] = null;
+								attributesFromSources[ attributeName ] = null;
 							} else {
-								attributes[ attributeName ] = value;
+								attributesFromSources[ attributeName ] = value;
 							}
 						}
 					}
 				}
 
-				return attributes;
+				return {
+					computedAttributes: {
+						...attributes,
+						...attributesFromSources,
+					},
+					computedContext: { ...context, ...contextFromSources },
+				};
 			},
-			[ blockBindings, name, clientId, updatedContext, sources ]
+			[
+				attributes,
+				blockBindings,
+				blockContext,
+				clientId,
+				context,
+				name,
+				sources,
+			]
 		);
 
-		const hasParentPattern = !! updatedContext[ 'pattern/overrides' ];
+		const hasParentPattern = !! computedAttributes[ 'pattern/overrides' ];
 		const hasPatternOverridesDefaultBinding =
-			props.attributes.metadata?.bindings?.[ DEFAULT_ATTRIBUTE ]
-				?.source === 'core/pattern-overrides';
+			attributes.metadata?.bindings?.[ DEFAULT_ATTRIBUTE ]?.source ===
+			'core/pattern-overrides';
 
-		const _setAttributes = useCallback(
+		const setBoundAttributes = useCallback(
 			( nextAttributes ) => {
-				registry.batch( () => {
-					if ( ! blockBindings ) {
-						setAttributes( nextAttributes );
-						return;
-					}
+				if ( ! blockBindings ) {
+					setAttributes( nextAttributes );
+					return;
+				}
 
+				registry.batch( () => {
 					const keptAttributes = { ...nextAttributes };
 					const blockBindingsBySource = new Map();
 
@@ -244,7 +256,7 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 							source.setValues( {
 								select: registry.select,
 								dispatch: registry.dispatch,
-								context: updatedContext,
+								context: computedContext,
 								clientId,
 								bindings,
 							} );
@@ -274,7 +286,7 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 				blockBindings,
 				name,
 				clientId,
-				updatedContext,
+				computedContext,
 				setAttributes,
 				sources,
 				hasPatternOverridesDefaultBinding,
@@ -283,40 +295,13 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 		);
 
 		return (
-			<>
-				<BlockEdit
-					{ ...props }
-					attributes={ { ...props.attributes, ...boundAttributes } }
-					setAttributes={ _setAttributes }
-					context={ { ...context, ...updatedContext } }
-				/>
-			</>
+			<BlockEdit
+				{ ...props }
+				context={ computedContext }
+				attributes={ computedAttributes }
+				setAttributes={ setBoundAttributes }
+			/>
 		);
 	},
 	'withBlockBindingSupport'
-);
-
-/**
- * Filters a registered block's settings to enhance a block's `edit` component
- * to upgrade bound attributes.
- *
- * @param {WPBlockSettings} settings - Registered block settings.
- * @param {string}          name     - Block name.
- * @return {WPBlockSettings} Filtered block settings.
- */
-function shimAttributeSource( settings, name ) {
-	if ( ! canBindBlock( name ) ) {
-		return settings;
-	}
-
-	return {
-		...settings,
-		edit: withBlockBindingSupport( settings.edit ),
-	};
-}
-
-addFilter(
-	'blocks.registerBlockType',
-	'core/editor/custom-sources-backwards-compatibility/shim-attribute-source',
-	shimAttributeSource
 );

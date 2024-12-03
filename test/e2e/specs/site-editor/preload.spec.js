@@ -78,7 +78,6 @@ test.describe( 'Preload: should make no requests before the iframe is loaded', (
 			[ 'GET', '/wp/v2/types/page' ],
 			[ 'OPTIONS', '/wp/v2/settings' ],
 			[ 'GET', '/wp/v2/taxonomies' ],
-			[ 'POST', '/wp/v2/users/me' ],
 		] );
 	} );
 } );

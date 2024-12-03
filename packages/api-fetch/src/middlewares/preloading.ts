@@ -4,10 +4,17 @@
 import { addQueryArgs, getQueryArgs, normalizePath } from '@wordpress/url';
 
 /**
- * @param {Record<string, any>} preloadedData
- * @return {import('../types').APIFetchMiddleware} Preloading middleware.
+ * Internal dependencies
  */
-function createPreloadingMiddleware( preloadedData ) {
+import type { APIFetchMiddleware } from '../types';
+
+/**
+ * @param preloadedData
+ * @return Preloading middleware.
+ */
+function createPreloadingMiddleware(
+	preloadedData: Record< string, any >
+): APIFetchMiddleware {
 	const cache = Object.fromEntries(
 		Object.entries( preloadedData ).map( ( [ path, data ] ) => [
 			normalizePath( path ),
@@ -17,7 +24,6 @@ function createPreloadingMiddleware( preloadedData ) {
 
 	return ( options, next ) => {
 		const { parse = true } = options;
-		/** @type {string | void} */
 		let rawPath = options.path;
 		if ( ! rawPath && options.url ) {
 			const { rest_route: pathFromQuery, ...queryArgs } = getQueryArgs(
@@ -63,11 +69,14 @@ function createPreloadingMiddleware( preloadedData ) {
 /**
  * This is a helper function that sends a success response.
  *
- * @param {Record<string, any>} responseData
- * @param {boolean}             parse
- * @return {Promise<any>} Promise with the response.
+ * @param responseData
+ * @param parse
+ * @return Promise with the response.
  */
-function prepareResponse( responseData, parse ) {
+function prepareResponse(
+	responseData: Record< string, any >,
+	parse: boolean
+) {
 	return Promise.resolve(
 		parse
 			? responseData.body

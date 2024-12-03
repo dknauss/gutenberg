@@ -7,10 +7,10 @@ import clsx from 'clsx';
  * WordPress dependencies
  */
 import {
-	getBlockBindingsSources,
 	getBlockDefaultClassName,
-	hasBlockSupport,
 	getBlockType,
+	hasBlockSupport,
+	store as blocksStore,
 } from '@wordpress/blocks';
 import { withFilters } from '@wordpress/components';
 import { useRegistry, useSelect } from '@wordpress/data';
@@ -26,6 +26,7 @@ import {
 	hasPatternOverridesDefaultBindings,
 	replacePatternOverrideDefaultBindings,
 } from '../../utils/block-bindings';
+import { unlock } from '../../lock-unlock';
 
 /**
  * Default value used for blocks which do not define their own context needs,
@@ -60,7 +61,9 @@ const EditWithGeneratedProps = ( props ) => {
 	const registry = useRegistry();
 	const blockType = getBlockType( name );
 	const blockContext = useContext( BlockContext );
-	const registeredSources = getBlockBindingsSources();
+	const registeredSources = useSelect( ( select ) =>
+		unlock( select( blocksStore ) ).getAllBlockBindingsSources()
+	);
 
 	const blockBindings = useMemo(
 		() =>

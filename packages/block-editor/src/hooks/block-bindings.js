@@ -76,9 +76,10 @@ function BlockBindingsPanelDropdown( { fieldsList, attribute } ) {
 			__next40pxDefaultSize
 			__nextHasNoMarginBottom
 			allowReset
-			expandOnFocus={ false }
+			expandOnFocus
 			label={ __( 'Connect attributes' ) }
 			options={ filteredOptions }
+			className="block-editor-bindings__combobox"
 			__experimentalRenderItem={ ( element ) => {
 				const { label, source, value } = element.item;
 				return (

@@ -4,3 +4,6 @@ div.block-editor-bindings__panel {
 		color: inherit;
 	}
 }
+.block-editor-bindings__combobox .components-form-token-field__suggestions-list {
+	max-height: 400px;
+}

@@ -156,10 +156,10 @@ function extractSize( entries ) {
 
 /**
  * @typedef {Object} ScaleCanvasResult
- * @property {boolean} isZoomedOut             A boolean indicating if the canvas is zoomed out.
- * @property {number}  scaleContainerWidth     The width of the container used to calculate the scale.
- * @property {Object}  contentResizeListener   A resize observer for the content.
- * @property {Object}  containerResizeListener A resize observer for the container.
+ * @property {boolean}                      isZoomedOut         A boolean indicating if the canvas is zoomed out.
+ * @property {number}                       scaleContainerWidth The width of the container used to calculate the scale.
+ * @property {import('react').Ref<Element>} contentRef          A callback ref to the content element.
+ * @property {import('react').Ref<Element>} containerRef        A callback ref to the container element.
  */
 
 /**
@@ -180,14 +180,14 @@ export function useScaleCanvas( {
 	scale,
 } ) {
 	const [ { height: contentHeight }, setContentRect ] = useState( NULL_SIZE );
-	const contentRefCallback = useResizeObserver( ( entries ) => {
+	const contentRef = useResizeObserver( ( entries ) => {
 		setContentRect( extractSize( entries ) );
 	} );
 	const [
 		{ width: containerWidth, height: containerHeight },
 		setContainerRect,
 	] = useState( NULL_SIZE );
-	const containerRefCallback = useResizeObserver( ( entries ) => {
+	const containerRef = useResizeObserver( ( entries ) => {
 		setContainerRect( extractSize( entries ) );
 	} );
 
@@ -511,7 +511,7 @@ export function useScaleCanvas( {
 	return {
 		isZoomedOut,
 		scaleContainerWidth,
-		contentRefCallback,
-		containerRefCallback,
+		contentRef,
+		containerRef,
 	};
 }

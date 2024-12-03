@@ -217,8 +217,8 @@ function Iframe( {
 	}, [] );
 
 	const {
-		contentRefCallback,
-		containerRefCallback,
+		contentRef: scaleContentRef,
+		containerRef,
 		isZoomedOut,
 		scaleContainerWidth,
 	} = useScaleCanvas( {
@@ -234,7 +234,7 @@ function Iframe( {
 		clearerRef,
 		writingFlowRef,
 		disabledRef,
-		contentRefCallback,
+		scaleContentRef,
 	] );
 
 	// Correct doctype is required to enable rendering in standards
@@ -354,10 +354,7 @@ function Iframe( {
 	);
 
 	return (
-		<div
-			className="block-editor-iframe__container"
-			ref={ containerRefCallback }
-		>
+		<div className="block-editor-iframe__container" ref={ containerRef }>
 			<div
 				className={ clsx(
 					'block-editor-iframe__scale-container',

@@ -46,11 +46,19 @@ function render_block_core_post_content( $attributes, $content, $block ) {
 		$content .= wp_link_pages( array( 'echo' => 0 ) );
 	}
 
+	$ignored_hooked_blocks = get_post_meta( $post_id, '_wp_ignored_hooked_blocks', true );
+	if ( ! empty( $ignored_hooked_blocks ) ) {
+		$ignored_hooked_blocks  = json_decode( $ignored_hooked_blocks, true );
+		$attributes['metadata'] = array(
+			'ignoredHookedBlocks' => $ignored_hooked_blocks,
+		);
+	}
+
 	// Wrap in Post Content block so the Block Hooks algorithm can insert blocks
 	// that are hooked as first or last child of `core/post-content`.
 	$content = get_comment_delimited_block_content(
 		'core/post-content',
-		$attributes, // TODO: Merge ignoredHookedBlocks from post meta.
+		$attributes,
 		$content
 	);
 

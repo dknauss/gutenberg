@@ -7,6 +7,7 @@ import clsx from 'clsx';
  * WordPress dependencies
  */
 import {
+	getBlockBindingsSources,
 	getBlockDefaultClassName,
 	hasBlockSupport,
 	getBlockType,
@@ -79,26 +80,38 @@ const EditWithGeneratedProps = ( props ) => {
 
 	// Assign context values using the block type's declared context needs.
 	const context = useMemo( () => {
-		return blockType && blockType.usesContext
-			? Object.fromEntries(
-					Object.entries( blockContext ).filter( ( [ key ] ) =>
-						blockType.usesContext.includes( key )
-					)
-			  )
-			: DEFAULT_BLOCK_CONTEXT;
-	}, [ blockType, blockContext ] );
+		const _context =
+			blockType && blockType.usesContext
+				? Object.fromEntries(
+						Object.entries( blockContext ).filter( ( [ key ] ) =>
+							blockType.usesContext.includes( key )
+						)
+				  )
+				: DEFAULT_BLOCK_CONTEXT;
+		// Add block bindings context.
+		const blockBindingsContext = {};
+		if ( attributes?.metadata?.bindings ) {
+			const registeredSources = getBlockBindingsSources();
+			Object.values( attributes?.metadata?.bindings || {} ).forEach(
+				( binding ) => {
+					registeredSources[ binding?.source ]?.usesContext?.forEach(
+						( key ) => {
+							blockBindingsContext[ key ] = blockContext[ key ];
+						}
+					);
+				}
+			);
+		}
+		return { ..._context, ...blockBindingsContext };
+	}, [ blockType, blockContext, attributes?.metadata?.bindings ] );
 
-	const { computedAttributes, computedContext } = useSelect(
+	const computedAttributes = useSelect(
 		( select ) => {
 			if ( ! blockBindings ) {
-				return {
-					computedAttributes: attributes,
-					computedContext: context,
-				};
+				return attributes;
 			}
 
 			const attributesFromSources = {};
-			const contextFromSources = {};
 			const blockBindingsBySource = new Map();
 
 			for ( const [ attributeName, binding ] of Object.entries(
@@ -108,11 +121,6 @@ const EditWithGeneratedProps = ( props ) => {
 				const source = sources[ sourceName ];
 				if ( ! source || ! canBindAttribute( name, attributeName ) ) {
 					continue;
-				}
-
-				// Populate context.
-				for ( const key of source.usesContext || [] ) {
-					contextFromSources[ key ] = blockContext[ key ];
 				}
 
 				blockBindingsBySource.set( source, {
@@ -135,7 +143,7 @@ const EditWithGeneratedProps = ( props ) => {
 					} else {
 						values = source.getValues( {
 							select,
-							context: contextFromSources,
+							context,
 							clientId,
 							bindings,
 						} );
@@ -157,22 +165,11 @@ const EditWithGeneratedProps = ( props ) => {
 			}
 
 			return {
-				computedAttributes: {
-					...attributes,
-					...attributesFromSources,
-				},
-				computedContext: { ...context, ...contextFromSources },
+				...attributes,
+				...attributesFromSources,
 			};
 		},
-		[
-			attributes,
-			blockBindings,
-			blockContext,
-			clientId,
-			context,
-			name,
-			sources,
-		]
+		[ attributes, blockBindings, clientId, context, name, sources ]
 	);
 
 	const setBoundAttributes = useCallback(
@@ -220,15 +217,14 @@ const EditWithGeneratedProps = ( props ) => {
 						source.setValues( {
 							select: registry.select,
 							dispatch: registry.dispatch,
-							context: computedContext,
+							context,
 							clientId,
 							bindings,
 						} );
 					}
 				}
 
-				const hasParentPattern =
-					!! computedContext[ 'pattern/overrides' ];
+				const hasParentPattern = !! context[ 'pattern/overrides' ];
 
 				if (
 					// Don't update non-connected attributes if the block is using pattern overrides
@@ -250,7 +246,7 @@ const EditWithGeneratedProps = ( props ) => {
 		[
 			blockBindings,
 			clientId,
-			computedContext,
+			context,
 			hasPatternOverridesDefaultBinding,
 			setAttributes,
 			sources,
@@ -268,7 +264,7 @@ const EditWithGeneratedProps = ( props ) => {
 			<EditWithFilters
 				{ ...props }
 				attributes={ computedAttributes }
-				context={ computedContext }
+				context={ context }
 				setAttributes={ setBoundAttributes }
 			/>
 		);
@@ -289,7 +285,7 @@ const EditWithGeneratedProps = ( props ) => {
 			{ ...props }
 			attributes={ computedAttributes }
 			className={ className }
-			context={ computedContext }
+			context={ context }
 			setAttributes={ setBoundAttributes }
 		/>
 	);

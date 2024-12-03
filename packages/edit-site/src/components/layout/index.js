@@ -155,9 +155,10 @@ function Layout() {
 											isResizableFrameOversized
 										}
 									/>
+									{ areas.mobile }
 								</SidebarContent>
 							) }
-							{ areas.mobile }
+							{ canvas === 'edit' ? areas.mobile : null }
 						</div>
 					) }
 

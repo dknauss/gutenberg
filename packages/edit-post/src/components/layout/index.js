@@ -148,11 +148,7 @@ function useEditorStyles( ...additionalStyles ) {
 	] );
 }
 
-/**
- * @param {Object}  props
- * @param {boolean} props.isLegacy True when the editor canvas is not in an iframe.
- */
-function MetaBoxesMain( { isLegacy } ) {
+function MetaBoxesMain() {
 	const [ isOpen, openHeight, hasAnyVisible ] = useSelect( ( select ) => {
 		const { get } = select( preferencesStore );
 		const { isMetaBoxLocationVisible } = select( editPostStore );
@@ -232,21 +228,14 @@ function MetaBoxesMain( { isLegacy } ) {
 
 	const contents = (
 		<div
-			className={ clsx(
-				// The class name 'edit-post-layout__metaboxes' is retained because some plugins use it.
-				'edit-post-layout__metaboxes',
-				! isLegacy && 'edit-post-meta-boxes-main__liner'
-			) }
-			hidden={ ! isLegacy && isShort && ! isOpen }
+			// The class name 'edit-post-layout__metaboxes' is retained because some plugins use it.
+			className="edit-post-layout__metaboxes edit-post-meta-boxes-main__liner"
+			hidden={ isShort && ! isOpen }
 		>
 			<MetaBoxes location="normal" />
 			<MetaBoxes location="advanced" />
 		</div>
 	);
-
-	if ( isLegacy ) {
-		return contents;
-	}
 
 	const isAutoHeight = openHeight === undefined;
 	let usedMax = '50%'; // Approximation before max has a value.
@@ -586,9 +575,7 @@ function Layout( {
 						}
 						extraContent={
 							! isDistractionFree &&
-							showMetaBoxes && (
-								<MetaBoxesMain isLegacy={ ! shouldIframe } />
-							)
+							showMetaBoxes && <MetaBoxesMain />
 						}
 					>
 						<PostLockedModal />

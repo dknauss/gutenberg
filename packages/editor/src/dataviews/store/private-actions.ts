@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { store as coreStore } from '@wordpress/core-data';
-import type { Action } from '@wordpress/dataviews';
+import type { Action, Field } from '@wordpress/dataviews';
 import { doAction } from '@wordpress/hooks';
 
 /**
@@ -24,6 +24,15 @@ import {
 	renamePost,
 	resetPost,
 	deletePost,
+	featuredImageField,
+	dateField,
+	parentField,
+	passwordField,
+	commentStatusField,
+	slugField,
+	statusField,
+	authorField,
+	titleField,
 } from '@wordpress/fields';
 import duplicateTemplatePart from '../actions/duplicate-template-part';
 
@@ -53,6 +62,32 @@ export function unregisterEntityAction(
 	};
 }
 
+export function registerEntityField< Item >(
+	kind: string,
+	name: string,
+	config: Field< Item >
+) {
+	return {
+		type: 'REGISTER_ENTITY_FIELD' as const,
+		kind,
+		name,
+		config,
+	};
+}
+
+export function unregisterEntityField(
+	kind: string,
+	name: string,
+	fieldId: string
+) {
+	return {
+		type: 'UNREGISTER_ENTITY_FIELD' as const,
+		kind,
+		name,
+		fieldId,
+	};
+}
+
 export function setIsReady( kind: string, name: string ) {
 	return {
 		type: 'SET_IS_READY' as const,
@@ -61,7 +96,7 @@ export function setIsReady( kind: string, name: string ) {
 	};
 }
 
-export const registerPostTypeActions =
+export const registerPostTypeSchema =
 	( postType: string ) =>
 	async ( { registry }: { registry: any } ) => {
 		const isReady = unlock( registry.select( editorStore ) ).isEntityReady(
@@ -93,7 +128,7 @@ export const registerPostTypeActions =
 
 		const actions = [
 			postTypeConfig.viewable ? viewPost : undefined,
-			!! postTypeConfig?.supports?.revisions
+			!! postTypeConfig.supports?.revisions
 				? viewPostRevisions
 				: undefined,
 			// @ts-ignore
@@ -113,7 +148,7 @@ export const registerPostTypeActions =
 				? duplicatePattern
 				: undefined,
 			postTypeConfig.supports?.title ? renamePost : undefined,
-			postTypeConfig?.supports?.[ 'page-attributes' ]
+			postTypeConfig.supports?.[ 'page-attributes' ]
 				? reorderPage
 				: undefined,
 			postTypeConfig.slug === 'wp_block' ? exportPattern : undefined,
@@ -122,20 +157,38 @@ export const registerPostTypeActions =
 			deletePost,
 			trashPost,
 			permanentlyDeletePost,
-		];
+		].filter( Boolean );
+
+		const fields = [
+			postTypeConfig.supports?.thumbnail &&
+				currentTheme?.[ 'theme-supports' ]?.[ 'post-thumbnails' ] &&
+				featuredImageField,
+			titleField,
+			postTypeConfig.supports?.author && authorField,
+			statusField,
+			dateField,
+			slugField,
+			postTypeConfig.supports?.[ 'page-attributes' ] && parentField,
+			postTypeConfig.supports?.comments && commentStatusField,
+			passwordField,
+		].filter( Boolean );
 
 		registry.batch( () => {
 			actions.forEach( ( action ) => {
-				if ( ! action ) {
-					return;
-				}
 				unlock( registry.dispatch( editorStore ) ).registerEntityAction(
 					'postType',
 					postType,
 					action
 				);
 			} );
+			fields.forEach( ( field ) => {
+				unlock( registry.dispatch( editorStore ) ).registerEntityField(
+					'postType',
+					postType,
+					field
+				);
+			} );
 		} );
 
-		doAction( 'core.registerPostTypeActions', postType );
+		doAction( 'core.registerPostTypeSchema', postType );
 	};

@@ -7,6 +7,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useCallback } from '@wordpress/element';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { privateApis as routerPrivateApis } from '@wordpress/router';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -22,7 +23,7 @@ import { MainSidebarNavigationContent } from '../sidebar-navigation-screen-main'
 const { useLocation, useHistory } = unlock( routerPrivateApis );
 
 export function SidebarNavigationItemGlobalStyles( props ) {
-	const { params } = useLocation();
+	const { name } = useLocation();
 	const hasGlobalStyleVariations = useSelect(
 		( select ) =>
 			!! select(
@@ -34,11 +35,9 @@ export function SidebarNavigationItemGlobalStyles( props ) {
 		return (
 			<SidebarNavigationItem
 				{ ...props }
-				params={ { path: '/wp_global_styles' } }
+				to="/styles"
 				uid="global-styles-navigation-item"
-				aria-current={
-					params.path && params.path.startsWith( '/wp_global_styles' )
-				}
+				aria-current={ name === 'styles' }
 			/>
 		);
 	}
@@ -47,43 +46,27 @@ export function SidebarNavigationItemGlobalStyles( props ) {
 
 export default function SidebarNavigationScreenGlobalStyles() {
 	const history = useHistory();
-	const { params } = useLocation();
-	const { revisions, isLoading: isLoadingRevisions } =
-		useGlobalStylesRevisions();
+	const { path } = useLocation();
+	const {
+		revisions,
+		isLoading: isLoadingRevisions,
+		revisionsCount,
+	} = useGlobalStylesRevisions();
 	const { openGeneralSidebar } = useDispatch( editSiteStore );
 	const { setEditorCanvasContainerView } = unlock(
 		useDispatch( editSiteStore )
 	);
-	const { revisionsCount } = useSelect( ( select ) => {
-		const { getEntityRecord, __experimentalGetCurrentGlobalStylesId } =
-			select( coreStore );
-		const globalStylesId = __experimentalGetCurrentGlobalStylesId();
-		const globalStyles = globalStylesId
-			? getEntityRecord( 'root', 'globalStyles', globalStylesId )
-			: undefined;
-		return {
-			revisionsCount:
-				globalStyles?._links?.[ 'version-history' ]?.[ 0 ]?.count ?? 0,
-		};
-	}, [] );
 	const { set: setPreference } = useDispatch( preferencesStore );
 
 	const openGlobalStyles = useCallback( async () => {
-		history.push(
-			{
-				...params,
-				canvas: 'edit',
-			},
-			undefined,
-			{
-				transition: 'canvas-mode-edit-transition',
-			}
-		);
+		history.navigate( addQueryArgs( path, { canvas: 'edit' } ), {
+			transition: 'canvas-mode-edit-transition',
+		} );
 		return Promise.all( [
 			setPreference( 'core', 'distractionFree', false ),
 			openGeneralSidebar( 'edit-site/global-styles' ),
 		] );
-	}, [ history, params, openGeneralSidebar, setPreference ] );
+	}, [ path, history, openGeneralSidebar, setPreference ] );
 
 	const openRevisions = useCallback( async () => {
 		await openGlobalStyles();
@@ -95,10 +78,9 @@ export default function SidebarNavigationScreenGlobalStyles() {
 	}, [ openGlobalStyles, setEditorCanvasContainerView ] );
 
 	// If there are no revisions, do not render a footer.
-	const hasRevisions = revisionsCount > 0;
-	const modifiedDateTime = revisions?.[ 0 ]?.modified;
 	const shouldShowGlobalStylesFooter =
-		hasRevisions && ! isLoadingRevisions && modifiedDateTime;
+		!! revisionsCount && ! isLoadingRevisions;
+
 	return (
 		<>
 			<SidebarNavigationScreen
@@ -114,6 +96,7 @@ export default function SidebarNavigationScreenGlobalStyles() {
 					shouldShowGlobalStylesFooter && (
 						<SidebarNavigationScreenDetailsFooter
 							record={ revisions?.[ 0 ] }
+							revisionsCount={ revisionsCount }
 							onClick={ openRevisions }
 						/>
 					)

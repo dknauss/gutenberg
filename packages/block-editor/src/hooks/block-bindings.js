@@ -218,9 +218,9 @@ function EditableBlockBindingsPanelItems( {
 							} }
 						>
 							<BlockBindingsAttribute
+								fieldsList={ fieldsList }
 								attribute={ attribute }
 								binding={ binding }
-								fieldsList={ fieldsList }
 							/>
 						</Item>
 					</ToolsPanelItem>
@@ -332,12 +332,10 @@ export const BlockBindingsPanel = ( { name: blockName, metadata } ) => {
 			>
 				<ItemGroup isBordered isSeparated>
 					{ readOnly ? (
-						<div>
-							<ReadOnlyBlockBindingsPanelItems
-								bindings={ filteredBindings }
-								fieldsList={ fieldsList }
-							/>
-						</div>
+						<ReadOnlyBlockBindingsPanelItems
+							bindings={ filteredBindings }
+							fieldsList={ fieldsList }
+						/>
 					) : (
 						<EditableBlockBindingsPanelItems
 							attributes={ bindableAttributes }

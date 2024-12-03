@@ -1,7 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { store as blocksStore } from '@wordpress/blocks';
+import {
+	store as blocksStore,
+	getBlockBindingsSources,
+} from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useRegistry, useSelect } from '@wordpress/data';
 import { useCallback, useMemo, useContext } from '@wordpress/element';
@@ -76,12 +79,28 @@ export const withBlockBindingsSupport = createHigherOrderComponent(
 				),
 			[ props.attributes?.metadata?.bindings, name ]
 		);
+		const updatedContext = useMemo( () => {
+			// Add context needed for block bindings.
+			const blockBindingsContext = {};
+			if ( props.attributes?.metadata?.bindings ) {
+				const registeredSources = getBlockBindingsSources();
+				Object.values(
+					props.attributes?.metadata?.bindings || {}
+				).forEach( ( binding ) => {
+					registeredSources[ binding?.source ]?.usesContext?.forEach(
+						( key ) => {
+							blockBindingsContext[ key ] = blockContext[ key ];
+						}
+					);
+				} );
+			}
+			return blockBindingsContext;
+		}, [ blockContext, props.attributes?.metadata?.bindings ] );
 
 		// While this hook doesn't directly call any selectors, `useSelect` is
 		// used purposely here to ensure `boundAttributes` is updated whenever
 		// there are attribute updates.
 		// `source.getValues` may also call a selector via `registry.select`.
-		const updatedContext = {};
 		const boundAttributes = useSelect(
 			( select ) => {
 				if ( ! blockBindings ) {
@@ -102,11 +121,6 @@ export const withBlockBindingsSupport = createHigherOrderComponent(
 						! canBindAttribute( name, attributeName )
 					) {
 						continue;
-					}
-
-					// Populate context.
-					for ( const key of source.usesContext || [] ) {
-						updatedContext[ key ] = blockContext[ key ];
 					}
 
 					blockBindingsBySource.set( source, {

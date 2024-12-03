@@ -103,15 +103,17 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 			unlock( select( blocksStore ) ).getAllBlockBindingsSources()
 		);
 		const { name, clientId, context, attributes, setAttributes } = props;
-		const blockBindings = useMemo( () => {
-			if ( ! attributes.metadata?.bindings ) {
-				return attributes.metadata?.bindings;
-			}
-			return replacePatternOverrideDefaultBindings(
-				name,
-				attributes.metadata?.bindings
-			);
-		}, [ attributes.metadata?.bindings, name ] );
+		const hasPatternOverridesDefaultBinding =
+			attributes?.metadata?.bindings?.[ DEFAULT_ATTRIBUTE ]?.source ===
+			'core/pattern-overrides';
+		const blockBindings = useMemo(
+			() =>
+				replacePatternOverrideDefaultBindings(
+					name,
+					attributes?.metadata?.bindings
+				),
+			[ attributes?.metadata?.bindings, name ]
+		);
 
 		const { computedAttributes, computedContext } = useSelect(
 			( select ) => {
@@ -206,11 +208,6 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 			]
 		);
 
-		const hasParentPattern = !! computedAttributes[ 'pattern/overrides' ];
-		const hasPatternOverridesDefaultBinding =
-			attributes.metadata?.bindings?.[ DEFAULT_ATTRIBUTE ]?.source ===
-			'core/pattern-overrides';
-
 		const setBoundAttributes = useCallback(
 			( nextAttributes ) => {
 				if ( ! blockBindings ) {
@@ -263,6 +260,9 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 						}
 					}
 
+					const hasParentPattern =
+						!! computedContext[ 'pattern/overrides' ];
+
 					if (
 						// Don't update non-connected attributes if the block is using pattern overrides
 						// and the editing is happening while overriding the pattern (not editing the original).
@@ -282,15 +282,14 @@ export const withBlockBindingSupport = createHigherOrderComponent(
 				} );
 			},
 			[
-				registry,
 				blockBindings,
-				name,
 				clientId,
 				computedContext,
+				hasPatternOverridesDefaultBinding,
 				setAttributes,
 				sources,
-				hasPatternOverridesDefaultBinding,
-				hasParentPattern,
+				name,
+				registry,
 			]
 		);
 

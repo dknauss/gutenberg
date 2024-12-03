@@ -61,6 +61,7 @@ export default function FontFamilyControl( {
 	return (
 		<CustomSelectControl
 			__next40pxDefaultSize={ __next40pxDefaultSize }
+			__shouldNotWarnDeprecated36pxSize
 			label={ __( 'Font' ) }
 			value={ value }
 			onChange={ ( { selectedItem } ) => onChange( selectedItem.key ) }

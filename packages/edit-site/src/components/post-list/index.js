@@ -290,6 +290,10 @@ export default function PostList( { postType } ) {
 			_embed: 'author',
 			order: view.sort?.direction,
 			orderby: view.sort?.field,
+			orderby_hierarchy:
+				view.type === 'table' && !! view.layout?.hierarchicalSort
+					? true
+					: false,
 			search: view.search,
 			...filters,
 		};

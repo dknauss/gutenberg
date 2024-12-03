@@ -545,9 +545,12 @@ function DataviewsViewConfigDropdown() {
 								<SortFieldControl />
 								<SortDirectionControl />
 							</HStack>
-							{ !! activeLayout?.viewConfigOptions && (
-								<activeLayout.viewConfigOptions />
-							) }
+							{ !! activeLayout?.viewConfigOptions &&
+								activeLayout.viewConfigOptions.map(
+									( Control, index ) => (
+										<Control key={ index } />
+									)
+								) }
 							<ItemsPerPageControl />
 						</SettingsSection>
 						<SettingsSection title={ __( 'Properties' ) }>

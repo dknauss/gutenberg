@@ -19,6 +19,7 @@ import { LAYOUT_GRID, LAYOUT_LIST, LAYOUT_TABLE } from '../constants';
 import type { View, Field } from '../types';
 import PreviewSizePicker from './grid/preview-size-picker';
 import DensityPicker from './table/density-picker';
+import SortHierarchical from './table/sort-hierarchical';
 
 export const VIEW_LAYOUTS = [
 	{
@@ -26,14 +27,14 @@ export const VIEW_LAYOUTS = [
 		label: __( 'Table' ),
 		component: ViewTable,
 		icon: blockTable,
-		viewConfigOptions: DensityPicker,
+		viewConfigOptions: [ SortHierarchical, DensityPicker ],
 	},
 	{
 		type: LAYOUT_GRID,
 		label: __( 'Grid' ),
 		component: ViewGrid,
 		icon: category,
-		viewConfigOptions: PreviewSizePicker,
+		viewConfigOptions: [ PreviewSizePicker ],
 	},
 	{
 		type: LAYOUT_LIST,

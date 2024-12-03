@@ -31,6 +31,7 @@ export const defaultLayouts = {
 		layout: {
 			primaryField: 'title',
 			hierarchical: 'parent',
+			hierarchicalSort: true,
 			styles: {
 				title: {
 					maxWidth: 300,
@@ -43,6 +44,7 @@ export const defaultLayouts = {
 			mediaField: 'featured_media',
 			primaryField: 'title',
 			hierarchical: 'parent', // TODO: remove this
+			hierarchicalSort: true, // TODO: remove this
 		},
 	},
 	[ LAYOUT_LIST ]: {
@@ -50,6 +52,7 @@ export const defaultLayouts = {
 			primaryField: 'title',
 			mediaField: 'featured_media',
 			hierarchical: 'parent', // TODO: remove this
+			hierarchicalSort: true, // TODO: remove this
 		},
 	},
 };

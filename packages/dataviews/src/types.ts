@@ -359,6 +359,11 @@ export interface ViewTable extends ViewBase {
 		 * The field to visualize hierarchical data.
 		 */
 		hierarchical?: string;
+
+		/**
+		 * Switch on/off hierarchical sorting.
+		 */
+		hierarchicalSort?: boolean;
 	};
 }
 

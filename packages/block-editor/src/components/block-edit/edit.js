@@ -11,7 +11,6 @@ import {
 	getBlockDefaultClassName,
 	hasBlockSupport,
 	getBlockType,
-	store as blocksStore,
 } from '@wordpress/blocks';
 import { withFilters } from '@wordpress/components';
 import { useRegistry, useSelect } from '@wordpress/data';
@@ -22,7 +21,6 @@ import { useCallback, useContext, useMemo } from '@wordpress/element';
  */
 import BlockContext from '../block-context';
 import isURLLike from '../link-control/is-url-like';
-import { unlock } from '../../lock-unlock';
 import {
 	canBindAttribute,
 	DEFAULT_ATTRIBUTE,
@@ -65,9 +63,7 @@ const EditWithGeneratedProps = ( props ) => {
 	const registry = useRegistry();
 	const blockType = getBlockType( name );
 	const blockContext = useContext( BlockContext );
-	const sources = useSelect( ( select ) =>
-		unlock( select( blocksStore ) ).getAllBlockBindingsSources()
-	);
+	const registeredSources = getBlockBindingsSources();
 
 	const blockBindings = useMemo(
 		() =>
@@ -91,7 +87,6 @@ const EditWithGeneratedProps = ( props ) => {
 		// Add block bindings context.
 		const blockBindingsContext = {};
 		if ( attributes?.metadata?.bindings ) {
-			const registeredSources = getBlockBindingsSources();
 			Object.values( attributes?.metadata?.bindings || {} ).forEach(
 				( binding ) => {
 					registeredSources[ binding?.source ]?.usesContext?.forEach(
@@ -103,7 +98,12 @@ const EditWithGeneratedProps = ( props ) => {
 			);
 		}
 		return { ..._context, ...blockBindingsContext };
-	}, [ blockType, blockContext, attributes?.metadata?.bindings ] );
+	}, [
+		blockType,
+		blockContext,
+		attributes?.metadata?.bindings,
+		registeredSources,
+	] );
 
 	const computedAttributes = useSelect(
 		( select ) => {
@@ -118,7 +118,7 @@ const EditWithGeneratedProps = ( props ) => {
 				blockBindings
 			) ) {
 				const { source: sourceName, args: sourceArgs } = binding;
-				const source = sources[ sourceName ];
+				const source = registeredSources[ sourceName ];
 				if ( ! source || ! canBindAttribute( name, attributeName ) ) {
 					continue;
 				}
@@ -169,7 +169,14 @@ const EditWithGeneratedProps = ( props ) => {
 				...attributesFromSources,
 			};
 		},
-		[ attributes, blockBindings, clientId, context, name, sources ]
+		[
+			attributes,
+			blockBindings,
+			clientId,
+			context,
+			name,
+			registeredSources,
+		]
 	);
 
 	const setBoundAttributes = useCallback(
@@ -195,7 +202,7 @@ const EditWithGeneratedProps = ( props ) => {
 					}
 
 					const binding = blockBindings[ attributeName ];
-					const source = sources[ binding?.source ];
+					const source = registeredSources[ binding?.source ];
 					if ( ! source?.setValues ) {
 						continue;
 					}
@@ -249,7 +256,7 @@ const EditWithGeneratedProps = ( props ) => {
 			context,
 			hasPatternOverridesDefaultBinding,
 			setAttributes,
-			sources,
+			registeredSources,
 			name,
 			registry,
 		]

@@ -199,5 +199,4 @@ apiFetch.mediaUploadMiddleware = mediaUploadMiddleware;
 apiFetch.createThemePreviewMiddleware = createThemePreviewMiddleware;
 
 export default apiFetch;
-export { apiFetch };
 export * from './types';

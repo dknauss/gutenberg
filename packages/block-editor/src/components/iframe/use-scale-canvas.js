@@ -147,10 +147,10 @@ const NULL_SIZE = { width: null, height: null };
  * @return {ObservedSize} Latest width and height of the observed element.
  */
 function extractSize( entries ) {
-	const contentBlockSize = entries.at( -1 ).contentBoxSize[ 0 ];
+	const contentBoxSize = entries.at( -1 ).contentBoxSize[ 0 ];
 	return {
-		width: contentBlockSize.inlineSize,
-		height: contentBlockSize.blockSize,
+		width: contentBoxSize.inlineSize,
+		height: contentBoxSize.blockSize,
 	};
 }
 

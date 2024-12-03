@@ -1,7 +1,13 @@
 /**
  * WordPress dependencies
  */
-import { Button } from '@wordpress/components';
+import {
+	Button,
+	Dropdown,
+	__experimentalText as Text,
+	__experimentalDropdownContentWrapper as DropdownContentWrapper,
+	__experimentalVStack as VStack,
+} from '@wordpress/components';
 import {
 	store as coreStore,
 	privateApis as coreDataPrivateApis,
@@ -337,15 +343,22 @@ export default function PostList( { postType } ) {
 		[ totalItems, totalPages ]
 	);
 
-	const { labels, canCreateRecord } = useSelect(
+	const { labels, canCreateRecord, showPageForPostsOption } = useSelect(
 		( select ) => {
-			const { getPostType, canUser } = select( coreStore );
+			const { getPostType, canUser, getEntityRecord } =
+				select( coreStore );
+			const siteSettings = getEntityRecord( 'root', 'site' );
+			const isPagePostType = getPostType( postType )?.slug === 'page';
+			const isStaticHomepage = siteSettings?.show_on_front === 'page';
+			const pageForPosts = siteSettings?.page_for_posts;
 			return {
 				labels: getPostType( postType )?.labels,
 				canCreateRecord: canUser( 'create', {
 					kind: 'postType',
 					name: postType,
 				} ),
+				showPageForPostsOption:
+					isPagePostType && isStaticHomepage && ! pageForPosts,
 			};
 		},
 		[ postType ]
@@ -365,9 +378,78 @@ export default function PostList( { postType } ) {
 
 	const openModal = () => setShowAddPostModal( true );
 	const closeModal = () => setShowAddPostModal( false );
+
+	const NewPageDropdownButton = () => {
+		return (
+			<Dropdown
+				popoverProps={ { placement: 'bottom-end' } }
+				renderToggle={ ( { onToggle, isOpen } ) => {
+					const toggleProps = {
+						onClick: onToggle,
+						'aria-expanded': isOpen,
+						label: labels?.add_new_item,
+					};
+
+					return (
+						<Button
+							variant="primary"
+							__next40pxDefaultSize
+							{ ...toggleProps }
+						>
+							{ toggleProps.label }
+						</Button>
+					);
+				} }
+				renderContent={ () => (
+					<DropdownContentWrapper paddingSize="medium">
+						<VStack
+							className="dataviews-new-page-options"
+							spacing={ 1 }
+							style={ { minWidth: '250px' } }
+						>
+							<Button __next40pxDefaultSize>
+								{ __( 'Regular page' ) }
+							</Button>
+							<Button
+								__next40pxDefaultSize
+								style={ {
+									flexDirection: 'column',
+									alignItems: 'flex-start',
+								} }
+							>
+								{ __( 'Blog' ) }
+								<Text variant="muted" align="left">
+									{ __(
+										'Create a page to display latest posts'
+									) }
+								</Text>
+							</Button>
+						</VStack>
+					</DropdownContentWrapper>
+				) }
+			/>
+		);
+	};
+
 	const handleNewPage = ( { type, id } ) => {
 		history.navigate( `/${ type }/${ id }?canvas=edit` );
 		closeModal();
+	};
+
+	const AddNewPageButton = () => {
+		if ( showPageForPostsOption ) {
+			return <NewPageDropdownButton />;
+		}
+
+		return (
+			<Button
+				variant="primary"
+				onClick={ openModal }
+				__next40pxDefaultSize
+			>
+				{ labels.add_new_item }
+			</Button>
+		);
 	};
 
 	return (
@@ -377,13 +459,7 @@ export default function PostList( { postType } ) {
 				labels?.add_new_item &&
 				canCreateRecord && (
 					<>
-						<Button
-							variant="primary"
-							onClick={ openModal }
-							__next40pxDefaultSize
-						>
-							{ labels.add_new_item }
-						</Button>
+						<AddNewPageButton />
 						{ showAddPostModal && (
 							<AddNewPostModal
 								postType={ postType }

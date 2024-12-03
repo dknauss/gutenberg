@@ -132,8 +132,20 @@ function getAnimationKeyframes( transitionFrom, transitionTo ) {
 	];
 }
 
+/**
+ * @typedef {Object} ObservedSize
+ * @property {number|null} width  The width of the observed element.
+ * @property {number|null} height The height of the observed element.
+ */
+/** @type {ObservedSize} */
 const NULL_SIZE = { width: null, height: null };
 
+/**
+ * Get the size of the observed element.
+ *
+ * @param {ResizeObserverEntry[]} entries Array of the new dimensions of the element after each change.
+ * @return {ObservedSize} Latest width and height of the observed element.
+ */
 function extractSize( entries ) {
 	const contentBlockSize = entries.at( -1 ).contentBoxSize[ 0 ];
 	return {

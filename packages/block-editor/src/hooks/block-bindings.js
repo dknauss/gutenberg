@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	getBlockBindingsSource,
 	getBlockBindingsSources,
+	getBlockType,
 } from '@wordpress/blocks';
 import {
 	__experimentalItemGroup as ItemGroup,
@@ -14,6 +15,7 @@ import {
 	__experimentalToolsPanelItem as ToolsPanelItem,
 	__experimentalVStack as VStack,
 	Modal,
+	privateApis as componentsPrivateApis,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
@@ -32,7 +34,10 @@ import InspectorControls from '../components/inspector-controls';
 import BlockContext from '../components/block-context';
 import { useBlockBindingsUtils } from '../utils/block-bindings';
 import { store as blockEditorStore } from '../store';
+import { useBlockEditContext } from '../components/block-edit';
+import { unlock } from '../lock-unlock';
 
+const { Menu } = unlock( componentsPrivateApis );
 const EMPTY_OBJECT = {};
 
 const useToolsPanelDropdownMenuProps = () => {
@@ -87,6 +92,25 @@ function ReadOnlyBlockBindingsPanelItems( { bindings, fieldsList, onClick } ) {
 						fieldsList={ fieldsList }
 					/>
 				</Item>
+			) ) }
+		</>
+	);
+}
+
+function BlockBindingsPanelDropdown( { fieldsList } ) {
+	const registeredSources = getBlockBindingsSources();
+	return (
+		<>
+			{ Object.entries( fieldsList ).map( ( [ name ] ) => (
+				<Fragment key={ name }>
+					<Menu.Group>
+						{ Object.keys( fieldsList ).length > 1 && (
+							<Menu.Item>
+								{ registeredSources[ name ].label }
+							</Menu.Item>
+						) }
+					</Menu.Group>
+				</Fragment>
 			) ) }
 		</>
 	);
@@ -195,6 +219,7 @@ function EditableBlockBindingsPanelItems( {
 		setData( newData );
 		setPaginationInfo( newPaginationInfo );
 	};
+	const isMobile = useViewportMatch( 'medium', '<' );
 	return (
 		<>
 			{ attributes.map( ( attribute ) => {
@@ -209,20 +234,26 @@ function EditableBlockBindingsPanelItems( {
 								[ attribute ]: undefined,
 							} );
 						} }
-						onSelect={ () => setOuterModalOpen( true ) }
 					>
-						<Item
-							key={ attribute }
-							onClick={ () => {
-								setOuterModalOpen( true );
-							} }
+						<Menu
+							placement={
+								isMobile ? 'bottom-start' : 'left-start'
+							}
+							gutter={ isMobile ? 8 : 36 }
+							trigger={
+								<Item>
+									<BlockBindingsAttribute
+										attribute={ attribute }
+										binding={ binding }
+										fieldsList={ fieldsList }
+									/>
+								</Item>
+							}
 						>
-							<BlockBindingsAttribute
+							<BlockBindingsPanelDropdown
 								fieldsList={ fieldsList }
-								attribute={ attribute }
-								binding={ binding }
 							/>
-						</Item>
+						</Menu>
 					</ToolsPanelItem>
 				);
 			} ) }

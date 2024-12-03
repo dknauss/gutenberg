@@ -102,7 +102,7 @@ function attributesFromMedia( {
 		}
 
 		if ( mediaType === 'image' ) {
-			// Try the "large" size URL, falling back to the "full" size URL below.
+			// Get the URL for the selected image size, falling back to the full size.
 			src =
 				media.sizes?.[ mediaSizeSlug ]?.url ||
 				media?.media_details?.sizes?.[ mediaSizeSlug ]?.source_url;

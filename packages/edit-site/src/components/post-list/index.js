@@ -215,7 +215,9 @@ export default function PostList( { postType } ) {
 		return found?.filters ?? [];
 	};
 
-	const { isLoading: isLoadingFields, fields: _fields } = usePostFields();
+	const { isLoading: isLoadingFields, fields: _fields } = usePostFields( {
+		postType,
+	} );
 	const fields = useMemo( () => {
 		const activeViewFilters = getActiveViewFilters(
 			defaultViews,

@@ -132,6 +132,14 @@ function getAnimationKeyframes( transitionFrom, transitionTo ) {
 	];
 }
 
+function extractSize( entries ) {
+	const contentBlockSize = entries.at( -1 ).contentBoxSize[ 0 ];
+	return {
+		width: contentBlockSize.inlineSize,
+		height: contentBlockSize.blockSize,
+	};
+}
+
 /**
  * @typedef {Object} ScaleCanvasResult
  * @property {boolean} isZoomedOut             A boolean indicating if the canvas is zoomed out.
@@ -157,12 +165,14 @@ export function useScaleCanvas( {
 	maxContainerWidth = 750,
 	scale,
 } ) {
-	const [ contentResizeListener, { height: contentHeight } ] =
-		useResizeObserver();
-	const [
-		containerResizeListener,
-		{ width: containerWidth, height: containerHeight },
-	] = useResizeObserver();
+	const contentRectRef = useRef( { width: null, height: null } );
+	const contentRefCallback = useResizeObserver( ( entries ) => {
+		contentRectRef.current = extractSize( entries );
+	} );
+	const containerRectRef = useRef( { width: null, height: null } );
+	const containerRefCallback = useResizeObserver( ( entries ) => {
+		containerRectRef.current = extractSize( entries );
+	} );
 
 	const initialContainerWidthRef = useRef( 0 );
 	const isZoomedOut = scale !== 1;
@@ -176,19 +186,19 @@ export function useScaleCanvas( {
 
 	useEffect( () => {
 		if ( ! isZoomedOut ) {
-			initialContainerWidthRef.current = containerWidth;
+			initialContainerWidthRef.current = containerRectRef.current.width;
 		}
-	}, [ containerWidth, isZoomedOut ] );
+	}, [ isZoomedOut ] );
 
 	const scaleContainerWidth = Math.max(
 		initialContainerWidthRef.current,
-		containerWidth
+		containerRectRef.current.width
 	);
 
 	const scaleValue = isAutoScaled
 		? calculateScale( {
 				frameSize,
-				containerWidth,
+				containerWidth: containerRectRef.current.width,
 				maxContainerWidth,
 				scaleContainerWidth,
 		  } )
@@ -354,9 +364,9 @@ export function useScaleCanvas( {
 			// exiting.
 			transitionFromRef.current.scaleValue = calculateScale( {
 				frameSize: transitionFromRef.current.frameSize,
-				containerWidth,
+				containerWidth: containerRectRef.current.width,
 				maxContainerWidth,
-				scaleContainerWidth: containerWidth,
+				scaleContainerWidth: containerRectRef.current.width,
 			} );
 		}
 
@@ -378,17 +388,17 @@ export function useScaleCanvas( {
 
 			iframeDocument.documentElement.style.setProperty(
 				'--wp-block-editor-iframe-zoom-out-content-height',
-				`${ contentHeight }px`
+				`${ contentRectRef.current.height }px`
 			);
 
 			iframeDocument.documentElement.style.setProperty(
 				'--wp-block-editor-iframe-zoom-out-inner-height',
-				`${ containerHeight }px`
+				`${ containerRectRef.current.height }px`
 			);
 
 			iframeDocument.documentElement.style.setProperty(
 				'--wp-block-editor-iframe-zoom-out-container-width',
-				`${ containerWidth }px`
+				`${ containerRectRef.current.width }px`
 			);
 			iframeDocument.documentElement.style.setProperty(
 				'--wp-block-editor-iframe-zoom-out-scale-container-width',
@@ -438,7 +448,8 @@ export function useScaleCanvas( {
 				transitionFromRef.current.scrollHeight =
 					iframeDocument.documentElement.scrollHeight;
 				// Use containerHeight, as it's the previous container height before the zoom out animation starts.
-				transitionFromRef.current.containerHeight = containerHeight;
+				transitionFromRef.current.containerHeight =
+					containerRectRef.current.height;
 
 				transitionToRef.current = {
 					scaleValue,
@@ -474,9 +485,6 @@ export function useScaleCanvas( {
 		scaleValue,
 		frameSize,
 		iframeDocument,
-		contentHeight,
-		containerWidth,
-		containerHeight,
 		maxContainerWidth,
 		scaleContainerWidth,
 	] );
@@ -484,7 +492,7 @@ export function useScaleCanvas( {
 	return {
 		isZoomedOut,
 		scaleContainerWidth,
-		contentResizeListener,
-		containerResizeListener,
+		contentRefCallback,
+		containerRefCallback,
 	};
 }

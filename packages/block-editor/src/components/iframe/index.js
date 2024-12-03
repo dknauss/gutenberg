@@ -217,8 +217,8 @@ function Iframe( {
 	}, [] );
 
 	const {
-		contentResizeListener,
-		containerResizeListener,
+		contentRefCallback,
+		containerRefCallback,
 		isZoomedOut,
 		scaleContainerWidth,
 	} = useScaleCanvas( {
@@ -234,6 +234,7 @@ function Iframe( {
 		clearerRef,
 		writingFlowRef,
 		disabledRef,
+		contentRefCallback,
 	] );
 
 	// Correct doctype is required to enable rendering in standards
@@ -341,7 +342,6 @@ function Iframe( {
 								...bodyClasses
 							) }
 						>
-							{ contentResizeListener }
 							<StyleProvider document={ iframeDocument }>
 								{ children }
 							</StyleProvider>
@@ -354,8 +354,10 @@ function Iframe( {
 	);
 
 	return (
-		<div className="block-editor-iframe__container">
-			{ containerResizeListener }
+		<div
+			className="block-editor-iframe__container"
+			ref={ containerRefCallback }
+		>
 			<div
 				className={ clsx(
 					'block-editor-iframe__scale-container',

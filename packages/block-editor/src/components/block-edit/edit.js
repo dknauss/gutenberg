@@ -23,9 +23,9 @@ import BlockContext from '../block-context';
 import isURLLike from '../link-control/is-url-like';
 import {
 	canBindAttribute,
-	DEFAULT_ATTRIBUTE,
+	hasPatternOverridesDefaultBindings,
 	replacePatternOverrideDefaultBindings,
-} from '../../hooks/use-bindings-attributes';
+} from '../../utils/block-bindings';
 
 /**
  * Default value used for blocks which do not define their own context needs,
@@ -57,9 +57,6 @@ const EditWithFilters = withFilters( 'editor.BlockEdit' )( Edit );
 
 const EditWithGeneratedProps = ( props ) => {
 	const { name, clientId, attributes, setAttributes } = props;
-	const hasPatternOverridesDefaultBinding =
-		attributes?.metadata?.bindings?.[ DEFAULT_ATTRIBUTE ]?.source ===
-		'core/pattern-overrides';
 	const registry = useRegistry();
 	const blockType = getBlockType( name );
 	const blockContext = useContext( BlockContext );
@@ -179,6 +176,9 @@ const EditWithGeneratedProps = ( props ) => {
 		]
 	);
 
+	const hasPatternOverrideDefault = hasPatternOverridesDefaultBindings(
+		attributes?.metadata?.bindings
+	);
 	const setBoundAttributes = useCallback(
 		( nextAttributes ) => {
 			if ( ! blockBindings ) {
@@ -236,13 +236,11 @@ const EditWithGeneratedProps = ( props ) => {
 				if (
 					// Don't update non-connected attributes if the block is using pattern overrides
 					// and the editing is happening while overriding the pattern (not editing the original).
-					! (
-						hasPatternOverridesDefaultBinding && hasParentPattern
-					) &&
+					! ( hasPatternOverrideDefault && hasParentPattern ) &&
 					Object.keys( keptAttributes ).length
 				) {
 					// Don't update caption and href until they are supported.
-					if ( hasPatternOverridesDefaultBinding ) {
+					if ( hasPatternOverrideDefault ) {
 						delete keptAttributes.caption;
 						delete keptAttributes.href;
 					}
@@ -254,7 +252,7 @@ const EditWithGeneratedProps = ( props ) => {
 			blockBindings,
 			clientId,
 			context,
-			hasPatternOverridesDefaultBinding,
+			hasPatternOverrideDefault,
 			setAttributes,
 			registeredSources,
 			name,

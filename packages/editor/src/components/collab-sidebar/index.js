@@ -290,12 +290,12 @@ export default function CollabSidebar() {
 			}
 		} );
 
-		result.map( ( item ) => {
-			item.reply = item.reply.reverse();
-			return item;
-		} );
+		const updatedResult = result.map( ( item ) => ( {
+			...item,
+			reply: [ ...item.reply ].reverse(),
+		} ) );
 
-		return result;
+		return updatedResult;
 	}, [ threads ] );
 
 	// Get the global styles to set the background color of the sidebar.

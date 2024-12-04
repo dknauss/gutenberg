@@ -5,7 +5,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	getBlockBindingsSource,
 	getBlockBindingsSources,
-	getBlockType,
 } from '@wordpress/blocks';
 import {
 	__experimentalItemGroup as ItemGroup,
@@ -34,7 +33,6 @@ import InspectorControls from '../components/inspector-controls';
 import BlockContext from '../components/block-context';
 import { useBlockBindingsUtils } from '../utils/block-bindings';
 import { store as blockEditorStore } from '../store';
-import { useBlockEditContext } from '../components/block-edit';
 import { unlock } from '../lock-unlock';
 
 const { Menu } = unlock( componentsPrivateApis );
@@ -97,7 +95,7 @@ function ReadOnlyBlockBindingsPanelItems( { bindings, fieldsList, onClick } ) {
 	);
 }
 
-function BlockBindingsPanelDropdown( { fieldsList } ) {
+function BlockBindingsPanelDropdown( { fieldsList, onClick } ) {
 	const registeredSources = getBlockBindingsSources();
 	return (
 		<>
@@ -105,7 +103,7 @@ function BlockBindingsPanelDropdown( { fieldsList } ) {
 				<Fragment key={ name }>
 					<Menu.Group>
 						{ Object.keys( fieldsList ).length > 1 && (
-							<Menu.Item>
+							<Menu.Item onClick={ () => onClick( name ) }>
 								{ registeredSources[ name ].label }
 							</Menu.Item>
 						) }
@@ -123,43 +121,6 @@ function EditableBlockBindingsPanelItems( {
 } ) {
 	const { updateBlockBindings } = useBlockBindingsUtils();
 	const [ isOuterModalOpen, setOuterModalOpen ] = useState( false );
-	const dataSet = Object.entries( fieldsList ).flatMap(
-		( [ sourceName, fields ] ) =>
-			Object.entries( fields ).map( ( [ key, field ] ) => {
-				const value =
-					field.value === undefined
-						? `${ field.label } value`
-						: field.value;
-
-				return {
-					id: key,
-					label: field.label || key,
-					value: value !== '' ? value : `Add a new ${ field.label }`,
-					source: sourceName,
-				};
-			} )
-	);
-
-	const fields = [
-		{
-			id: 'label',
-			label: __( 'Label' ),
-			type: 'text',
-			enableGlobalSearch: true,
-		},
-		{
-			id: 'value',
-			label: __( 'Value' ),
-			type: 'text',
-			enableGlobalSearch: true,
-		},
-		{
-			id: 'source',
-			label: __( 'Source' ),
-			type: 'text',
-			enableGlobalSearch: true,
-		},
-	];
 	const defaultLayouts = {
 		table: {
 			layout: {
@@ -181,18 +142,14 @@ function EditableBlockBindingsPanelItems( {
 		search: '',
 		filters: [],
 		page: 1,
-		perPage: 5,
+		perPage: 10,
 		sort: {},
-		fields: [ 'label', 'value', 'source' ],
+		fields: [ 'label', 'value' ],
 		layout: defaultLayouts.table.layout,
 	} );
 
-	const { data: initialData, paginationInfo: initialPaginationInfo } =
-		filterSortAndPaginate( dataSet, view, fields );
-	const [ data, setData ] = useState( initialData );
-	const [ paginationInfo, setPaginationInfo ] = useState(
-		initialPaginationInfo
-	);
+	const [ data, setData ] = useState( null );
+	const [ paginationInfo, setPaginationInfo ] = useState( null );
 
 	const actions = [
 		{
@@ -211,10 +168,23 @@ function EditableBlockBindingsPanelItems( {
 			},
 		},
 	];
-
+	const fields = [
+		{
+			id: 'label',
+			label: __( 'Label' ),
+			type: 'text',
+			enableGlobalSearch: true,
+		},
+		{
+			id: 'value',
+			label: __( 'Value' ),
+			type: 'text',
+			enableGlobalSearch: true,
+		},
+	];
 	const onChangeView = ( newView ) => {
 		const { data: newData, paginationInfo: newPaginationInfo } =
-			filterSortAndPaginate( dataSet, newView, fields );
+			filterSortAndPaginate( data, newView, fields );
 		setView( newView );
 		setData( newData );
 		setPaginationInfo( newPaginationInfo );
@@ -252,6 +222,35 @@ function EditableBlockBindingsPanelItems( {
 						>
 							<BlockBindingsPanelDropdown
 								fieldsList={ fieldsList }
+								onClick={ ( sourceName ) => {
+									const {
+										data: newData,
+										paginationInfo: newPaginationInfo,
+									} = filterSortAndPaginate(
+										Object.entries(
+											fieldsList[ sourceName ]
+										).map( ( [ key, field ] ) => {
+											const value =
+												field.value === undefined
+													? `${ field.label } value`
+													: field.value;
+
+											return {
+												id: key,
+												label: field.label || key,
+												value:
+													value !== ''
+														? value
+														: `Add a new ${ field.label }`,
+											};
+										} ),
+										view,
+										fields
+									);
+									setData( newData );
+									setPaginationInfo( newPaginationInfo );
+									setOuterModalOpen( true );
+								} }
 							/>
 						</Menu>
 					</ToolsPanelItem>

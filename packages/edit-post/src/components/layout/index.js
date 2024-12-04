@@ -74,6 +74,7 @@ import useEditPostCommands from '../../commands/use-commands';
 import { usePaddingAppender } from './use-padding-appender';
 import { useShouldIframe } from './use-should-iframe';
 import useNavigateToEntityRecord from '../../hooks/use-navigate-to-entity-record';
+import { useMetaBoxInitialization } from '../meta-boxes/use-meta-box-initialization';
 
 const { getLayoutStyles } = unlock( blockEditorPrivateApis );
 const { useCommands } = unlock( coreCommandsPrivateApis );
@@ -462,6 +463,7 @@ function Layout( {
 		},
 		[ currentPostType, isEditingTemplate, settings.supportsTemplateMode ]
 	);
+	useMetaBoxInitialization( hasActiveMetaboxes );
 
 	// Set the right context for the command palette
 	const commandContext = hasBlockSelected

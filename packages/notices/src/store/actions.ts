@@ -4,12 +4,6 @@
 import { DEFAULT_CONTEXT, DEFAULT_STATUS } from './constants';
 import type { NoticeOptions, ReducerAction } from './types';
 
-/**
- * @typedef {import('./types').NoticeAction} NoticeAction Notice action object.
- *
- * @typedef {import('./types').NoticeOptions} NoticeOptions Notice action object.
- */
-
 let uniqueId = 0;
 
 /**

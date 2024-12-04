@@ -31,20 +31,32 @@ function BlockCard( { title, icon, description, blockType, className, name } ) {
 		( { title, icon, description } = blockType );
 	}
 
-	const { parentNavBlockClientId } = useSelect( ( select ) => {
-		const { getSelectedBlockClientId, getBlockParentsByBlockName } =
-			select( blockEditorStore );
+	const { parentNavBlockClientId, isUsingBindings } = useSelect(
+		( select ) => {
+			const {
+				getSelectedBlockClientId,
+				getSelectedBlockClientIds,
+				getBlockParentsByBlockName,
+				getBlockAttributes,
+			} = select( blockEditorStore );
 
-		const _selectedBlockClientId = getSelectedBlockClientId();
+			const _selectedBlockClientId = getSelectedBlockClientId();
+			const _selectedBlockClientIds = getSelectedBlockClientIds();
 
-		return {
-			parentNavBlockClientId: getBlockParentsByBlockName(
-				_selectedBlockClientId,
-				'core/navigation',
-				true
-			)[ 0 ],
-		};
-	}, [] );
+			return {
+				parentNavBlockClientId: getBlockParentsByBlockName(
+					_selectedBlockClientId,
+					'core/navigation',
+					true
+				)[ 0 ],
+				isUsingBindings: _selectedBlockClientIds.every(
+					( clientId ) =>
+						!! getBlockAttributes( clientId )?.metadata?.bindings
+				),
+			};
+		},
+		[]
+	);
 
 	const { selectBlock } = useDispatch( blockEditorStore );
 
@@ -76,8 +88,19 @@ function BlockCard( { title, icon, description, blockType, className, name } ) {
 						: title }
 				</h2>
 				{ description && (
-					<Text className="block-editor-block-card__description">
+					<Text
+						as="p"
+						className="block-editor-block-card__description"
+					>
 						{ description }
+					</Text>
+				) }
+				{ isUsingBindings && (
+					<Text
+						as="p"
+						className="block-editor-block-card__description"
+					>
+						{ __( 'This blocks is connected.' ) }
 					</Text>
 				) }
 			</VStack>

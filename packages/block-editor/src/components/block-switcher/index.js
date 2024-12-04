@@ -1,14 +1,12 @@
 /**
  * WordPress dependencies
  */
-import { __, _n, sprintf, _x } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import {
 	DropdownMenu,
 	ToolbarButton,
 	ToolbarGroup,
 	ToolbarItem,
-	__experimentalText as Text,
-	MenuGroup,
 } from '@wordpress/components';
 import {
 	switchToBlockType,
@@ -39,37 +37,30 @@ function BlockSwitcherDropdownMenuContents( {
 } ) {
 	const { replaceBlocks, multiSelect, updateBlockAttributes } =
 		useDispatch( blockEditorStore );
-	const { possibleBlockTransformations, patterns, blocks, isUsingBindings } =
-		useSelect(
-			( select ) => {
-				const {
-					getBlockAttributes,
-					getBlocksByClientId,
-					getBlockRootClientId,
-					getBlockTransformItems,
-					__experimentalGetPatternTransformItems,
-				} = select( blockEditorStore );
-				const rootClientId = getBlockRootClientId( clientIds[ 0 ] );
-				const _blocks = getBlocksByClientId( clientIds );
-				return {
-					blocks: _blocks,
-					possibleBlockTransformations: getBlockTransformItems(
-						_blocks,
-						rootClientId
-					),
-					patterns: __experimentalGetPatternTransformItems(
-						_blocks,
-						rootClientId
-					),
-					isUsingBindings: clientIds.every(
-						( clientId ) =>
-							!! getBlockAttributes( clientId )?.metadata
-								?.bindings
-					),
-				};
-			},
-			[ clientIds ]
-		);
+	const { possibleBlockTransformations, patterns, blocks } = useSelect(
+		( select ) => {
+			const {
+				getBlocksByClientId,
+				getBlockRootClientId,
+				getBlockTransformItems,
+				__experimentalGetPatternTransformItems,
+			} = select( blockEditorStore );
+			const rootClientId = getBlockRootClientId( clientIds[ 0 ] );
+			const _blocks = getBlocksByClientId( clientIds );
+			return {
+				blocks: _blocks,
+				possibleBlockTransformations: getBlockTransformItems(
+					_blocks,
+					rootClientId
+				),
+				patterns: __experimentalGetPatternTransformItems(
+					_blocks,
+					rootClientId
+				),
+			};
+		},
+		[ clientIds ]
+	);
 	const blockVariationTransformations = useBlockVariationTransforms( {
 		clientIds,
 		blocks,
@@ -127,16 +118,6 @@ function BlockSwitcherDropdownMenuContents( {
 		);
 	}
 
-	const connectedBlockDescription = isSingleBlock
-		? _x(
-				'This block is connected.',
-				'block toolbar button label and description'
-		  )
-		: _x(
-				'These blocks are connected.',
-				'block toolbar button label and description'
-		  );
-
 	return (
 		<div className="block-editor-block-switcher__container">
 			{ hasPatternTransformation && (
@@ -174,13 +155,6 @@ function BlockSwitcherDropdownMenuContents( {
 					hoveredBlock={ blocks[ 0 ] }
 					onSwitch={ onClose }
 				/>
-			) }
-			{ isUsingBindings && (
-				<MenuGroup>
-					<Text className="block-editor-block-switcher__binding-indicator">
-						{ connectedBlockDescription }
-					</Text>
-				</MenuGroup>
 			) }
 		</div>
 	);

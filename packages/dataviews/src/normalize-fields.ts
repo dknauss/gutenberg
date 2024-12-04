@@ -21,6 +21,27 @@ const getValueFromId =
 		return value;
 	};
 
+// This is a fake schema parser that only supports minLength and maxLength
+const fakeSchemaParser = (
+	schema: Record< 'minLength' | 'maxLength', number >
+) => {
+	const callbacks = {} as {
+		[ key: string ]: ( value: any ) => string | undefined;
+	};
+
+	if ( schema.minLength !== undefined ) {
+		callbacks.minLength = ( value ) =>
+			value.length < schema.minLength ? 'Length is too short' : undefined;
+	}
+
+	if ( schema.maxLength !== undefined ) {
+		callbacks.maxLength = ( value ) =>
+			value.length >= schema.maxLength ? 'Length is too long' : undefined;
+	}
+
+	return callbacks;
+};
+
 /**
  * Apply default values and normalize the fields config.
  *
@@ -67,6 +88,10 @@ export function normalizeFields< Item >(
 		const render =
 			field.render || ( field.elements ? renderFromElements : getValue );
 
+		const validationCallbacks = field.validationSchema
+			? fakeSchemaParser( field.validationSchema )
+			: {};
+
 		return {
 			...field,
 			label: field.label || field.id,
@@ -78,6 +103,7 @@ export function normalizeFields< Item >(
 			Edit,
 			enableHiding: field.enableHiding ?? true,
 			enableSorting: field.enableSorting ?? true,
+			validationCallbacks,
 		};
 	} );
 }

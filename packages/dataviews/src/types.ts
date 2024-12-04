@@ -7,6 +7,7 @@ import type { ReactElement, ComponentType } from 'react';
  * Internal dependencies
  */
 import type { SetSelection } from './private-types';
+import type { FormValidationState } from './dataform-hooks/use-form';
 
 export type SortDirection = 'asc' | 'desc';
 
@@ -152,7 +153,11 @@ export type Field< Item > = {
 	 * Filter config for the field.
 	 */
 	filterBy?: FilterByConfig | undefined;
-
+	validationSchema?: {
+		minLength: number;
+		maxLength: number;
+		onTouched: boolean;
+	};
 	/**
 	 * Callback used to retrieve the value of the field from the item.
 	 * Defaults to `item[ field.id ]`.
@@ -170,6 +175,7 @@ export type NormalizedField< Item > = Field< Item > & {
 	isValid: ( item: Item, context?: ValidationContext ) => boolean;
 	enableHiding: boolean;
 	enableSorting: boolean;
+	validationCallbacks: Record< string, ( value: any ) => string | undefined >;
 };
 
 /**
@@ -184,6 +190,7 @@ export type DataFormControlProps< Item > = {
 	field: NormalizedField< Item >;
 	onChange: ( value: Record< string, any > ) => void;
 	hideLabelFromVision?: boolean;
+	errorMessage?: string;
 };
 
 export type DataViewRenderFieldProps< Item > = {
@@ -567,6 +574,7 @@ export interface DataFormProps< Item > {
 	data: Item;
 	fields: Field< Item >[];
 	form: Form;
+	validation?: FormValidationState;
 	onChange: ( value: Record< string, any > ) => void;
 }
 
@@ -575,4 +583,5 @@ export interface FieldLayoutProps< Item > {
 	field: FormField;
 	onChange: ( value: any ) => void;
 	hideLabelFromVision?: boolean;
+	errorMessage?: string;
 }

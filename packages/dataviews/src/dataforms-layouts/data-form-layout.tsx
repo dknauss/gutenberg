@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __experimentalVStack as VStack } from '@wordpress/components';
-import { useContext, useMemo } from '@wordpress/element';
+import { useContext, useEffect, useMemo, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -28,11 +28,13 @@ export function DataFormLayout< Item >( {
 			field: FormField;
 			onChange: ( value: any ) => void;
 			hideLabelFromVision?: boolean;
+			errorMessage: string | undefined;
 		} ) => React.JSX.Element | null,
 		field: FormField
 	) => React.JSX.Element;
 } ) {
-	const { fields: fieldDefinitions } = useContext( DataFormContext );
+	const { fields: fieldDefinitions, validation } =
+		useContext( DataFormContext );
 
 	function getFieldDefinition( field: SimpleFormField | string ) {
 		const fieldId = typeof field === 'string' ? field : field.id;
@@ -46,6 +48,34 @@ export function DataFormLayout< Item >( {
 		() => normalizeFormFields( form ),
 		[ form ]
 	);
+
+	const firstValidationRunRef = useRef( false );
+
+	useEffect( () => {
+		if ( firstValidationRunRef.current ) {
+			return;
+		}
+		fieldDefinitions.forEach( ( fieldDefinition ) => {
+			const errors = Object.entries(
+				fieldDefinition?.validationCallbacks ?? {}
+			).reduce( ( acc, [ key, callback ] ) => {
+				const value = fieldDefinition.getValue( { item: data } );
+				const error = callback( value );
+				if ( ! error ) {
+					return acc;
+				}
+
+				return {
+					...acc,
+					[ key ]: error,
+				};
+			}, {} );
+			if ( Object.keys( errors ).length ) {
+				validation.setErrors( fieldDefinition.id, errors );
+			}
+			firstValidationRunRef.current = true;
+		} );
+	}, [ data, fieldDefinitions, validation ] );
 
 	return (
 		<VStack spacing={ 2 }>
@@ -73,12 +103,53 @@ export function DataFormLayout< Item >( {
 					return children( FieldLayout, formField );
 				}
 
+				const errorMessage =
+					( fieldDefinition?.validationSchema?.onTouched &&
+						validation.touchedFields.includes(
+							fieldDefinition.id
+						) ) ||
+					! fieldDefinition?.validationSchema?.onTouched
+						? Object.values(
+								validation.errorMessages[ formField.id ] ?? []
+						  )[ 0 ]
+						: '';
+
 				return (
 					<FieldLayout
 						key={ formField.id }
 						data={ data }
 						field={ formField }
-						onChange={ onChange }
+						errorMessage={ errorMessage }
+						onChange={ ( value ) => {
+							onChange( value );
+							if (
+								! validation.touchedFields?.includes(
+									formField.id
+								)
+							) {
+								validation.setTouchedFields( [
+									...validation.touchedFields,
+									formField.id,
+								] );
+							}
+
+							// Run validation callbacks
+							const errors = Object.entries(
+								fieldDefinition?.validationCallbacks ?? {}
+							).reduce( ( acc, [ key, callback ] ) => {
+								const error = callback( value[ formField.id ] );
+								if ( ! error ) {
+									return acc;
+								}
+
+								return {
+									...acc,
+									[ key ]: error,
+								};
+							}, {} );
+
+							validation.setErrors( formField.id, errors );
+						} }
 					/>
 				);
 			} ) }

@@ -4,7 +4,6 @@
 import {
 	Modal,
 	Button,
-	TextControl,
 	__experimentalHStack as HStack,
 	__experimentalVStack as VStack,
 	ToggleControl,
@@ -14,6 +13,7 @@ import { useState } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { store as coreStore } from '@wordpress/core-data';
+import { DataForm, useValidation } from '@wordpress/dataviews';
 
 /**
  * Internal dependencies
@@ -62,9 +62,11 @@ export function CreatePatternModalContents( {
 	defaultSyncType = PATTERN_SYNC_TYPES.full,
 	defaultTitle = '',
 } ) {
-	const [ syncType, setSyncType ] = useState( defaultSyncType );
-	const [ categoryTerms, setCategoryTerms ] = useState( defaultCategories );
-	const [ title, setTitle ] = useState( defaultTitle );
+	const [ pattern, setPattern ] = useState( {
+		title: defaultTitle,
+		categoryTerms: defaultCategories,
+		sync: defaultSyncType,
+	} );
 
 	const [ isSaving, setIsSaving ] = useState( false );
 	const { createPattern } = unlock( useDispatch( patternsStore ) );
@@ -72,15 +74,79 @@ export function CreatePatternModalContents( {
 
 	const { categoryMap, findOrCreateTerm } = useAddPatternCategory();
 
+	const validation = useValidation();
+
+	const fields = [
+		{
+			id: 'title',
+			label: __( 'Name' ),
+			type: 'text',
+			validationSchema: {
+				minLength: 1,
+				maxLength: 10,
+				onTouched: true,
+			},
+		},
+		{
+			id: 'categoryTerms',
+			label: __( 'Categories' ),
+			Edit: ( { field, data, onChange } ) => {
+				const { id } = field;
+				const categoryTerms = field.getValue( { item: data } );
+				return (
+					<CategorySelector
+						categoryTerms={ categoryTerms }
+						onChange={ ( newValue ) => {
+							onChange( {
+								[ id ]: newValue,
+							} );
+						} }
+						categoryMap={ categoryMap }
+					/>
+				);
+			},
+		},
+		{
+			id: 'sync',
+			label: __( 'Synced' ),
+			Edit: ( { field, data, onChange } ) => {
+				const { id } = field;
+				const sync = field.getValue( { item: data } );
+				return (
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ _x( 'Synced', 'pattern (singular)' ) }
+						help={ __(
+							'Sync this pattern across multiple locations.'
+						) }
+						checked={ sync === PATTERN_SYNC_TYPES.full }
+						onChange={ () => {
+							onChange( {
+								[ id ]:
+									sync === PATTERN_SYNC_TYPES.full
+										? PATTERN_SYNC_TYPES.unsynced
+										: PATTERN_SYNC_TYPES.full,
+							} );
+						} }
+					/>
+				);
+			},
+		},
+	];
+
+	const form = {
+		fields: [ 'title', 'categoryTerms', 'sync' ],
+	};
+
 	async function onCreate( patternTitle, sync ) {
-		if ( ! title || isSaving ) {
+		if ( ! validation.isFormValid || isSaving ) {
 			return;
 		}
 
 		try {
 			setIsSaving( true );
 			const categories = await Promise.all(
-				categoryTerms.map( ( termName ) =>
+				pattern.categoryTerms.map( ( termName ) =>
 					findOrCreateTerm( termName )
 				)
 			);
@@ -103,71 +169,47 @@ export function CreatePatternModalContents( {
 			onError?.();
 		} finally {
 			setIsSaving( false );
-			setCategoryTerms( [] );
-			setTitle( '' );
 		}
 	}
 
 	return (
-		<form
-			onSubmit={ ( event ) => {
-				event.preventDefault();
-				onCreate( title, syncType );
-			} }
-		>
-			<VStack spacing="5">
-				<TextControl
-					label={ __( 'Name' ) }
-					value={ title }
-					onChange={ setTitle }
-					placeholder={ __( 'My pattern' ) }
-					className="patterns-create-modal__name-input"
-					__nextHasNoMarginBottom
+		<VStack spacing="5">
+			<DataForm
+				data={ pattern }
+				validation={ validation }
+				fields={ fields }
+				form={ form }
+				onChange={ ( newData ) => {
+					setPattern( {
+						...pattern,
+						...newData,
+					} );
+				} }
+			/>
+			<HStack justify="right">
+				<Button
 					__next40pxDefaultSize
-				/>
-				<CategorySelector
-					categoryTerms={ categoryTerms }
-					onChange={ setCategoryTerms }
-					categoryMap={ categoryMap }
-				/>
-				<ToggleControl
-					__nextHasNoMarginBottom
-					label={ _x( 'Synced', 'pattern (singular)' ) }
-					help={ __(
-						'Sync this pattern across multiple locations.'
-					) }
-					checked={ syncType === PATTERN_SYNC_TYPES.full }
-					onChange={ () => {
-						setSyncType(
-							syncType === PATTERN_SYNC_TYPES.full
-								? PATTERN_SYNC_TYPES.unsynced
-								: PATTERN_SYNC_TYPES.full
-						);
+					variant="tertiary"
+					onClick={ () => {
+						onClose();
 					} }
-				/>
-				<HStack justify="right">
-					<Button
-						__next40pxDefaultSize
-						variant="tertiary"
-						onClick={ () => {
-							onClose();
-							setTitle( '' );
-						} }
-					>
-						{ __( 'Cancel' ) }
-					</Button>
+				>
+					{ __( 'Cancel' ) }
+				</Button>
 
-					<Button
-						__next40pxDefaultSize
-						variant="primary"
-						type="submit"
-						aria-disabled={ ! title || isSaving }
-						isBusy={ isSaving }
-					>
-						{ confirmLabel }
-					</Button>
-				</HStack>
-			</VStack>
-		</form>
+				<Button
+					__next40pxDefaultSize
+					variant="primary"
+					type="submit"
+					aria-disabled={ ! validation.isFormValid() }
+					onClick={ async () => {
+						await onCreate( pattern.title, pattern.sync );
+					} }
+					isBusy={ isSaving }
+				>
+					{ confirmLabel }
+				</Button>
+			</HStack>
+		</VStack>
 	);
 }

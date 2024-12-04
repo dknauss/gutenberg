@@ -14,6 +14,7 @@ export default function Text< Item >( {
 	field,
 	onChange,
 	hideLabelFromVision,
+	errorMessage,
 }: DataFormControlProps< Item > ) {
 	const { id, label, placeholder } = field;
 	const value = field.getValue( { item: data } );
@@ -27,14 +28,19 @@ export default function Text< Item >( {
 	);
 
 	return (
-		<TextControl
-			label={ label }
-			placeholder={ placeholder }
-			value={ value ?? '' }
-			onChange={ onChangeControl }
-			__next40pxDefaultSize
-			__nextHasNoMarginBottom
-			hideLabelFromVision={ hideLabelFromVision }
-		/>
+		<>
+			<TextControl
+				label={ label }
+				placeholder={ placeholder }
+				value={ value ?? '' }
+				onChange={ onChangeControl }
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				hideLabelFromVision={ hideLabelFromVision }
+			/>
+			{ errorMessage && (
+				<p className="dataform-control-error">{ errorMessage }</p>
+			) }
+		</>
 	);
 }

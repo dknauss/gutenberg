@@ -35,6 +35,7 @@ export default function FormRegularField< Item >( {
 	field,
 	onChange,
 	hideLabelFromVision,
+	errorMessage,
 }: FieldLayoutProps< Item > ) {
 	const { fields } = useContext( DataFormContext );
 
@@ -93,6 +94,7 @@ export default function FormRegularField< Item >( {
 						key={ fieldDefinition.id }
 						data={ data }
 						field={ fieldDefinition }
+						errorMessage={ errorMessage }
 						onChange={ onChange }
 						hideLabelFromVision
 					/>
@@ -106,6 +108,7 @@ export default function FormRegularField< Item >( {
 			<fieldDefinition.Edit
 				data={ data }
 				field={ fieldDefinition }
+				errorMessage={ errorMessage }
 				onChange={ onChange }
 				hideLabelFromVision={
 					labelPosition === 'none' ? true : hideLabelFromVision

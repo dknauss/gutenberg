@@ -34,6 +34,7 @@ export const TemplateEdit = ( {
 	onChange,
 }: DataFormControlProps< BasePost > ) => {
 	const { id } = field;
+	data = Array.isArray( data ) ? data[ 0 ] : data;
 	const postType = data.type;
 	const postId =
 		typeof data.id === 'number' ? data.id : parseInt( data.id, 10 );

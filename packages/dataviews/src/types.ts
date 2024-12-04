@@ -185,10 +185,11 @@ export type Fields< Item > = Field< Item >[];
 export type Data< Item > = Item[];
 
 export type DataFormControlProps< Item > = {
-	data: Item;
+	data: Item | Item[];
 	field: NormalizedField< Item >;
 	onChange: ( value: Record< string, any > ) => void;
 	hideLabelFromVision?: boolean;
+	value: any;
 };
 
 export type DataViewRenderFieldProps< Item > = {
@@ -576,7 +577,7 @@ export interface DataFormProps< Item > {
 }
 
 export interface FieldLayoutProps< Item > {
-	data: Item;
+	data: Item | Item[];
 	field: FormField;
 	onChange: ( value: any ) => void;
 	hideLabelFromVision?: boolean;

@@ -7,11 +7,30 @@ import { useContext, useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import type { Form, FormField, SimpleFormField } from '../types';
+import type {
+	CombinedFormField,
+	Form,
+	FormField,
+	NormalizedField,
+	SimpleFormField,
+} from '../types';
 import { getFormFieldLayout } from './index';
 import DataFormContext from '../components/dataform-context';
 import { isCombinedField } from './is-combined-field';
 import normalizeFormFields from '../normalize-form-fields';
+
+function doesCombinedFieldSupportBulkEdits< Item >(
+	combinedField: CombinedFormField,
+	fieldDefinitions: NormalizedField< Item >[]
+): boolean {
+	return combinedField.children.some( ( child ) => {
+		const fieldId = typeof child === 'string' ? child : child.id;
+
+		return fieldDefinitions.find(
+			( fieldDefinition ) => fieldDefinition.id === fieldId
+		)?.supportsBulkEditing;
+	} );
+}
 
 export function DataFormLayout< Item >( {
 	data,
@@ -19,12 +38,12 @@ export function DataFormLayout< Item >( {
 	onChange,
 	children,
 }: {
-	data: Item;
+	data: Item | Item[];
 	form: Form;
 	onChange: ( value: any ) => void;
 	children?: (
 		FieldLayout: ( props: {
-			data: Item;
+			data: Item | Item[];
 			field: FormField;
 			onChange: ( value: any ) => void;
 			hideLabelFromVision?: boolean;
@@ -65,6 +84,19 @@ export function DataFormLayout< Item >( {
 					fieldDefinition &&
 					fieldDefinition.isVisible &&
 					! fieldDefinition.isVisible( data )
+				) {
+					return null;
+				}
+
+				if (
+					Array.isArray( data ) &&
+					( ( isCombinedField( formField ) &&
+						! doesCombinedFieldSupportBulkEdits(
+							formField,
+							fieldDefinitions
+						) ) ||
+						( fieldDefinition &&
+							! fieldDefinition.supportsBulkEditing ) )
 				) {
 					return null;
 				}

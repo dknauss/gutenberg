@@ -10,13 +10,12 @@ import { useCallback } from '@wordpress/element';
 import type { DataFormControlProps } from '../types';
 
 export default function DateTime< Item >( {
-	data,
 	field,
 	onChange,
 	hideLabelFromVision,
+	value,
 }: DataFormControlProps< Item > ) {
 	const { id, label } = field;
-	const value = field.getValue( { item: data } );
 
 	const onChangeControl = useCallback(
 		( newValue: string | null ) => onChange( { [ id ]: newValue } ),
@@ -34,7 +33,7 @@ export default function DateTime< Item >( {
 				<VisuallyHidden as="legend">{ label }</VisuallyHidden>
 			) }
 			<TimePicker
-				currentTime={ value }
+				currentTime={ typeof value === 'symbol' ? '' : value }
 				onChange={ onChangeControl }
 				hideLabelFromVision
 			/>

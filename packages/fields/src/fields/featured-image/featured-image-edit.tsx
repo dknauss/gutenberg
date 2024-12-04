@@ -17,13 +17,11 @@ import { __ } from '@wordpress/i18n';
 import type { BasePost } from '../../types';
 
 export const FeaturedImageEdit = ( {
-	data,
 	field,
 	onChange,
+	value,
 }: DataFormControlProps< BasePost > ) => {
 	const { id } = field;
-
-	const value = field.getValue( { item: data } );
 
 	const media = useSelect(
 		( select ) => {

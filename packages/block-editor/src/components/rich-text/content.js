@@ -1,3 +1,5 @@
+'use no memo';
+
 /**
  * WordPress dependencies
  */

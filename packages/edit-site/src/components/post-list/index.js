@@ -375,9 +375,16 @@ export default function PostList( { postType } ) {
 	);
 
 	const [ showAddPostModal, setShowAddPostModal ] = useState( false );
+	const [ typeOfPageToCreate, setTypeOfPageToCreate ] = useState( '' );
 
-	const openModal = () => setShowAddPostModal( true );
-	const closeModal = () => setShowAddPostModal( false );
+	const openModal = ( typeOfPage ) => {
+		setTypeOfPageToCreate( typeOfPage );
+		setShowAddPostModal( true );
+	};
+	const closeModal = () => {
+		setTypeOfPageToCreate( '' );
+		setShowAddPostModal( false );
+	};
 
 	const NewPageDropdownButton = () => {
 		return (
@@ -407,11 +414,15 @@ export default function PostList( { postType } ) {
 							spacing={ 1 }
 							style={ { minWidth: '250px' } }
 						>
-							<Button __next40pxDefaultSize>
+							<Button
+								__next40pxDefaultSize
+								onClick={ () => openModal() }
+							>
 								{ __( 'Regular page' ) }
 							</Button>
 							<Button
 								__next40pxDefaultSize
+								onClick={ () => openModal( 'pageForPosts' ) }
 								style={ {
 									flexDirection: 'column',
 									alignItems: 'flex-start',
@@ -463,6 +474,7 @@ export default function PostList( { postType } ) {
 						{ showAddPostModal && (
 							<AddNewPostModal
 								postType={ postType }
+								typeOfPage={ typeOfPageToCreate }
 								onSave={ handleNewPage }
 								onClose={ closeModal }
 							/>

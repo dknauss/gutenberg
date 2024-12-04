@@ -16,13 +16,19 @@ import { store as noticesStore } from '@wordpress/notices';
 import { decodeEntities } from '@wordpress/html-entities';
 import { serialize, synchronizeBlocksWithTemplate } from '@wordpress/blocks';
 
-export default function AddNewPostModal( { postType, onSave, onClose } ) {
+export default function AddNewPostModal( {
+	postType,
+	typeOfPage,
+	onSave,
+	onClose,
+} ) {
 	const labels = useSelect(
 		( select ) => select( coreStore ).getPostType( postType )?.labels,
 		[ postType ]
 	);
 	const [ isCreatingPost, setIsCreatingPost ] = useState( false );
 	const [ title, setTitle ] = useState( '' );
+	const pageForPosts = typeOfPage === 'pageForPosts';
 
 	const { saveEntityRecord } = useDispatch( coreStore );
 	const { createErrorNotice, createSuccessNotice } =
@@ -37,13 +43,14 @@ export default function AddNewPostModal( { postType, onSave, onClose } ) {
 		}
 		setIsCreatingPost( true );
 		try {
+			const status = pageForPosts ? 'publish' : 'draft';
 			const postTypeObject =
 				await resolveSelect( coreStore ).getPostType( postType );
 			const newPage = await saveEntityRecord(
 				'postType',
 				postType,
 				{
-					status: 'draft',
+					status,
 					title,
 					slug: title || __( 'No title' ),
 					content:
@@ -59,6 +66,12 @@ export default function AddNewPostModal( { postType, onSave, onClose } ) {
 				},
 				{ throwOnError: true }
 			);
+
+			if ( pageForPosts ) {
+				await saveEntityRecord( 'root', 'site', {
+					page_for_posts: newPage.id,
+				} );
+			}
 
 			onSave( newPage );
 
@@ -84,12 +97,17 @@ export default function AddNewPostModal( { postType, onSave, onClose } ) {
 		}
 	}
 
+	const modalTitle = pageForPosts
+		? __( 'Create new latest posts page' )
+		: // translators: %s: post type singular_name label e.g: "Page".
+		  sprintf( __( 'Draft new: %s' ), labels?.singular_name );
+	const modalSubmitLabel = pageForPosts
+		? __( 'Publish page' )
+		: __( 'Create draft' );
+
 	return (
 		<Modal
-			title={
-				// translators: %s: post type singular_name label e.g: "Page".
-				sprintf( __( 'Draft new: %s' ), labels?.singular_name )
-			}
+			title={ modalTitle }
 			onRequestClose={ onClose }
 			focusOnMount="firstContentElement"
 			size="small"
@@ -119,7 +137,7 @@ export default function AddNewPostModal( { postType, onSave, onClose } ) {
 							isBusy={ isCreatingPost }
 							aria-disabled={ isCreatingPost }
 						>
-							{ __( 'Create draft' ) }
+							{ modalSubmitLabel }
 						</Button>
 					</HStack>
 				</VStack>

@@ -204,11 +204,13 @@ export function PrivateBlockToolbar( {
 									disabled={ ! isDefaultEditingMode }
 									isUsingBindings={ isUsingBindings }
 								/>
-								{ ! isMultiToolbar && showLockButtons && (
-									<BlockLockToolbar
-										clientId={ blockClientId }
-									/>
-								) }
+								{ ! isMultiToolbar &&
+									showLockButtons &&
+									isDefaultEditingMode && (
+										<BlockLockToolbar
+											clientId={ blockClientId }
+										/>
+									) }
 								<BlockMover
 									clientIds={ blockClientIds }
 									hideDragHandle={ hideDragHandle }

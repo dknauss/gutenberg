@@ -8,9 +8,9 @@ import { doAction } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
-import type { PostType } from '../types';
 import { store as editorStore } from '../../store';
 import { unlock } from '../../lock-unlock';
+import type { PostType } from '@wordpress/fields';
 import {
 	viewPost,
 	viewPostRevisions,
@@ -24,6 +24,7 @@ import {
 	renamePost,
 	resetPost,
 	deletePost,
+	duplicateTemplatePart,
 	featuredImageField,
 	dateField,
 	parentField,
@@ -33,8 +34,8 @@ import {
 	statusField,
 	authorField,
 	titleField,
+	templateField,
 } from '@wordpress/fields';
-import duplicateTemplatePart from '../actions/duplicate-template-part';
 
 export function registerEntityAction< Item >(
 	kind: string,
@@ -128,7 +129,7 @@ export const registerPostTypeSchema =
 
 		const actions = [
 			postTypeConfig.viewable ? viewPost : undefined,
-			!! postTypeConfig?.supports?.revisions
+			!! postTypeConfig.supports?.revisions
 				? viewPostRevisions
 				: undefined,
 			// @ts-ignore
@@ -148,7 +149,7 @@ export const registerPostTypeSchema =
 				? duplicatePattern
 				: undefined,
 			postTypeConfig.supports?.title ? renamePost : undefined,
-			postTypeConfig?.supports?.[ 'page-attributes' ]
+			postTypeConfig.supports?.[ 'page-attributes' ]
 				? reorderPage
 				: undefined,
 			postTypeConfig.slug === 'wp_block' ? exportPattern : undefined,
@@ -157,25 +158,25 @@ export const registerPostTypeSchema =
 			deletePost,
 			trashPost,
 			permanentlyDeletePost,
-		];
+		].filter( Boolean );
 
 		const fields = [
-			featuredImageField,
+			postTypeConfig.supports?.thumbnail &&
+				currentTheme?.theme_supports?.[ 'post-thumbnails' ] &&
+				featuredImageField,
 			titleField,
-			authorField,
+			postTypeConfig.supports?.author && authorField,
 			statusField,
 			dateField,
 			slugField,
-			parentField,
-			commentStatusField,
+			postTypeConfig.supports?.[ 'page-attributes' ] && parentField,
+			postTypeConfig.supports?.comments && commentStatusField,
 			passwordField,
-		];
+			templateField,
+		].filter( Boolean );
 
 		registry.batch( () => {
 			actions.forEach( ( action ) => {
-				if ( ! action ) {
-					return;
-				}
 				unlock( registry.dispatch( editorStore ) ).registerEntityAction(
 					'postType',
 					postType,

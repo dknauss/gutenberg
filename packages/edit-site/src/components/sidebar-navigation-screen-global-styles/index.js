@@ -2,11 +2,11 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { store as coreStore } from '@wordpress/core-data';
+import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { privateApis as routerPrivateApis } from '@wordpress/router';
+import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -22,32 +22,18 @@ import { MainSidebarNavigationContent } from '../sidebar-navigation-screen-main'
 const { useLocation, useHistory } = unlock( routerPrivateApis );
 
 export function SidebarNavigationItemGlobalStyles( props ) {
-	const { params } = useLocation();
-	const hasGlobalStyleVariations = useSelect(
-		( select ) =>
-			!! select(
-				coreStore
-			).__experimentalGetCurrentThemeGlobalStylesVariations()?.length,
-		[]
+	const { name } = useLocation();
+	return (
+		<SidebarNavigationItem
+			{ ...props }
+			aria-current={ name === 'styles' }
+		/>
 	);
-	if ( hasGlobalStyleVariations ) {
-		return (
-			<SidebarNavigationItem
-				{ ...props }
-				params={ { path: '/wp_global_styles' } }
-				uid="global-styles-navigation-item"
-				aria-current={
-					params.path && params.path.startsWith( '/wp_global_styles' )
-				}
-			/>
-		);
-	}
-	return <SidebarNavigationItem { ...props } />;
 }
 
 export default function SidebarNavigationScreenGlobalStyles() {
 	const history = useHistory();
-	const { params } = useLocation();
+	const { path } = useLocation();
 	const {
 		revisions,
 		isLoading: isLoadingRevisions,
@@ -60,21 +46,14 @@ export default function SidebarNavigationScreenGlobalStyles() {
 	const { set: setPreference } = useDispatch( preferencesStore );
 
 	const openGlobalStyles = useCallback( async () => {
-		history.push(
-			{
-				...params,
-				canvas: 'edit',
-			},
-			undefined,
-			{
-				transition: 'canvas-mode-edit-transition',
-			}
-		);
+		history.navigate( addQueryArgs( path, { canvas: 'edit' } ), {
+			transition: 'canvas-mode-edit-transition',
+		} );
 		return Promise.all( [
 			setPreference( 'core', 'distractionFree', false ),
 			openGeneralSidebar( 'edit-site/global-styles' ),
 		] );
-	}, [ history, params, openGeneralSidebar, setPreference ] );
+	}, [ path, history, openGeneralSidebar, setPreference ] );
 
 	const openRevisions = useCallback( async () => {
 		await openGlobalStyles();

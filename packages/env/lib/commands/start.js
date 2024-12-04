@@ -236,49 +236,49 @@ module.exports = async function start( {
 	const siteUrl = config.env.development.config.WP_SITEURL;
 	const testsSiteUrl = config.env.tests.config.WP_SITEURL;
 
-	const { out: mySQLAddress } = await dockerCompose.port(
+	const mySQLPort = await getPublicDockerPort(
 		'mysql',
 		3306,
 		dockerComposeConfig
 	);
-	const mySQLPort = mySQLAddress.split( ':' ).pop();
 
-	const { out: testsMySQLAddress } = await dockerCompose.port(
+	const testsMySQLPort = await getPublicDockerPort(
 		'tests-mysql',
 		3306,
 		dockerComposeConfig
 	);
-	const testsMySQLPort = testsMySQLAddress.split( ':' ).pop();
 
-	let phpmyadminPort;
-	if ( phpmyadmin ) {
-		const { out: phpmyadminAddress } = await dockerCompose.port(
-			'phpmyadmin',
-			80,
-			dockerComposeConfig
-		);
-		phpmyadminPort = phpmyadminAddress.split( ':' ).pop();
-	}
+	const phpmyadminPort = phpmyadmin
+		? await getPublicDockerPort( 'phpmyadmin', 80, dockerComposeConfig )
+		: null;
 
-	spinner.prefixText = 'WordPress development site started'
-		.concat( siteUrl ? ` at ${ siteUrl }` : '.' )
-		.concat( '\n' )
-		.concat( 'WordPress test site started' )
-		.concat( testsSiteUrl ? ` at ${ testsSiteUrl }` : '.' )
-		.concat( '\n' )
-		.concat( `MySQL is listening on port ${ mySQLPort }` )
-		.concat(
-			`MySQL for automated testing is listening on port ${ testsMySQLPort }`
-		)
-		.concat(
-			phpmyadminPort
-				? `phpMyAdmin is listening on port ${ phpmyadminPort }`
-				: ''
-		)
-		.concat( '\n' );
-
+	spinner.prefixText = [
+		'WordPress development site started' +
+			( siteUrl ? ` at ${ siteUrl }` : '.' ),
+		'WordPress test site started' +
+			( testsSiteUrl ? ` at ${ testsSiteUrl }` : '.' ),
+		`MySQL is listening on port ${ mySQLPort }`,
+		`MySQL for automated testing is listening on port ${ testsMySQLPort }`,
+		phpmyadminPort && `phpMyAdmin is listening on port ${ phpmyadminPort }`,
+	]
+		.filter( Boolean )
+		.join( '\n' );
+	spinner.prefixText += '\n\n';
 	spinner.text = 'Done!';
 };
+
+async function getPublicDockerPort(
+	service,
+	containerPort,
+	dockerComposeConfig
+) {
+	const { out: address } = await dockerCompose.port(
+		service,
+		containerPort,
+		dockerComposeConfig
+	);
+	return address.split( ':' ).pop().trim();
+}
 
 /**
  * Checks for legacy installs and provides

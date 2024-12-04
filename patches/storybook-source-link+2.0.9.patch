@@ -1,0 +1,23 @@
+diff --git a/node_modules/storybook-source-link/dist/esm/Tool.js b/node_modules/storybook-source-link/dist/esm/Tool.js
+index 100099e..68c38c3 100644
+--- a/node_modules/storybook-source-link/dist/esm/Tool.js
++++ b/node_modules/storybook-source-link/dist/esm/Tool.js
+@@ -1,7 +1,7 @@
+ import React from "react";
+ import { Icons, IconButton, TooltipMessage, WithTooltip } from "@storybook/components";
+ import { PARAM_KEY, PREFIX_PARAM_KEY, ICON_PARAM_KEY, INFO_LINK, TOOL_ID } from "./constants";
+-import { useParameter } from '@storybook/api';
++import { useParameter } from '@storybook/manager-api';
+ 
+ var Tooltip = function Tooltip() {
+   return /*#__PURE__*/React.createElement(TooltipMessage, {
+diff --git a/node_modules/storybook-source-link/dist/esm/preset/manager.js b/node_modules/storybook-source-link/dist/esm/preset/manager.js
+index 845f81d..ca1d066 100644
+--- a/node_modules/storybook-source-link/dist/esm/preset/manager.js
++++ b/node_modules/storybook-source-link/dist/esm/preset/manager.js
+@@ -1,4 +1,4 @@
+-import { addons, types } from "@storybook/addons";
++import { addons, types } from "@storybook/manager-api";
+ import { ADDON_ID, TOOL_ID } from "../constants";
+ import { Tool } from "../Tool"; // Register the addon
+ 

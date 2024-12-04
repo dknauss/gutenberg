@@ -116,7 +116,7 @@ export function useEventHandlers( { clientId, isSelected } ) {
 						}
 
 						if ( nextClientId ) {
-							selectBlock( nextClientId );
+							selectBlock( nextClientId, null );
 						}
 					}
 				} else {

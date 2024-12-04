@@ -43,10 +43,6 @@ export function useFocusFirstElement( { clientId, initialPosition } ) {
 			return;
 		}
 
-		if ( initialPosition === undefined || initialPosition === null ) {
-			return;
-		}
-
 		if ( ! ref.current ) {
 			return;
 		}
@@ -55,6 +51,11 @@ export function useFocusFirstElement( { clientId, initialPosition } ) {
 
 		// Do not focus the block if it already contains the active element.
 		if ( isInsideRootBlock( ref.current, ownerDocument.activeElement ) ) {
+			return;
+		}
+
+		if ( initialPosition === undefined || initialPosition === null ) {
+			ref.current.focus();
 			return;
 		}
 

@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { isTextField } from '@wordpress/dom';
 import { ENTER, BACKSPACE, DELETE } from '@wordpress/keycodes';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useRefEffect } from '@wordpress/compose';
@@ -52,10 +53,6 @@ export function useEventHandlers( { clientId, isSelected } ) {
 			function onKeyDown( event ) {
 				const { keyCode, target } = event;
 
-				if ( event.defaultPrevented ) {
-					return;
-				}
-
 				if (
 					keyCode !== ENTER &&
 					keyCode !== BACKSPACE &&
@@ -64,7 +61,7 @@ export function useEventHandlers( { clientId, isSelected } ) {
 					return;
 				}
 
-				if ( target !== node ) {
+				if ( target !== node || isTextField( target ) ) {
 					return;
 				}
 

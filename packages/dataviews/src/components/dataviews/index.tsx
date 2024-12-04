@@ -52,8 +52,7 @@ type DataViewsProps< Item > = {
 	: { getItemId: ( item: Item ) => string } );
 
 const defaultGetItemId = ( item: ItemWithId ) => item.id;
-const defaultIsItemClickable = () => false;
-const defaultOnClickItem = () => {};
+const defaultIsItemClickable = () => true;
 const EMPTY_ARRAY: any[] = [];
 
 export default function DataViews< Item >( {
@@ -70,12 +69,11 @@ export default function DataViews< Item >( {
 	defaultLayouts,
 	selection: selectionProperty,
 	onChangeSelection,
-	onClickItem = defaultOnClickItem,
+	onClickItem,
 	isItemClickable = defaultIsItemClickable,
 	header,
 }: DataViewsProps< Item > ) {
 	const [ selectionState, setSelectionState ] = useState< string[] >( [] );
-	const [ density, setDensity ] = useState< number >( 0 );
 	const isUncontrolled =
 		selectionProperty === undefined || onChangeSelection === undefined;
 	const selection = isUncontrolled ? selectionState : selectionProperty;
@@ -119,7 +117,6 @@ export default function DataViews< Item >( {
 				getItemId,
 				isItemClickable,
 				onClickItem,
-				density,
 			} }
 		>
 			<div className="dataviews-wrapper">
@@ -151,8 +148,6 @@ export default function DataViews< Item >( {
 					>
 						<DataViewsViewConfig
 							defaultLayouts={ defaultLayouts }
-							density={ density }
-							setDensity={ setDensity }
 						/>
 						{ header }
 					</HStack>

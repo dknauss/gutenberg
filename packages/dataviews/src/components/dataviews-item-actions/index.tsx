@@ -114,7 +114,7 @@ export function ActionModal< Item >( {
 			__experimentalHideHeader={ !! action.hideModalHeader }
 			onRequestClose={ closeModal ?? ( () => {} ) }
 			focusOnMount="firstContentElement"
-			size="small"
+			size="medium"
 			overlayClassName={ `dataviews-action-modal dataviews-action-modal__${ kebabCase(
 				action.id
 			) }` }
@@ -190,7 +190,7 @@ function hasOnlyOneActionAndIsPrimary< Item >(
 	primaryActions: Action< Item >[],
 	actions: Action< Item >[]
 ) {
-	return primaryActions.length === 1 && actions.length;
+	return primaryActions.length === 1 && actions.length === 1;
 }
 
 export default function ItemActions< Item >( {

@@ -42,7 +42,7 @@ interface TableColumnFieldProps< Item > {
 	field: NormalizedField< Item >;
 	item: Item;
 	isItemClickable: ( item: Item ) => boolean;
-	onClickItem: ( item: Item ) => void;
+	onClickItem?: ( item: Item ) => void;
 }
 
 interface TableColumnCombinedProps< Item > {
@@ -52,7 +52,7 @@ interface TableColumnCombinedProps< Item > {
 	item: Item;
 	view: ViewTableType;
 	isItemClickable: ( item: Item ) => boolean;
-	onClickItem: ( item: Item ) => void;
+	onClickItem?: ( item: Item ) => void;
 }
 
 interface TableColumnProps< Item > {
@@ -62,7 +62,7 @@ interface TableColumnProps< Item > {
 	column: string;
 	view: ViewTableType;
 	isItemClickable: ( item: Item ) => boolean;
-	onClickItem: ( item: Item ) => void;
+	onClickItem?: ( item: Item ) => void;
 }
 
 interface TableRowProps< Item > {
@@ -77,7 +77,7 @@ interface TableRowProps< Item > {
 	getItemId: ( item: Item ) => string;
 	onChangeSelection: SetSelection;
 	isItemClickable: ( item: Item ) => boolean;
-	onClickItem: ( item: Item ) => void;
+	onClickItem?: ( item: Item ) => void;
 }
 
 function TableColumn< Item >( {
@@ -118,12 +118,12 @@ function TableColumnField< Item >( {
 	const isItemClickableField = ( i: Item ) =>
 		isItemClickable( i ) && isPrimaryField;
 
-	const clickableProps = getClickableItemProps(
+	const clickableProps = getClickableItemProps( {
 		item,
-		isItemClickableField,
+		isItemClickable: isItemClickableField,
 		onClickItem,
-		'dataviews-view-table__cell-content'
-	);
+		className: 'dataviews-view-table__cell-content',
+	} );
 
 	return (
 		<div
@@ -147,7 +147,11 @@ function TableColumnCombined< Item >( {
 	) );
 
 	if ( field.direction === 'horizontal' ) {
-		return <HStack spacing={ 3 }>{ children }</HStack>;
+		return (
+			<HStack spacing={ 3 } justify="flex-start">
+				{ children }
+			</HStack>
+		);
 	}
 	return <VStack spacing={ 0 }>{ children }</VStack>;
 }
@@ -328,7 +332,13 @@ function ViewTable< Item >( {
 	return (
 		<>
 			<table
-				className="dataviews-view-table"
+				className={ clsx( 'dataviews-view-table', {
+					[ `has-${ view.layout?.density }-density` ]:
+						view.layout?.density &&
+						[ 'compact', 'comfortable' ].includes(
+							view.layout.density
+						),
+				} ) }
 				aria-busy={ isLoading }
 				aria-describedby={ tableNoticeId }
 			>

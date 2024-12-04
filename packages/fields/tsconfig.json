@@ -12,6 +12,7 @@
 		{ "path": "../components" },
 		{ "path": "../compose" },
 		{ "path": "../core-data" },
+		{ "path": "../block-editor" },
 		{ "path": "../data" },
 		{ "path": "../dataviews" },
 		{ "path": "../date" },
@@ -26,6 +27,7 @@
 		{ "path": "../private-apis" },
 		{ "path": "../router" },
 		{ "path": "../url" },
+		{ "path": "../block-editor" },
 		{ "path": "../warning" }
 	],
 	"include": [ "src" ]

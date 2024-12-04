@@ -36,6 +36,7 @@ import __unstableBlockNameContext from './block-name-context';
 import NavigableToolbar from '../navigable-toolbar';
 import { useHasBlockToolbar } from './use-has-block-toolbar';
 import ChangeDesign from './change-design';
+import SwitchSectionStyle from './switch-section-style';
 import { unlock } from '../../lock-unlock';
 
 /**
@@ -72,6 +73,9 @@ export function PrivateBlockToolbar( {
 		showSlots,
 		showGroupButtons,
 		showLockButtons,
+		showSwitchSectionStyleButton,
+		hasFixedToolbar,
+		isNavigationMode,
 	} = useSelect( ( select ) => {
 		const {
 			getBlockName,
@@ -83,8 +87,10 @@ export function PrivateBlockToolbar( {
 			getBlockAttributes,
 			getBlockParentsByBlockName,
 			getTemplateLock,
+			getSettings,
 			getParentSectionBlock,
 			isZoomOut,
+			isNavigationMode: _isNavigationMode,
 		} = unlock( select( blockEditorStore ) );
 		const selectedBlockClientIds = getSelectedBlockClientIds();
 		const selectedBlockClientId = selectedBlockClientIds[ 0 ];
@@ -117,6 +123,7 @@ export function PrivateBlockToolbar( {
 		const _hasTemplateLock = selectedBlockClientIds.some(
 			( id ) => getTemplateLock( id ) === 'contentOnly'
 		);
+
 		return {
 			blockClientId: selectedBlockClientId,
 			blockClientIds: selectedBlockClientIds,
@@ -141,6 +148,9 @@ export function PrivateBlockToolbar( {
 			showSlots: ! isZoomOut(),
 			showGroupButtons: ! isZoomOut(),
 			showLockButtons: ! isZoomOut(),
+			showSwitchSectionStyleButton: isZoomOut(),
+			hasFixedToolbar: getSettings().hasFixedToolbar,
+			isNavigationMode: _isNavigationMode(),
 		};
 	}, [] );
 
@@ -167,6 +177,7 @@ export function PrivateBlockToolbar( {
 	// Shifts the toolbar to make room for the parent block selector.
 	const classes = clsx( 'block-editor-block-contextual-toolbar', {
 		'has-parent': showParentSelector,
+		'is-inverted-toolbar': isNavigationMode && ! hasFixedToolbar,
 	} );
 
 	const innerClasses = clsx( 'block-editor-block-toolbar', {
@@ -221,6 +232,9 @@ export function PrivateBlockToolbar( {
 					showGroupButtons && <BlockGroupToolbar /> }
 				{ showShuffleButton && (
 					<ChangeDesign clientId={ blockClientIds[ 0 ] } />
+				) }
+				{ showSwitchSectionStyleButton && (
+					<SwitchSectionStyle clientId={ blockClientIds[ 0 ] } />
 				) }
 				{ shouldShowVisualToolbar && showSlots && (
 					<>

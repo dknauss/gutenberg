@@ -110,10 +110,10 @@ export default function useInput() {
 
 					// Ensure template is not locked.
 					if (
+						! __unstableIsFullySelected() &&
 						canInsertBlockType( blockName, rootClientId ) &&
-						! hasBlockSupport( blockName, 'splitting', false ) &&
-						! event.__deprecatedOnSplit &&
-						! __unstableIsFullySelected()
+						( hasBlockSupport( blockName, 'splitting', false ) ||
+							event.__deprecatedOnSplit )
 					) {
 						event.preventDefault();
 						__unstableSplitSelection();

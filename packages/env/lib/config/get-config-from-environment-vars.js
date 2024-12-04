@@ -40,6 +40,9 @@ module.exports = function getConfigFromEnvironmentVars( cacheDirectoryPath ) {
 		testsMysqlPort: getPortFromEnvironmentVariable(
 			'WP_ENV_TESTS_MYSQL_PORT'
 		),
+		phpmyadminPort: getPortFromEnvironmentVariable(
+			'WP_ENV_PHPMYADMIN_PORT'
+		),
 		lifecycleScripts: getLifecycleScriptOverrides(),
 	};
 

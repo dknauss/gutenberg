@@ -22,6 +22,7 @@ const DEFAULT_CONFIG = {
 	port: 8888,
 	testsPort: 8889,
 	mysqlPort: null,
+	phpmyadminPort: 9000,
 	phpVersion: null,
 	coreSource: {
 		type: 'git',

@@ -173,6 +173,9 @@ module.exports = function buildDockerComposeConfig( config ) {
 	const testsMysqlPorts = `\${WP_ENV_TESTS_MYSQL_PORT:-${
 		config.env.tests.mysqlPort ?? ''
 	}}:3306`;
+	const phpmyadminPorts = `\${WP_ENV_PHPMYADMIN_PORT:-${
+		config.env.development.phpmyadminPort ?? ''
+	}}:80`;
 
 	return {
 		services: {
@@ -265,6 +268,16 @@ module.exports = function buildDockerComposeConfig( config ) {
 					WP_TESTS_DIR: '/wordpress-phpunit',
 				},
 				extra_hosts: [ 'host.docker.internal:host-gateway' ],
+			},
+			phpmyadmin: {
+				image: 'phpmyadmin',
+				ports: [ phpmyadminPorts ],
+				environment: {
+					PMA_PORT: 3306,
+					PMA_HOST: 'mysql',
+					PMA_USER: 'root',
+					PMA_PASSWORD: 'password',
+				},
 			},
 		},
 		volumes: {

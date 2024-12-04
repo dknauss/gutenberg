@@ -207,6 +207,8 @@ function CollabSidebarContent( {
 				onAddReply={ addNewComment }
 				onCommentDelete={ onCommentDelete }
 				onCommentResolve={ onCommentResolve }
+				showCommentBoard={ showCommentBoard }
+				setShowCommentBoard={ setShowCommentBoard }
 			/>
 		</div>
 	);
@@ -286,6 +288,11 @@ export default function CollabSidebar() {
 				// Otherwise, find its parent and push it to the parent's `reply` array
 				compare[ item.parent ].reply.push( compare[ item.id ] );
 			}
+		} );
+
+		result.map( ( item ) => {
+			item.reply = item.reply.reverse();
+			return item;
 		} );
 
 		return result;

@@ -151,42 +151,40 @@ export default function SingleInputControl( {
 	// https://github.com/WordPress/gutenberg/pull/24966#issuecomment-685875026
 	return (
 		<HStack>
-			{ ! hasPresets ||
-				( showCustomValueControl && (
-					<div className="components-border-radius-control__input-controls-wrapper">
-						<Tooltip text={ CORNERS[ corner ] } placement="top">
-							<div className="components-border-radius-control__tooltip-wrapper">
-								<UnitControl
-									className="components-border-radius-control__unit-control"
-									aria-label={ CORNERS[ corner ] }
-									value={ [
-										parsedQuantity,
-										computedUnit,
-									].join( '' ) }
-									onChange={ onChangeValue }
-									onUnitChange={ onChangeUnit }
-									size="__unstable-large"
-									min={ MIN_BORDER_RADIUS_VALUE }
-									units={ units }
-								/>
-							</div>
-						</Tooltip>
-						<RangeControl
-							__next40pxDefaultSize
-							label={ __( 'Border radius' ) }
-							hideLabelFromVision
-							className="components-border-radius-control__range-control"
-							value={ parsedQuantity ?? '' }
-							min={ MIN_BORDER_RADIUS_VALUE }
-							max={ MAX_BORDER_RADIUS_VALUES[ computedUnit ] }
-							initialPosition={ 0 }
-							withInputField={ false }
-							onChange={ handleSliderChange }
-							step={ step }
-							__nextHasNoMarginBottom
-						/>
-					</div>
-				) ) }
+			{ ( ! hasPresets || showCustomValueControl ) && (
+				<div className="components-border-radius-control__input-controls-wrapper">
+					<Tooltip text={ CORNERS[ corner ] } placement="top">
+						<div className="components-border-radius-control__tooltip-wrapper">
+							<UnitControl
+								className="components-border-radius-control__unit-control"
+								aria-label={ CORNERS[ corner ] }
+								value={ [ parsedQuantity, computedUnit ].join(
+									''
+								) }
+								onChange={ onChangeValue }
+								onUnitChange={ onChangeUnit }
+								size="__unstable-large"
+								min={ MIN_BORDER_RADIUS_VALUE }
+								units={ units }
+							/>
+						</div>
+					</Tooltip>
+					<RangeControl
+						__next40pxDefaultSize
+						label={ __( 'Border radius' ) }
+						hideLabelFromVision
+						className="components-border-radius-control__range-control"
+						value={ parsedQuantity ?? '' }
+						min={ MIN_BORDER_RADIUS_VALUE }
+						max={ MAX_BORDER_RADIUS_VALUES[ computedUnit ] }
+						initialPosition={ 0 }
+						withInputField={ false }
+						onChange={ handleSliderChange }
+						step={ step }
+						__nextHasNoMarginBottom
+					/>
+				</div>
+			) }
 			{ hasPresets && showRangeControl && ! showCustomValueControl && (
 				<RangeControl
 					__next40pxDefaultSize
@@ -259,21 +257,23 @@ export default function SingleInputControl( {
 					onBlur={ onMouseOut }*/
 				/>
 			) }
-			<Button
-				label={
-					showCustomValueControl
-						? __( 'Use border radius preset' )
-						: __( 'Set custom border radius' )
-				}
-				icon={ settings }
-				onClick={ () => {
-					setShowCustomValueControl( ! showCustomValueControl );
-				} }
-				isPressed={ showCustomValueControl }
-				size="small"
-				className="components-border-radius-control__custom-toggle"
-				iconSize={ 24 }
-			/>
+			{ hasPresets && (
+				<Button
+					label={
+						showCustomValueControl
+							? __( 'Use border radius preset' )
+							: __( 'Set custom border radius' )
+					}
+					icon={ settings }
+					onClick={ () => {
+						setShowCustomValueControl( ! showCustomValueControl );
+					} }
+					isPressed={ showCustomValueControl }
+					size="small"
+					className="components-border-radius-control__custom-toggle"
+					iconSize={ 24 }
+				/>
+			) }
 		</HStack>
 	);
 }

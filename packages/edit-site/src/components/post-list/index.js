@@ -350,7 +350,11 @@ export default function PostList( { postType } ) {
 			const siteSettings = getEntityRecord( 'root', 'site' );
 			const isPagePostType = getPostType( postType )?.slug === 'page';
 			const isStaticHomepage = siteSettings?.show_on_front === 'page';
-			const pageForPosts = siteSettings?.page_for_posts;
+			const isPageForPostsSet = getEntityRecord(
+				'postType',
+				'page',
+				siteSettings?.page_for_posts
+			);
 			return {
 				labels: getPostType( postType )?.labels,
 				canCreateRecord: canUser( 'create', {
@@ -358,7 +362,7 @@ export default function PostList( { postType } ) {
 					name: postType,
 				} ),
 				showPageForPostsOption:
-					isPagePostType && isStaticHomepage && ! pageForPosts,
+					isPagePostType && isStaticHomepage && ! isPageForPostsSet,
 			};
 		},
 		[ postType ]

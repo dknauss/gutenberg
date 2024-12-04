@@ -5,6 +5,7 @@ import {
 	__experimentalParseQuantityAndUnitFromRawValue as parseQuantityAndUnitFromRawValue,
 	__experimentalUnitControl as UnitControl,
 	__experimentalHStack as HStack,
+	Icon,
 	Tooltip,
 	RangeControl,
 	Button,
@@ -12,7 +13,14 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
-import { settings } from '@wordpress/icons';
+import {
+	cornerAll,
+	cornerBottomLeft,
+	cornerBottomRight,
+	cornerTopLeft,
+	cornerTopRight,
+	settings,
+} from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -31,6 +39,13 @@ const CORNERS = {
 	topRight: __( 'Top right' ),
 	bottomLeft: __( 'Bottom left' ),
 	bottomRight: __( 'Bottom right' ),
+};
+const ICONS = {
+	all: cornerAll,
+	topLeft: cornerTopLeft,
+	topRight: cornerTopRight,
+	bottomLeft: cornerBottomLeft,
+	bottomRight: cornerBottomRight,
 };
 const MIN_BORDER_RADIUS_VALUE = 0;
 const MAX_BORDER_RADIUS_VALUES = {
@@ -145,12 +160,20 @@ export default function SingleInputControl( {
 			name: size.name,
 		} ) );
 	}
+	const icon = ICONS[ corner ];
 
 	// Controls are wrapped in tooltips as visible labels aren't desired here.
 	// Tooltip rendering also requires the UnitControl to be wrapped. See:
 	// https://github.com/WordPress/gutenberg/pull/24966#issuecomment-685875026
 	return (
 		<HStack>
+			{ icon && (
+				<Icon
+					className="components-border-radius-control__icon"
+					icon={ icon }
+					size={ 24 }
+				/>
+			) }
 			{ ( ! hasPresets || showCustomValueControl ) && (
 				<div className="components-border-radius-control__input-controls-wrapper">
 					<Tooltip text={ CORNERS[ corner ] } placement="top">

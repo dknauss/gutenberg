@@ -33,7 +33,7 @@ export function MainSidebarNavigationContent() {
 				{ __( 'Navigation' ) }
 			</SidebarNavigationItem>
 			<SidebarNavigationItemGlobalStyles
-				uid="styles-navigation-item"
+				uid="global-styles-navigation-item"
 				icon={ styles }
 			>
 				{ __( 'Styles' ) }

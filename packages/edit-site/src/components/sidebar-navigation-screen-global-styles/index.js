@@ -23,15 +23,26 @@ const { useLocation, useHistory } = unlock( routerPrivateApis );
 
 export function SidebarNavigationItemGlobalStyles( props ) {
 	const { params } = useLocation();
-	return (
-		<SidebarNavigationItem
-			{ ...props }
-			params={ { path: '/wp_global_styles' } }
-			aria-current={
-				params.path && params.path.startsWith( '/wp_global_styles' )
-			}
-		/>
+	const hasGlobalStyleVariations = useSelect(
+		( select ) =>
+			!! select(
+				coreStore
+			).__experimentalGetCurrentThemeGlobalStylesVariations()?.length,
+		[]
 	);
+	if ( hasGlobalStyleVariations ) {
+		return (
+			<SidebarNavigationItem
+				{ ...props }
+				params={ { path: '/wp_global_styles' } }
+				uid="global-styles-navigation-item"
+				aria-current={
+					params.path && params.path.startsWith( '/wp_global_styles' )
+				}
+			/>
+		);
+	}
+	return <SidebarNavigationItem { ...props } />;
 }
 
 export default function SidebarNavigationScreenGlobalStyles() {

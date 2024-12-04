@@ -9,7 +9,7 @@
 	display: inline-flex;
 	text-decoration: none;
 	font-family: inherit;
-	font-weight: normal;
+	font-weight: $font-weight-medium;
 	font-size: $default-font-size;
 	margin: 0;
 	border: 0;
@@ -41,12 +41,6 @@
 
 		// Windows High Contrast mode will show this outline, but not the box-shadow.
 		outline: 3px solid transparent;
-	}
-
-	&.is-primary,
-	&.is-secondary,
-	&.is-tertiary {
-		font-weight: $font-weight-medium;
 	}
 
 	/**
@@ -174,13 +168,14 @@
 		&:hover:not(:disabled, [aria-disabled="true"]) {
 			// TODO: Prepare for theming (https://github.com/WordPress/gutenberg/pull/45466/files#r1030872724)
 			/* stylelint-disable-next-line declaration-property-value-disallowed-list -- Allow tertiary buttons to use colors from the user admin color scheme. */
-			background: rgba(var(--wp-admin-theme-color--rgb), 0.04);
+			background: color-mix(in srgb, $components-color-accent 4%, transparent);
+			color: $components-color-accent-darker-20;
 		}
 
 		&:active:not(:disabled, [aria-disabled="true"]) {
 			// TODO: Prepare for theming (https://github.com/WordPress/gutenberg/pull/45466/files#r1030872724)
 			/* stylelint-disable-next-line declaration-property-value-disallowed-list -- Allow tertiary buttons to use colors from the user admin color scheme. */
-			background: rgba(var(--wp-admin-theme-color--rgb), 0.08);
+			background: color-mix(in srgb, $components-color-accent 8%, transparent);
 		}
 
 		// Pull left if the tertiary button stands alone after a description, so as to vertically align with items above.
@@ -260,6 +255,7 @@
 		transition-timing-function: ease-in-out;
 		@include reduce-motion("transition");
 		height: auto;
+		font-weight: $font-weight-regular;
 
 		&:focus {
 			border-radius: $radius-small;

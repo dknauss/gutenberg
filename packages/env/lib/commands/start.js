@@ -250,6 +250,16 @@ module.exports = async function start( {
 	);
 	const testsMySQLPort = testsMySQLAddress.split( ':' ).pop();
 
+	let phpmyadminPort;
+	if ( phpmyadmin ) {
+		const { out: phpmyadminAddress } = await dockerCompose.port(
+			'phpmyadmin',
+			80,
+			dockerComposeConfig
+		);
+		phpmyadminPort = phpmyadminAddress.split( ':' ).pop();
+	}
+
 	spinner.prefixText = 'WordPress development site started'
 		.concat( siteUrl ? ` at ${ siteUrl }` : '.' )
 		.concat( '\n' )
@@ -259,6 +269,11 @@ module.exports = async function start( {
 		.concat( `MySQL is listening on port ${ mySQLPort }` )
 		.concat(
 			`MySQL for automated testing is listening on port ${ testsMySQLPort }`
+		)
+		.concat(
+			phpmyadminPort
+				? `phpMyAdmin is listening on port ${ phpmyadminPort }`
+				: ''
 		)
 		.concat( '\n' );
 

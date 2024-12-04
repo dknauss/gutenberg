@@ -23,8 +23,8 @@ import BlockContext from '../block-context';
 import isURLLike from '../link-control/is-url-like';
 import {
 	canBindAttribute,
-	hasPatternOverridesDefaultBindings,
-	replacePatternOverrideDefaultBindings,
+	hasPatternOverridesDefaultBinding,
+	replacePatternOverridesDefaultBinding,
 } from '../../utils/block-bindings';
 import { unlock } from '../../lock-unlock';
 
@@ -67,7 +67,7 @@ const EditWithGeneratedProps = ( props ) => {
 
 	const blockBindings = useMemo(
 		() =>
-			replacePatternOverrideDefaultBindings(
+			replacePatternOverridesDefaultBinding(
 				name,
 				attributes?.metadata?.bindings
 			),
@@ -179,7 +179,7 @@ const EditWithGeneratedProps = ( props ) => {
 		]
 	);
 
-	const hasPatternOverrideDefault = hasPatternOverridesDefaultBindings(
+	const hasPatternOverrides = hasPatternOverridesDefaultBinding(
 		attributes?.metadata?.bindings
 	);
 	const setBoundAttributes = useCallback(
@@ -239,11 +239,11 @@ const EditWithGeneratedProps = ( props ) => {
 				if (
 					// Don't update non-connected attributes if the block is using pattern overrides
 					// and the editing is happening while overriding the pattern (not editing the original).
-					! ( hasPatternOverrideDefault && hasParentPattern ) &&
+					! ( hasPatternOverrides && hasParentPattern ) &&
 					Object.keys( keptAttributes ).length
 				) {
 					// Don't update caption and href until they are supported.
-					if ( hasPatternOverrideDefault ) {
+					if ( hasPatternOverrides ) {
 						delete keptAttributes.caption;
 						delete keptAttributes.href;
 					}
@@ -255,7 +255,7 @@ const EditWithGeneratedProps = ( props ) => {
 			blockBindings,
 			clientId,
 			context,
-			hasPatternOverrideDefault,
+			hasPatternOverrides,
 			setAttributes,
 			registeredSources,
 			name,

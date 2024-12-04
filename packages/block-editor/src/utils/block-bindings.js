@@ -18,15 +18,22 @@ const BLOCK_BINDINGS_ALLOWED_BLOCKS = {
 	'core/button': [ 'url', 'text', 'linkTarget', 'rel' ],
 };
 
+/**
+ * Checks if the given object is empty.
+ *
+ * @param {?Object} object The object to check.
+ *
+ * @return {boolean} Whether the object is empty.
+ */
 function isObjectEmpty( object ) {
 	return ! object || Object.keys( object ).length === 0;
 }
 
 /**
- * Based on the given block name,
- * check if it is possible to bind the block.
+ * Based on the given block name, checks if it is possible to bind the block.
  *
- * @param {string} blockName - The block name.
+ * @param {string} blockName The name of the block.
+ *
  * @return {boolean} Whether it is possible to bind the block to sources.
  */
 export function canBindBlock( blockName ) {
@@ -34,11 +41,11 @@ export function canBindBlock( blockName ) {
 }
 
 /**
- * Based on the given block name and attribute name,
- * check if it is possible to bind the block attribute.
+ * Based on the given block name and attribute name, checks if it is possible to bind the block attribute.
  *
- * @param {string} blockName     - The block name.
- * @param {string} attributeName - The attribute name.
+ * @param {string} blockName     The name of the block.
+ * @param {string} attributeName The name of attribute.
+ *
  * @return {boolean} Whether it is possible to bind the block attribute.
  */
 export function canBindAttribute( blockName, attributeName ) {
@@ -48,11 +55,25 @@ export function canBindAttribute( blockName, attributeName ) {
 	);
 }
 
+/**
+ * Gets the bindable attributes for a given block.
+ *
+ * @param {string} blockName The name of the block.
+ *
+ * @return {string[]} The bindable attributes for the block.
+ */
 export function getBindableAttributes( blockName ) {
 	return BLOCK_BINDINGS_ALLOWED_BLOCKS[ blockName ];
 }
 
-export function hasPatternOverridesDefaultBindings( bindings ) {
+/**
+ * Checks if the block has the `__default` binding for pattern overrides.
+ *
+ * @param {?Record<string, object>} bindings A block's bindings from the metadata attribute.
+ *
+ * @return {boolean} Whether the block has the `__default` binding for pattern overrides.
+ */
+export function hasPatternOverridesDefaultBinding( bindings ) {
 	return bindings?.[ DEFAULT_ATTRIBUTE ]?.source === PATTERN_OVERRIDES_SOURCE;
 }
 
@@ -60,17 +81,17 @@ export function hasPatternOverridesDefaultBindings( bindings ) {
  * Returns the bindings with the `__default` binding for pattern overrides
  * replaced with the full-set of supported attributes. e.g.:
  *
- * bindings passed in: `{ __default: { source: 'core/pattern-overrides' } }`
- * bindings returned: `{ content: { source: 'core/pattern-overrides' } }`
+ * - bindings passed in: `{ __default: { source: 'core/pattern-overrides' } }`
+ * - bindings returned: `{ content: { source: 'core/pattern-overrides' } }`
  *
- * @param {string} blockName The block name (e.g. 'core/paragraph').
- * @param {Object} bindings  A block's bindings from the metadata attribute.
+ * @param {string}                  blockName The block name (e.g. 'core/paragraph').
+ * @param {?Record<string, object>} bindings  A block's bindings from the metadata attribute.
  *
  * @return {Object} The bindings with default replaced for pattern overrides.
  */
-export function replacePatternOverrideDefaultBindings( blockName, bindings ) {
+export function replacePatternOverridesDefaultBinding( blockName, bindings ) {
 	// The `__default` binding currently only works for pattern overrides.
-	if ( hasPatternOverridesDefaultBindings( bindings ) ) {
+	if ( hasPatternOverridesDefaultBinding( bindings ) ) {
 		const supportedAttributes = BLOCK_BINDINGS_ALLOWED_BLOCKS[ blockName ];
 		const bindingsWithDefaults = {};
 		for ( const attributeName of supportedAttributes ) {

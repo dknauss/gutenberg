@@ -15,6 +15,8 @@ import deprecated from '@wordpress/deprecated';
  */
 import type { DateSettings } from './types';
 
+export * from './types';
+
 const WP_ZONE = 'WP';
 
 // This regular expression tests positive for UTC offsets as described in ISO 8601.

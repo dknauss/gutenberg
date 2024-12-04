@@ -49,7 +49,6 @@ export function Comments( {
 	setShowCommentBoard,
 } ) {
 	const [ focusThread, setFocusThread ] = useState( null );
-	const [ activeThread, setActiveThread ] = useState( null );
 
 	const blockCommentId = useSelect( ( select ) => {
 		const clientID = select( blockEditorStore ).getSelectedBlockClientId();
@@ -61,7 +60,6 @@ export function Comments( {
 
 	// Set active thread when block is selected.
 	useEffect( () => {
-		setActiveThread( blockCommentId ?? null );
 		setFocusThread( null );
 		setShowCommentBoard( false );
 	}, [ blockCommentId ] );
@@ -105,7 +103,8 @@ export function Comments( {
 							'editor-collab-sidebar-panel__thread',
 							{
 								'editor-collab-sidebar-panel__active-thread':
-									activeThread && activeThread === thread.id,
+									blockCommentId &&
+									blockCommentId === thread.id,
 								'editor-collab-sidebar-panel__focus-thread':
 									focusThread && focusThread === thread.id,
 							}

@@ -2264,6 +2264,12 @@ function getDerivedBlockEditingModesForTree(
 		( clientId ) =>
 			state.blocks.byClientId?.get( clientId )?.name === 'core/block'
 	);
+	const contentOnlyTemplateLockedClientIds = Object.keys(
+		state.blockListSettings
+	).filter(
+		( clientId ) =>
+			state.blockListSettings[ clientId ]?.templateLock === 'contentOnly'
+	);
 
 	traverseBlockTree( state, treeClientId, ( block ) => {
 		const { clientId, name: blockName } = block;
@@ -2387,6 +2393,26 @@ function getDerivedBlockEditingModesForTree(
 				// from the instance, the user has to edit the pattern source,
 				// so return 'disabled'.
 				derivedBlockEditingModes.set( clientId, 'disabled' );
+			}
+		}
+
+		// Explicitly set block editing modes take precedence over template lock.
+		if ( state.blockEditingModes.has( clientId ) ) {
+			return;
+		}
+
+		if ( contentOnlyTemplateLockedClientIds.length ) {
+			const isContentOnlyTemplateLocked = findParentInClientIdsList(
+				state,
+				clientId,
+				contentOnlyTemplateLockedClientIds
+			);
+			if ( isContentOnlyTemplateLocked ) {
+				if ( isContentBlock( blockName ) ) {
+					derivedBlockEditingModes.set( clientId, 'contentOnly' );
+				} else {
+					derivedBlockEditingModes.set( clientId, 'disabled' );
+				}
 			}
 		}
 	} );
@@ -2541,6 +2567,89 @@ export function withDerivedBlockEditingModes( reducer ) {
 						prevState: state,
 						nextState,
 						addedBlocks: action.blocks,
+						isNavMode: true,
+					} );
+
+				if (
+					nextDerivedBlockEditingModes ||
+					nextDerivedNavModeBlockEditingModes
+				) {
+					return {
+						...nextState,
+						derivedBlockEditingModes:
+							nextDerivedBlockEditingModes ??
+							state.derivedBlockEditingModes,
+						derivedNavModeBlockEditingModes:
+							nextDerivedNavModeBlockEditingModes ??
+							state.derivedNavModeBlockEditingModes,
+					};
+				}
+				break;
+			}
+			case 'UPDATE_BLOCK_LIST_SETTINGS': {
+				// Handle the addition and removal of contentOnly template locked blocks.
+				const addedBlocks = [];
+				const removedClientIds = [];
+
+				function isNewContentOnlyBlock( clientId, actionSettings ) {
+					const blockExists =
+						!! nextState.blocks.tree.get( clientId );
+					return (
+						blockExists &&
+						actionSettings.templateLock === 'contentOnly' &&
+						! state.blockListSettings[ clientId ]?.templateLock !==
+							'contentOnly'
+					);
+				}
+
+				function wasContentOnlyBlock( clientId, actionSettings ) {
+					const blockExists =
+						!! nextState.blocks.tree.get( clientId );
+					return (
+						blockExists &&
+						actionSettings.templateLock !== 'contentOnly' &&
+						state.blockListSettings[ clientId ]?.templateLock ===
+							'contentOnly'
+					);
+				}
+
+				const updates =
+					typeof action.clientId === 'string'
+						? { [ action.clientId ]: action.settings }
+						: action.clientId;
+
+				for ( const clientId in updates ) {
+					if (
+						isNewContentOnlyBlock( clientId, updates[ clientId ] )
+					) {
+						addedBlocks.push(
+							nextState.blocks.tree.get( clientId )
+						);
+					} else if (
+						wasContentOnlyBlock( clientId, updates[ clientId ] )
+					) {
+						removedClientIds.push( clientId );
+					}
+				}
+
+				if ( ! addedBlocks.length && ! removedClientIds.length ) {
+					break;
+				}
+
+				const nextDerivedBlockEditingModes =
+					getDerivedBlockEditingModesUpdates( {
+						prevState: state,
+						nextState,
+						addedBlocks,
+						removedClientIds,
+						isNavMode: false,
+					} );
+				const nextDerivedNavModeBlockEditingModes =
+					getDerivedBlockEditingModesUpdates( {
+						prevState: state,
+						nextState,
+						addedBlocks,
+						removedClientIds,
 						isNavMode: true,
 					} );
 

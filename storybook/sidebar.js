@@ -41,7 +41,7 @@ function useIcons( item ) {
 	return useMemo( () => {
 		let data = {};
 
-		if ( item.isComponent && item.children?.length ) {
+		if ( item.type === 'component' && item.children?.length ) {
 			data = api.getData( item.children[ 0 ] ) ?? {};
 		}
 

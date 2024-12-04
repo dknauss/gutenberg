@@ -153,6 +153,10 @@ export type Field< Item > = {
 	 * Filter config for the field.
 	 */
 	filterBy?: FilterByConfig | undefined;
+
+	/**
+	 * Validation schema for the field.
+	 */
 	validationSchema?: {
 		minLength: number;
 		maxLength: number;
@@ -549,7 +553,7 @@ export type SimpleFormField = {
 	id: string;
 	layout?: 'regular' | 'panel';
 	labelPosition?: 'side' | 'top' | 'none';
-} & { validation: FormFieldValidation };
+};
 
 export type CombinedFormField = {
 	id: string;
@@ -557,22 +561,6 @@ export type CombinedFormField = {
 	layout?: 'regular' | 'panel';
 	labelPosition?: 'side' | 'top' | 'none';
 	children: Array< FormField | string >;
-} & { validation: FormFieldValidation };
-
-export type ValidationResult = {
-	isValid: boolean;
-	errorMessage: string | undefined;
-};
-
-export type FormFieldValidation = {
-	/**
-	 * The validation should be triggered only when the field is dirty.
-	 */
-	showErrorOnlyWhenDirty: boolean;
-	/**
-	 * The validation function.
-	 */
-	callback: ( data: any ) => ValidationResult;
 };
 
 export type FormField = SimpleFormField | CombinedFormField;
@@ -583,11 +571,6 @@ export type Form = {
 	type?: 'regular' | 'panel';
 	fields?: Array< FormField | string >;
 	labelPosition?: 'side' | 'top' | 'none';
-	touchedFields: string[];
-	messageErrors: Record< string, string | undefined >;
-	setTouchedFields: ( touchedFields: string[] ) => void;
-	setErrors: ( field: string, error: string | undefined ) => void;
-	isFormValid: ( data: Record< string, any > ) => boolean;
 };
 
 export interface DataFormProps< Item > {

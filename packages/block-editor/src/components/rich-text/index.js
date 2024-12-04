@@ -41,6 +41,7 @@ import { Content, valueToHTMLString } from './content';
 import { withDeprecations } from './with-deprecations';
 import { canBindBlock } from '../../hooks/use-bindings-attributes';
 import BlockContext from '../block-context';
+import { PrivateBlockContext } from '../block-list/private-block-context';
 
 export const keyboardShortcutContext = createContext();
 export const inputEventContext = createContext();
@@ -118,6 +119,7 @@ export function RichTextWrapper(
 		} );
 	}
 
+	const { supportsSplitting } = useContext( PrivateBlockContext );
 	const instanceId = useInstanceId( RichTextWrapper );
 	const anchorRef = useRef();
 	const context = useBlockEditContext();
@@ -471,6 +473,7 @@ export function RichTextWrapper(
 						onSplitAtDoubleLineEnd,
 						keyboardShortcuts,
 						inputEvents,
+						supportsSplitting,
 					} ),
 					anchorRef,
 				] ) }

@@ -701,6 +701,11 @@ function BlockListBlockProvider( props ) {
 				originalBlockClientId: isInvalid
 					? blocksWithSameName[ 0 ]
 					: false,
+				supportsSplitting: hasBlockSupport(
+					blockName,
+					'splitting',
+					false
+				),
 			};
 		},
 		[ clientId, rootClientId ]
@@ -743,6 +748,7 @@ function BlockListBlockProvider( props ) {
 		className,
 		defaultClassName,
 		originalBlockClientId,
+		supportsSplitting,
 	} = selectedProps;
 
 	// Users of the editor.BlockListBlock filter used to be able to
@@ -791,6 +797,7 @@ function BlockListBlockProvider( props ) {
 		originalBlockClientId,
 		themeSupportsLayout,
 		canMove,
+		supportsSplitting,
 	};
 
 	// Here we separate between the props passed to BlockListBlock and any other

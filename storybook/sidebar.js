@@ -28,7 +28,9 @@ const Title = styled.span( {
 
 const Icons = styled.span( {} );
 
-const Icon = styled.span( {} );
+const Icon = styled.span( {
+	lineHeight: 1,
+} );
 
 /**
  * Fetches tags from the Storybook API, and returns Icon

@@ -53,6 +53,7 @@ module.exports = {
 		'@storybook/addon-a11y',
 		'@storybook/addon-toolbars',
 		'@storybook/addon-actions',
+		'@storybook/addon-webpack5-compiler-babel',
 		'storybook-source-link',
 		'@geometricpanda/storybook-addon-badges',
 	],
@@ -62,6 +63,9 @@ module.exports = {
 	},
 	docs: {
 		autodocs: true,
+	},
+	typescript: {
+		reactDocgen: 'react-docgen-typescript',
 	},
 	webpackFinal: async ( config ) => {
 		return {

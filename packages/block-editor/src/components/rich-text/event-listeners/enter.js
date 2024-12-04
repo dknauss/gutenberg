@@ -22,7 +22,11 @@ export default ( props ) => ( element ) => {
 		} = props.current;
 		const { text, start, end } = value;
 
-		if ( ! supportsSplitting && ! disableLineBreaks ) {
+		if (
+			! supportsSplitting &&
+			! disableLineBreaks &&
+			! event.defaultPrevented
+		) {
 			event.preventDefault();
 			if (
 				// For some blocks it's desirable to split at the end of the

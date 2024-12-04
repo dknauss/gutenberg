@@ -78,7 +78,7 @@ function removeNativeProps( props ) {
 	return restProps;
 }
 
-export function RichTextWrapper(
+function _RichTextWrapper(
 	{
 		children,
 		tagName = 'div',
@@ -501,11 +501,11 @@ export function RichTextWrapper(
 	);
 }
 
+export const RichTextWrapper = forwardRef( _RichTextWrapper );
+
 // This is the private API for the RichText component.
 // It allows access to all props, not just the public ones.
-export const PrivateRichText = withDeprecations(
-	forwardRef( RichTextWrapper )
-);
+export const PrivateRichText = withDeprecations( RichTextWrapper );
 
 PrivateRichText.Content = Content;
 PrivateRichText.isEmpty = ( value ) => {

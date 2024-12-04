@@ -162,7 +162,7 @@ export const registerPostTypeSchema =
 
 		const fields = [
 			postTypeConfig.supports?.thumbnail &&
-				currentTheme?.[ 'theme-supports' ]?.[ 'post-thumbnails' ] &&
+				currentTheme?.theme_supports?.[ 'post-thumbnails' ] &&
 				featuredImageField,
 			titleField,
 			postTypeConfig.supports?.author && authorField,

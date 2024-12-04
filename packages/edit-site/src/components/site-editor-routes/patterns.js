@@ -21,7 +21,10 @@ function MobilePatternsView() {
 		return <Editor />;
 	}
 
-	if ( postType === 'wp_block' && !! categoryId ) {
+	if (
+		( postType === 'wp_block' || postType === 'wp_template_part' ) &&
+		!! categoryId
+	) {
 		return <PagePatterns />;
 	}
 

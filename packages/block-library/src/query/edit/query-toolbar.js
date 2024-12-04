@@ -14,6 +14,10 @@ import { __ } from '@wordpress/i18n';
  */
 import PatternSelection, { useBlockPatterns } from './pattern-selection';
 
+const POPOVER_PROPS = {
+	placement: 'bottom-start',
+};
+
 export default function QueryToolbar( { clientId, attributes } ) {
 	const hasPatterns = useBlockPatterns( clientId, attributes ).length;
 	if ( ! hasPatterns ) {
@@ -21,31 +25,33 @@ export default function QueryToolbar( { clientId, attributes } ) {
 	}
 
 	return (
-		<ToolbarGroup className="wp-block-template-part__block-control-group">
-			<DropdownContentWrapper>
-				<Dropdown
-					contentClassName="block-editor-block-settings-menu__popover"
-					focusOnMount="firstElement"
-					expandOnMobile
-					renderToggle={ ( { isOpen, onToggle } ) => (
-						<ToolbarButton
-							aria-haspopup="true"
-							aria-expanded={ isOpen }
-							onClick={ onToggle }
-						>
-							{ __( 'Change design' ) }
-						</ToolbarButton>
-					) }
-					renderContent={ () => (
-						<PatternSelection
-							clientId={ clientId }
-							attributes={ attributes }
-							showSearch={ false }
-							showTitlesAsTooltip
-						/>
-					) }
-				/>
-			</DropdownContentWrapper>
-		</ToolbarGroup>
+		<Dropdown
+			popoverProps={ POPOVER_PROPS }
+			expandOnMobile
+			renderToggle={ ( { isOpen, onToggle } ) => (
+				<ToolbarGroup>
+					<ToolbarButton
+						aria-haspopup="true"
+						aria-expanded={ isOpen }
+						onClick={ onToggle }
+					>
+						{ __( 'Change design' ) }
+					</ToolbarButton>
+				</ToolbarGroup>
+			) }
+			renderContent={ () => (
+				<DropdownContentWrapper
+					className="block-library-query__toolbar-popover-content-wrapper"
+					paddingSize="none"
+				>
+					<PatternSelection
+						clientId={ clientId }
+						attributes={ attributes }
+						showSearch={ false }
+						showTitlesAsTooltip
+					/>
+				</DropdownContentWrapper>
+			) }
+		/>
 	);
 }

@@ -1,7 +1,12 @@
 /**
  * WordPress dependencies
  */
-import { store, getContext, getElement } from '@wordpress/interactivity';
+import {
+	store,
+	getContext,
+	getElement,
+	getConfig,
+} from '@wordpress/interactivity';
 
 /** @type {( () => void ) | null} */
 let supersedePreviousSearch = null;
@@ -110,18 +115,31 @@ const { state, actions } = store(
 					return;
 				}
 
-				const url = new URL( window.location.href );
+				let url = new URL( window.location.href );
 
 				if ( value ) {
-					// Set the instant-search parameter using the query ID and search value
-					const queryId = ctx.queryId;
-					url.searchParams.set(
-						`instant-search-${ queryId }`,
-						value
-					);
+					if ( ctx.isInherited ) {
+						// Get the canonical URL from the config
+						const { canonicalURL } = getConfig( 'core/search' );
 
-					// Make sure we reset the pagination.
-					url.searchParams.set( `query-${ queryId }-page`, '1' );
+						// Make sure we reset the pagination.
+						url = new URL( canonicalURL );
+						url.searchParams.set( 'instant-search', value );
+					} else {
+						// Set the instant-search parameter using the query ID and search value
+						const queryId = ctx.queryId;
+						url.searchParams.set(
+							`instant-search-${ queryId }`,
+							value
+						);
+
+						// Make sure we reset the pagination.
+						url.searchParams.set( `query-${ queryId }-page`, '1' );
+					}
+				} else if ( ctx.isInherited ) {
+					// Reset global search for inherited queries
+					url.searchParams.delete( 'instant-search' );
+					url.searchParams.delete( 'paged' );
 				} else {
 					// Reset specific search for non-inherited queries
 					url.searchParams.delete(

@@ -210,6 +210,9 @@ function render_block_core_search( $attributes, $content, $block ) {
 	}
 
 	if ( $enhanced_pagination && $instant_search_enabled && isset( $block->context['queryId'] ) ) {
+
+		wp_interactivity_config( 'core/search', array( 'canonicalURL' => get_permalink() ) );
+
 		$is_inherited = isset( $block->context['query']['inherit'] ) && $block->context['query']['inherit'] && ! empty( $block->context['queryId'] );
 		$search       = '';
 

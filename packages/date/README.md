@@ -28,7 +28,7 @@ _Related_
 _Parameters_
 
 -   _dateFormat_ `string`: PHP-style formatting string. See php.net/date.
--   _dateValue_ `Moment | Date | string`: Date object or string, parsable by moment.js.
+-   _dateValue_ `Moment | Date | string | number`: Date object or string, parsable by moment.js.
 -   _timezone_ `string`: Timezone to output result in or a UTC offset. Defaults to timezone from site.
 
 _Returns_
@@ -49,7 +49,7 @@ _Related_
 _Parameters_
 
 -   _dateFormat_ `string`: PHP-style formatting string. See php.net/date.
--   _dateValue_ `Moment | Date | string`: Date object or string, parsable by moment.js.
+-   _dateValue_ `Moment | Date | string | number`: Date object or string, parsable by moment.js.
 -   _timezone_ `string | number | boolean`: Timezone to output result in or a UTC offset. Defaults to timezone from site. Notice: `boolean` is effectively deprecated, but still supported for backward compatibility reasons.
 
 _Returns_
@@ -63,7 +63,7 @@ Formats a date. Does not alter the date's timezone.
 _Parameters_
 
 -   _dateFormat_ `string`: PHP-style formatting string. See php.net/date.
--   _dateValue_ `Moment | Date | string`: Date object or string, parsable by moment.js.
+-   _dateValue_ `Moment | Date | string | number`: Date object or string, parsable by moment.js.
 
 _Returns_
 
@@ -96,7 +96,7 @@ Formats a date (like `date()` in PHP), in the UTC timezone.
 _Parameters_
 
 -   _dateFormat_ `string`: PHP-style formatting string. See php.net/date.
--   _dateValue_ `Moment | Date | string`: Date object or string, parsable by moment.js.
+-   _dateValue_ `Moment | Date | string | number`: Date object or string, parsable by moment.js.
 
 _Returns_
 
@@ -109,7 +109,7 @@ Formats a date (like `wp_date()` in PHP), translating it into site's locale and 
 _Parameters_
 
 -   _dateFormat_ `string`: PHP-style formatting string. See php.net/date.
--   _dateValue_ `Moment | Date | string`: Date object or string, parsable by moment.js.
+-   _dateValue_ `Moment | Date | string | number`: Date object or string, parsable by moment.js.
 
 _Returns_
 
@@ -134,7 +134,7 @@ Check whether a date is considered in the future according to the WordPress sett
 
 _Parameters_
 
--   _dateValue_ `string`: Date String or Date object in the Defined WP Timezone.
+-   _dateValue_ `Date | string`: Date String or Date object in the Defined WP Timezone.
 
 _Returns_
 

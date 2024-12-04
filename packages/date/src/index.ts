@@ -405,7 +405,7 @@ const formatMap = {
  */
 export function format(
 	dateFormat: string,
-	dateValue: Moment | Date | string = new Date()
+	dateValue: Moment | Date | string | number = new Date()
 ) {
 	let i, char;
 	const newFormat = [];
@@ -455,7 +455,7 @@ export function format(
  */
 export function date(
 	dateFormat: string,
-	dateValue: Moment | Date | string = new Date(),
+	dateValue: Moment | Date | string | number = new Date(),
 	timezone?: string
 ) {
 	const dateMoment = buildMoment( dateValue, timezone );
@@ -474,7 +474,7 @@ export function date(
  */
 export function gmdate(
 	dateFormat: string,
-	dateValue: Moment | Date | string = new Date()
+	dateValue: Moment | Date | string | number = new Date()
 ) {
 	const dateMoment = momentLib( dateValue ).utc();
 	return format( dateFormat, dateMoment );
@@ -503,7 +503,7 @@ export function gmdate(
  */
 export function dateI18n(
 	dateFormat: string,
-	dateValue: Moment | Date | string = new Date(),
+	dateValue: Moment | Date | string | number = new Date(),
 	timezone?: string | number | boolean
 ) {
 	if ( true === timezone ) {
@@ -532,7 +532,7 @@ export function dateI18n(
  */
 export function gmdateI18n(
 	dateFormat: string,
-	dateValue: Moment | Date | string = new Date()
+	dateValue: Moment | Date | string | number = new Date()
 ) {
 	const dateMoment = momentLib( dateValue ).utc();
 	dateMoment.locale( settings.l10n.locale );
@@ -546,7 +546,7 @@ export function gmdateI18n(
  *
  * @return Is in the future.
  */
-export function isInTheFuture( dateValue: string ) {
+export function isInTheFuture( dateValue: Date | string ) {
 	const now = momentLib.tz( WP_ZONE );
 	const momentObject = momentLib.tz( dateValue, WP_ZONE );
 
@@ -600,7 +600,7 @@ export function humanTimeDiff(
  * @return A moment instance.
  */
 function buildMoment(
-	dateValue?: Moment | Date | string,
+	dateValue?: Moment | Date | string | number,
 	timezone: string | number = ''
 ) {
 	const dateMoment = momentLib( dateValue );

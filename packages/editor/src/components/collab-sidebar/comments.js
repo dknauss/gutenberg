@@ -61,11 +61,9 @@ export function Comments( {
 
 	// Set active thread when block is selected.
 	useEffect( () => {
-		if ( blockCommentId ) {
-			setActiveThread( blockCommentId );
-			setFocusThread( null );
-			setShowCommentBoard( false );
-		}
+		setActiveThread( blockCommentId ?? null );
+		setFocusThread( null );
+		setShowCommentBoard( false );
 	}, [ blockCommentId ] );
 
 	// Set thread focus when block is selected and comment icon is clicked.

@@ -84,7 +84,11 @@ function getOverviewBlockExamples(
 			title: __( 'Colors' ),
 			category: 'overview',
 			content: (
-				<ColorExamples colors={ themePalette.colors } type={ colors } />
+				<ColorExamples
+					colors={ themePalette.colors }
+					type={ colors }
+					columns={ 4 }
+				/>
 			),
 		};
 

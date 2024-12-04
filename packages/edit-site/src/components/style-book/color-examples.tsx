@@ -18,13 +18,13 @@ import {
  */
 import type { Color, Gradient } from './types';
 
-const ColorExamples = ( { colors, type } ): JSX.Element | null => {
+const ColorExamples = ( { colors, type, columns = 2 } ): JSX.Element | null => {
 	if ( ! colors ) {
 		return null;
 	}
 
 	return (
-		<Grid columns={ 2 } rowGap={ 8 } columnGap={ 16 }>
+		<Grid columns={ columns } rowGap={ 8 } columnGap={ 16 }>
 			{ colors.map( ( color: Color | Gradient ) => {
 				const className =
 					type === 'gradients'
@@ -32,6 +32,7 @@ const ColorExamples = ( { colors, type } ): JSX.Element | null => {
 						: getColorClassName( 'background-color', color.slug );
 				const classes = clsx(
 					'edit-site-style-book__color-example',
+					`edit-site-style-book__color-example__${ columns }-col`,
 					className
 				);
 

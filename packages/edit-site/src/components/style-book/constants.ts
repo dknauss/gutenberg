@@ -224,6 +224,10 @@ export const STYLE_BOOK_IFRAME_STYLES = `
 		border: 1px solid #ddd;
 	}
 
+	.edit-site-style-book__color-example__4-col {
+		height: 32px;
+	}
+
 	.edit-site-style-book__examples.is-wide .edit-site-style-book__example {
 		flex-direction: row;
 	}

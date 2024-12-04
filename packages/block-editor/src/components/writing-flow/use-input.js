@@ -33,6 +33,9 @@ export default function useInput() {
 		getSelectionStart,
 		getSelectionEnd,
 		getBlockAttributes,
+		getNextBlockClientId,
+		getBlockOrder,
+		getBlockEditingMode,
 	} = useSelect( blockEditorStore );
 	const {
 		replaceBlocks,
@@ -41,6 +44,8 @@ export default function useInput() {
 		__unstableDeleteSelection,
 		__unstableExpandSelection,
 		__unstableMarkAutomaticChange,
+		insertAfterBlock,
+		selectBlock,
 	} = useDispatch( blockEditorStore );
 
 	return useRefEffect( ( node ) => {
@@ -60,7 +65,7 @@ export default function useInput() {
 
 			if ( ! hasMultiSelection() ) {
 				if ( event.keyCode === ENTER ) {
-					if ( event.shiftKey || __unstableIsFullySelected() ) {
+					if ( event.shiftKey ) {
 						return;
 					}
 
@@ -101,22 +106,62 @@ export default function useInput() {
 						}
 					}
 
-					if (
-						! hasBlockSupport( blockName, 'splitting', false ) &&
-						! event.__deprecatedOnSplit
-					) {
-						return;
-					}
+					const rootClientId = getBlockRootClientId( clientId );
 
 					// Ensure template is not locked.
 					if (
-						canInsertBlockType(
-							blockName,
-							getBlockRootClientId( clientId )
-						)
+						canInsertBlockType( blockName, rootClientId ) &&
+						! hasBlockSupport( blockName, 'splitting', false ) &&
+						! event.__deprecatedOnSplit &&
+						! __unstableIsFullySelected()
 					) {
-						__unstableSplitSelection();
 						event.preventDefault();
+						__unstableSplitSelection();
+					} else if (
+						event.target.ownerDocument.activeElement?.getAttribute(
+							'data-block'
+						) === clientId
+					) {
+						if (
+							canInsertBlockType(
+								getDefaultBlockName(),
+								rootClientId
+							)
+						) {
+							event.preventDefault();
+							insertAfterBlock( clientId );
+						} else {
+							function getNextClientId( id ) {
+								let nextClientId = null;
+
+								while (
+									typeof id === 'string' &&
+									! ( nextClientId =
+										getNextBlockClientId( id ) )
+								) {
+									id = getBlockRootClientId( id );
+								}
+
+								return nextClientId;
+							}
+
+							let nextClientId =
+								getBlockOrder( clientId )[ 0 ] ??
+								getNextClientId( clientId );
+
+							while (
+								nextClientId &&
+								getBlockEditingMode( nextClientId ) ===
+									'disabled'
+							) {
+								nextClientId = getNextClientId( nextClientId );
+							}
+
+							if ( nextClientId ) {
+								event.preventDefault();
+								selectBlock( nextClientId, null );
+							}
+						}
 					}
 				}
 				return;

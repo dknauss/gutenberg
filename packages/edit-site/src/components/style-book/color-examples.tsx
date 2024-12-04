@@ -9,11 +9,10 @@ import clsx from 'clsx';
 import { __experimentalGrid as Grid } from '@wordpress/components';
 import { View } from '@wordpress/primitives';
 import {
-	// @ts-ignore
 	getColorClassName,
-	// @ts-ignore
 	__experimentalGetGradientClass,
-	// @ts-ignore
+	// @wordpress/block-editor imports are not typed.
+	// @ts-expect-error
 } from '@wordpress/block-editor';
 
 /**

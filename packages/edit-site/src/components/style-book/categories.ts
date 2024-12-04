@@ -1,7 +1,8 @@
 /**
  * WordPress dependencies
  */
-// @ts-ignore
+// @wordpress/blocks imports are not typed.
+// @ts-expect-error
 import { getCategories } from '@wordpress/blocks';
 
 /**
@@ -30,11 +31,11 @@ export function getExamplesByCategory(
 	if ( ! categoryDefinition?.slug || ! examples?.length ) {
 		return;
 	}
-	const categories: StyleBookCategory[] =
+	const categories: CategoryExamples[] =
 		categoryDefinition?.subcategories ?? [];
 	if ( categories.length ) {
 		return categories.reduce(
-			( acc, subcategoryDefinition ): CategoryExamples => {
+			( acc, subcategoryDefinition ) => {
 				const subcategoryExamples = getExamplesByCategory(
 					subcategoryDefinition,
 					examples

@@ -39,6 +39,7 @@ import {
 import AddNewPostModal from '../add-new-post';
 import { unlock } from '../../lock-unlock';
 import { useEditPostAction } from '../dataviews-actions';
+import { useIsSiteEditorLoading } from './../layout/hooks';
 
 const { usePostActions, usePostFields } = unlock( editorPrivateApis );
 const { useLocation, useHistory } = unlock( routerPrivateApis );
@@ -390,6 +391,8 @@ export default function PostList( { postType } ) {
 		setShowAddPostModal( false );
 	};
 
+	const isEditorLoading = useIsSiteEditorLoading();
+
 	const NewPageDropdownButton = () => {
 		return (
 			<Dropdown
@@ -405,6 +408,8 @@ export default function PostList( { postType } ) {
 						<Button
 							variant="primary"
 							__next40pxDefaultSize
+							disabled={ isEditorLoading }
+							accessibleWhenDisabled
 							{ ...toggleProps }
 						>
 							{ toggleProps.label }

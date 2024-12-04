@@ -249,25 +249,12 @@ export default async function fetchLinkSuggestions(
 	return results;
 }
 
-/**
- * Sort search results by relevance to the given query.
- *
- * Sorting is necessary as we're querying multiple endpoints and merging the results. For example
- * a taxonomy title might be more relevant than a post title, but by default taxonomy results will
- * be ordered after all the (potentially irrelevant) post results.
- *
- * We sort by scoring each result, where the score is the number of tokens in the title that are
- * also in the search query, divided by the total number of tokens in the title. This gives us a
- * score between 0 and 1, where 1 is a perfect match.
- *
- * @param results
- * @param search
- */
 export function sortResults( results: SearchResult[], search: string ) {
 	const searchTokens = tokenize( search );
 
 	const scores = {};
 	for ( const result of results ) {
+		let score = 0;
 		if ( result.title ) {
 			const titleTokens = tokenize( result.title );
 			const exactMatchingTokens = titleTokens.filter( ( titleToken ) =>
@@ -285,17 +272,20 @@ export function sortResults( results: SearchResult[], search: string ) {
 
 			// The score is a combination of exact matches and sub-matches.
 			// More weight is given to exact matches, as they are more relevant (e.g. "cat" vs "caterpillar").
-			// Diving by the total number of tokens in the title normalizes the score and skews
-			// the results towards shorter titles.
 			const exactMatchScore =
 				( exactMatchingTokens.length / titleTokens.length ) * 10;
 
 			const subMatchScore = subMatchingTokens.length / titleTokens.length;
 
-			scores[ result.id ] = exactMatchScore + subMatchScore;
-		} else {
-			scores[ result.id ] = 0;
+			score = exactMatchScore + subMatchScore;
 		}
+
+		// Add a slight bonus for 'post-type' results
+		if ( result.kind === 'post-type' ) {
+			score += 5;
+		}
+
+		scores[ result.id ] = score;
 	}
 
 	return results.sort( ( a, b ) => scores[ b.id ] - scores[ a.id ] );

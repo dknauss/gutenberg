@@ -285,9 +285,8 @@ export const ParentEdit = ( {
 	data,
 	field,
 	onChange,
-}: DataFormControlProps< BasePost > ) => {
+}: DataFormControlProps< BasePost, false > ) => {
 	const { id } = field;
-	data = Array.isArray( data ) ? data[ 0 ] : data;
 
 	const homeUrl = useSelect( ( select ) => {
 		// @ts-expect-error getEntityRecord is not typed with unstableBase as argument.

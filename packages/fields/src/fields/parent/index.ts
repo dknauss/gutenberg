@@ -11,7 +11,7 @@ import type { BasePost } from '../../types';
 import { ParentEdit } from './parent-edit';
 import { ParentView } from './parent-view';
 
-const parentField: Field< BasePost > = {
+const parentField: Field< BasePost, false > = {
 	id: 'parent',
 	type: 'text',
 	label: __( 'Parent' ),

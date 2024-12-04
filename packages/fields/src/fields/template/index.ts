@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 import type { BasePost } from '../../types';
 import { TemplateEdit } from './template-edit';
 
-const templateField: Field< BasePost > = {
+const templateField: Field< BasePost, false > = {
 	id: 'template',
 	type: 'text',
 	label: __( 'Template' ),

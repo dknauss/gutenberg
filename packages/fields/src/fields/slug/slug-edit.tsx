@@ -27,9 +27,8 @@ const SlugEdit = ( {
 	field,
 	onChange,
 	data,
-}: DataFormControlProps< BasePost > ) => {
+}: DataFormControlProps< BasePost, false > ) => {
 	const { id } = field;
-	data = Array.isArray( data ) ? data[ 0 ] : data;
 
 	const slug = field.getValue( { item: data } ) || getSlug( data );
 	const permalinkTemplate = data.permalink_template || '';

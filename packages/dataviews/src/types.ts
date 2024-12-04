@@ -71,7 +71,7 @@ export type FieldTypeDefinition< Item > = {
 /**
  * A dataview field for a specific property of a data type.
  */
-export type Field< Item > = {
+export type Field< Item, SupportsBulkEditing extends boolean = true > = {
 	/**
 	 * Type of the fields.
 	 */
@@ -111,7 +111,9 @@ export type Field< Item > = {
 	/**
 	 * Callback used to render an edit control for the field.
 	 */
-	Edit?: ComponentType< DataFormControlProps< Item > > | string;
+	Edit?:
+		| ComponentType< DataFormControlProps< Item, SupportsBulkEditing > >
+		| string;
 
 	/**
 	 * Callback used to sort the field.
@@ -184,8 +186,11 @@ export type Fields< Item > = Field< Item >[];
 
 export type Data< Item > = Item[];
 
-export type DataFormControlProps< Item > = {
-	data: Item | Item[];
+export type DataFormControlProps<
+	Item,
+	SupportsBulkEditing extends boolean = true,
+> = {
+	data: SupportsBulkEditing extends true ? Item | Item[] : Item;
 	field: NormalizedField< Item >;
 	onChange: ( value: Record< string, any > ) => void;
 	hideLabelFromVision?: boolean;

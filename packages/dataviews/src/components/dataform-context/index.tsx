@@ -28,20 +28,18 @@ const DataFormContext = createContext< DataFormContextType< any > >( {
 
 export function DataFormProvider< Item >( {
 	fields,
-	validation,
+	validation: validationStateFromConsumer,
 	children,
 }: React.PropsWithChildren< {
 	fields: NormalizedField< Item >[];
 	validation?: FormValidationState;
 } > ) {
-	const valid = useValidation();
+	const validationStateFromHook = useValidation();
 
-	const validationObj = validation ?? valid;
+	const validation = validationStateFromConsumer ?? validationStateFromHook;
 
 	return (
-		<DataFormContext.Provider
-			value={ { fields, validation: validationObj } }
-		>
+		<DataFormContext.Provider value={ { fields, validation } }>
 			{ children }
 		</DataFormContext.Provider>
 	);

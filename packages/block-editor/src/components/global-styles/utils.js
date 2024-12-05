@@ -83,6 +83,13 @@ export const PRESET_METADATA = [
 		valueFunc: ( { size } ) => size,
 		classes: [],
 	},
+	{
+		path: [ 'border', 'radiusSizes' ],
+		valueKey: 'size',
+		cssVarInfix: 'border-radius',
+		valueFunc: ( { size } ) => size,
+		classes: [],
+	},
 ];
 
 export const STYLE_PATH_TO_CSS_VAR_INFIX = {

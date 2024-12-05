@@ -435,6 +435,7 @@ export default function PostList( { postType } ) {
 								style={ {
 									flexDirection: 'column',
 									alignItems: 'flex-start',
+									height: '46px',
 								} }
 							>
 								{ __( 'Blog' ) }

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 28.14.0-next.0 (2024-12-05)
+
 ### Enhancements
 
 -   `GradientPicker`: Add `enableAlpha` prop ([#66974](https://github.com/WordPress/gutenberg/pull/66974))

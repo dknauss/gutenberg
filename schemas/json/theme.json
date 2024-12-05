@@ -77,7 +77,7 @@
 							"default": false
 						},
 						"radiusSizes": {
-							"description": "Border radius size presets for the border radius selector.\nGenerates a custom property (`--wp--preset--border--raridus--{slug}`) per preset value.",
+							"description": "Border radius size presets for the border radius selector.\nGenerates a custom property (`--wp--preset--border-radius--{slug}`) per preset value.",
 							"type": "array",
 							"items": {
 								"type": "object",

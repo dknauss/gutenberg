@@ -12,3 +12,15 @@
 	width: $button-size;
 	height: $button-size-small;
 }
+
+.block-editor-multi-selection-inspector__connected-block-description {
+	display: flex;
+	align-items: center;
+	gap: $grid-unit-05;
+	padding-top: $grid-unit-20;
+
+	svg {
+		flex-shrink: 0;
+		fill: var(--wp-block-synced-color);
+	}
+}

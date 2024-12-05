@@ -3,7 +3,7 @@
  */
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
-import { copy } from '@wordpress/icons';
+import { Icon, connection, copy } from '@wordpress/icons';
 import {
 	__experimentalHStack as HStack,
 	__experimentalVStack as VStack,
@@ -52,8 +52,9 @@ export default function MultiSelectionInspector() {
 				{ isUsingBindings && (
 					<Text
 						as="p"
-						className="block-editor-multi-selection-inspector__card-description"
+						className="block-editor-multi-selection-inspector__connected-block-description"
 					>
+						<Icon icon={ connection } />
 						{ __( 'These blocks are connected.' ) }
 					</Text>
 				) }

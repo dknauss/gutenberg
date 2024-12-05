@@ -27,3 +27,15 @@
 .block-editor-block-card.is-synced .block-editor-block-icon {
 	color: var(--wp-block-synced-color);
 }
+
+.block-editor-block-card__connected-block-description {
+	display: flex;
+	align-items: center;
+	gap: $grid-unit-05;
+	padding-top: $grid-unit-20;
+
+	svg {
+		flex-shrink: 0;
+		fill: var(--wp-block-synced-color);
+	}
+}

@@ -18,13 +18,21 @@ import {
 import { Icon, check, published, moreVertical } from '@wordpress/icons';
 import { __, _x } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
-import { store as blockEditorStore } from '@wordpress/block-editor';
+import { useEntityBlockEditor } from '@wordpress/core-data';
+import {
+	store as blockEditorStore,
+	privateApis as blockEditorPrivateApis,
+} from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
  */
 import CommentAuthorInfo from './comment-author-info';
 import CommentForm from './comment-form';
+import { unlock } from '../../lock-unlock';
+import { store as editorStore } from '../../store';
+
+const { useBlockElement } = unlock( blockEditorPrivateApis );
 
 /**
  * Renders the Comments component.
@@ -71,6 +79,41 @@ export function Comments( {
 				?.blockCommentId ?? false
 		);
 	}, [] );
+
+	const { postId, postType } = useSelect( ( select ) => {
+		const { getCurrentPostId, getCurrentPostType } = select( editorStore );
+		const _postId = getCurrentPostId();
+
+		return {
+			postId: _postId,
+			postType: getCurrentPostType(),
+		};
+	}, [] );
+
+	const [ blocks ] = useEntityBlockEditor( 'postType', postType, {
+		id: postId,
+	} );
+
+	const getClientIdByCommentId = ( commentId ) => {
+		const extractClientId = ( blocksArray, commentID ) => {
+			for ( const block of blocksArray ) {
+				if ( block.attributes.blockCommentId === commentID ) {
+					return block.clientId;
+				}
+				if ( block.innerBlocks && block.innerBlocks.length > 0 ) {
+					const foundBlock = extractClientId(
+						block.innerBlocks,
+						commentID
+					);
+					if ( foundBlock ) {
+						return foundBlock;
+					}
+				}
+			}
+		};
+
+		return blocks ? extractClientId( blocks, commentId ) : null;
+	};
 
 	const CommentBoard = ( { thread, parentThread } ) => {
 		return (
@@ -190,9 +233,10 @@ export function Comments( {
 			{ Array.isArray( threads ) &&
 				threads.length > 0 &&
 				threads.map( ( thread ) => (
-					<VStack
+					<ThreadWrapper
 						key={ thread.id }
-						className={ clsx(
+						clientId={ getClientIdByCommentId( thread.id ) }
+						classNames={ clsx(
 							'editor-collab-sidebar-panel__thread',
 							{
 								'editor-collab-sidebar-panel__active-thread':
@@ -200,8 +244,6 @@ export function Comments( {
 									blockCommentId === thread.id,
 							}
 						) }
-						id={ thread.id }
-						spacing="3"
 					>
 						<CommentBoard thread={ thread } />
 						{ 0 < thread?.reply?.length &&
@@ -254,7 +296,7 @@ export function Comments( {
 									</VStack>
 								</VStack>
 							) }
-					</VStack>
+					</ThreadWrapper>
 				) ) }
 		</>
 	);
@@ -340,3 +382,22 @@ function CommentHeader( {
 		</HStack>
 	);
 }
+
+const ThreadWrapper = ( { children, clientId, classNames } ) => {
+	const selectedBlockElement = useBlockElement( clientId );
+	const selectedBlockElementRect =
+		selectedBlockElement?.getBoundingClientRect();
+
+	const offsetTop = selectedBlockElementRect?.top + 'px';
+
+	// This is a temporary wrapper to handle the position of the comments.
+	return (
+		<VStack
+			className={ classNames }
+			spacing="3"
+			style={ { top: offsetTop } }
+		>
+			{ children }
+		</VStack>
+	);
+};

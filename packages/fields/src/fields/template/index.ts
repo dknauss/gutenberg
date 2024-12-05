@@ -14,9 +14,11 @@ const templateField: Field< BasePost > = {
 	id: 'template',
 	type: 'text',
 	label: __( 'Template' ),
-	getValue: ( { item } ) => item.template,
 	Edit: TemplateEdit,
 	enableSorting: false,
 };
 
+/**
+ * Template field for BasePost.
+ */
 export default templateField;

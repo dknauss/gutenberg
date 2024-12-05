@@ -439,6 +439,18 @@ getDerivedStateFromError is used to render a fallback UI after an error has been
 
 > **Deprecated** since 5.3, use `wp.blockEditor.getFontSizeClass` instead.
 
+### getItemTitle
+
+Helper function to get the title of a post item. This is duplicated from the `@wordpress/fields` package. `packages/fields/src/actions/utils.ts`
+
+_Parameters_
+
+-   _item_ `Object`: The post item.
+
+_Returns_
+
+-   `string`: The title of the item, or an empty string if the title is not found.
+
 ### getTemplatePartIcon
 
 Helper function to retrieve the corresponding icon by name.

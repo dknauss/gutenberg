@@ -38,6 +38,9 @@ export function HomeViewPreview() {
 				// Hide the admin bar in the front-end preview.
 				const document = event.target.contentDocument;
 				document.getElementById( 'wpadminbar' ).remove();
+				document
+					.getElementsByTagName( 'html' )[ 0 ]
+					.setAttribute( 'style', 'margin-top: 0 !important;' );
 				// Make links unclickable.
 				const links = document.getElementsByTagName( 'a' );
 				Array.from( links ).forEach( ( link ) => {

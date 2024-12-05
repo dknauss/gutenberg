@@ -2591,43 +2591,29 @@ export function withDerivedBlockEditingModes( reducer ) {
 				const addedBlocks = [];
 				const removedClientIds = [];
 
-				function isNewContentOnlyBlock( clientId, actionSettings ) {
-					const blockExists =
-						!! nextState.blocks.tree.get( clientId );
-					return (
-						blockExists &&
-						actionSettings.templateLock === 'contentOnly' &&
-						! state.blockListSettings[ clientId ]?.templateLock !==
-							'contentOnly'
-					);
-				}
-
-				function wasContentOnlyBlock( clientId, actionSettings ) {
-					const blockExists =
-						!! nextState.blocks.tree.get( clientId );
-					return (
-						blockExists &&
-						actionSettings.templateLock !== 'contentOnly' &&
-						state.blockListSettings[ clientId ]?.templateLock ===
-							'contentOnly'
-					);
-				}
-
 				const updates =
 					typeof action.clientId === 'string'
 						? { [ action.clientId ]: action.settings }
 						: action.clientId;
 
 				for ( const clientId in updates ) {
-					if (
-						isNewContentOnlyBlock( clientId, updates[ clientId ] )
-					) {
+					const isNewContentOnlyBlock =
+						state.blockListSettings[ clientId ]?.templateLock !==
+							'contentOnly' &&
+						nextState.blockListSettings[ clientId ]
+							?.templateLock === 'contentOnly';
+
+					const wasContentOnlyBlock =
+						state.blockListSettings[ clientId ]?.templateLock ===
+							'contentOnly' &&
+						nextState.blockListSettings[ clientId ]
+							?.templateLock !== 'contentOnly';
+
+					if ( isNewContentOnlyBlock ) {
 						addedBlocks.push(
 							nextState.blocks.tree.get( clientId )
 						);
-					} else if (
-						wasContentOnlyBlock( clientId, updates[ clientId ] )
-					) {
+					} else if ( wasContentOnlyBlock ) {
 						removedClientIds.push( clientId );
 					}
 				}
@@ -2650,6 +2636,47 @@ export function withDerivedBlockEditingModes( reducer ) {
 						nextState,
 						addedBlocks,
 						removedClientIds,
+						isNavMode: true,
+					} );
+
+				if (
+					nextDerivedBlockEditingModes ||
+					nextDerivedNavModeBlockEditingModes
+				) {
+					return {
+						...nextState,
+						derivedBlockEditingModes:
+							nextDerivedBlockEditingModes ??
+							state.derivedBlockEditingModes,
+						derivedNavModeBlockEditingModes:
+							nextDerivedNavModeBlockEditingModes ??
+							state.derivedNavModeBlockEditingModes,
+					};
+				}
+				break;
+			}
+			case 'SET_BLOCK_EDITING_MODE':
+			case 'UNSET_BLOCK_EDITING_MODE': {
+				const updatedBlock = nextState.blocks.tree.get(
+					action.clientId
+				);
+				// The block might have been removed.
+				if ( ! updatedBlock ) {
+					break;
+				}
+
+				const nextDerivedBlockEditingModes =
+					getDerivedBlockEditingModesUpdates( {
+						prevState: state,
+						nextState,
+						addedBlocks: [ updatedBlock ],
+						isNavMode: false,
+					} );
+				const nextDerivedNavModeBlockEditingModes =
+					getDerivedBlockEditingModesUpdates( {
+						prevState: state,
+						nextState,
+						addedBlocks: [ updatedBlock ],
 						isNavMode: true,
 					} );
 

@@ -12,6 +12,7 @@ import { store as editorStore } from '../../store';
 import { unlock } from '../../lock-unlock';
 import { useSetAsHomepageAction } from './set-as-homepage';
 import { useUnsetAsHomepageAction } from './unset-as-homepage';
+import { useUnsetAsPostsPageAction } from './unset-as-posts-page';
 
 export function usePostActions( { postType, onActionPerformed, context } ) {
 	const { defaultActions } = useSelect(
@@ -45,6 +46,7 @@ export function usePostActions( { postType, onActionPerformed, context } ) {
 
 	const setAsHomepageAction = useSetAsHomepageAction();
 	const unsetAsHomepageAction = useUnsetAsHomepageAction();
+	const unsetAsPostsPageAction = useUnsetAsPostsPageAction();
 	const shouldShowHomepageActions =
 		canManageOptions && ! hasFrontPageTemplate;
 
@@ -56,8 +58,11 @@ export function usePostActions( { postType, onActionPerformed, context } ) {
 	return useMemo( () => {
 		let actions = [ ...defaultActions ];
 		if ( shouldShowHomepageActions ) {
-			actions.push( setAsHomepageAction );
-			actions.push( unsetAsHomepageAction );
+			actions.push(
+				setAsHomepageAction,
+				unsetAsHomepageAction,
+				unsetAsPostsPageAction
+			);
 		}
 
 		// Filter actions based on provided context. If not provided
@@ -128,5 +133,6 @@ export function usePostActions( { postType, onActionPerformed, context } ) {
 		setAsHomepageAction,
 		shouldShowHomepageActions,
 		unsetAsHomepageAction,
+		unsetAsPostsPageAction,
 	] );
 }

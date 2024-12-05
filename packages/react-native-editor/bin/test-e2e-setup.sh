@@ -6,7 +6,7 @@
 # NOTE: Please update the following versions when upgrading Appium.
 # =================================================================
 UI_AUTOMATOR_2_VERSION="2.32.3"
-XCUITEST_VERSION="5.7.0"
+XCUITEST_VERSION="7.24.15"
 
 set -o pipefail
 

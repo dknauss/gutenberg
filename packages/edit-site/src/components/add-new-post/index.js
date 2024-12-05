@@ -6,6 +6,7 @@ import {
 	Modal,
 	__experimentalHStack as HStack,
 	__experimentalVStack as VStack,
+	__experimentalText as Text,
 	TextControl,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
@@ -98,12 +99,15 @@ export default function AddNewPostModal( {
 	}
 
 	const modalTitle = pageForPosts
-		? __( 'Create new latest posts page' )
+		? __( 'Create new posts page' )
 		: // translators: %s: post type singular_name label e.g: "Page".
 		  sprintf( __( 'Draft new: %s' ), labels?.singular_name );
 	const modalSubmitLabel = pageForPosts
 		? __( 'Publish page' )
 		: __( 'Create draft' );
+	const postsPageNote = __(
+		'Note: The posts page cannot be a draft, so it will be published immediately.'
+	);
 
 	return (
 		<Modal
@@ -122,6 +126,9 @@ export default function AddNewPostModal( {
 						placeholder={ __( 'No title' ) }
 						value={ title }
 					/>
+					{ pageForPosts && (
+						<Text variant="muted">{ postsPageNote }</Text>
+					) }
 					<HStack spacing={ 2 } justify="end">
 						<Button
 							__next40pxDefaultSize

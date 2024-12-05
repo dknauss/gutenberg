@@ -12,6 +12,7 @@ import type {
 	BoxControlValue,
 	CustomValueUnits,
 } from './types';
+import deprecated from '@wordpress/deprecated';
 
 export const CUSTOM_VALUE_SETTINGS: CustomValueUnits = {
 	px: { max: 300, step: 1 },
@@ -50,7 +51,6 @@ export const LABELS = {
 	bottom: __( 'Bottom side' ),
 	left: __( 'Left side' ),
 	right: __( 'Right side' ),
-	mixed: __( 'Mixed' ),
 	vertical: __( 'Top and bottom sides' ),
 	horizontal: __( 'Left and right sides' ),
 };
@@ -239,6 +239,8 @@ export function normalizeSides( sides: BoxControlProps[ 'sides' ] ) {
  * Applies a value to an object representing top, right, bottom and left sides
  * while taking into account any custom side configuration.
  *
+ * @deprecated
+ *
  * @param currentValues The current values for each side.
  * @param newValue      The value to apply to the sides object.
  * @param sides         Array defining valid sides.
@@ -250,6 +252,9 @@ export function applyValueToSides(
 	newValue?: string,
 	sides?: BoxControlProps[ 'sides' ]
 ): BoxControlValue {
+	deprecated( 'applyValueToSides', {
+		since: '6.8',
+	} );
 	const newValues = { ...currentValues };
 
 	if ( sides?.length ) {

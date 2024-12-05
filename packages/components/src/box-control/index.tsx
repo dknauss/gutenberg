@@ -9,13 +9,10 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { BaseControl } from '../base-control';
-import AllInputControl from './all-input-control';
-import InputControls from './input-controls';
-import AxialInputControls from './axial-input-controls';
+import InputControl from './input-control';
 import LinkedButton from './linked-button';
 import { Grid } from '../grid';
 import {
-	FlexedBoxControlIcon,
 	InputWrapper,
 	ResetButton,
 	LinkedButtonWrapper,
@@ -26,6 +23,7 @@ import {
 	getInitialSide,
 	isValuesMixed,
 	isValuesDefined,
+	ALL_SIDES,
 } from './utils';
 import { useControlledState } from '../utils/hooks';
 import type {
@@ -176,8 +174,7 @@ function BoxControl( {
 			</BaseControl.VisualLabel>
 			{ isLinked && (
 				<InputWrapper>
-					<FlexedBoxControlIcon side={ side } sides={ sides } />
-					<AllInputControl { ...inputControlProps } />
+					<InputControl side="all" { ...inputControlProps } />
 				</InputWrapper>
 			) }
 			{ ! hasOneSide && (
@@ -189,12 +186,24 @@ function BoxControl( {
 				</LinkedButtonWrapper>
 			) }
 
-			{ ! isLinked && splitOnAxis && (
-				<AxialInputControls { ...inputControlProps } />
-			) }
-			{ ! isLinked && ! splitOnAxis && (
-				<InputControls { ...inputControlProps } />
-			) }
+			{ ! isLinked &&
+				splitOnAxis &&
+				[ 'horizontal', 'vertical' ].map( ( axis ) => (
+					<InputControl
+						key={ axis }
+						side={ axis as 'horizontal' | 'vertical' }
+						{ ...inputControlProps }
+					/>
+				) ) }
+			{ ! isLinked &&
+				! splitOnAxis &&
+				ALL_SIDES.map( ( axis ) => (
+					<InputControl
+						key={ axis }
+						side={ axis }
+						{ ...inputControlProps }
+					/>
+				) ) }
 			{ allowReset && (
 				<ResetButton
 					className="component-box-control__reset-button"

@@ -29,6 +29,7 @@ export default ( props ) => ( element ) => {
 				onChange( insert( value, '\n' ) );
 			}
 		} else if ( onSplitAtEnd && start === end && end === text.length ) {
+			// This is no longer used anywhere. Deprecate?
 			event.preventDefault();
 			onSplitAtEnd();
 		} else if ( onReplace && onSplit ) {

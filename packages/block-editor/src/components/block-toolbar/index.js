@@ -74,6 +74,8 @@ export function PrivateBlockToolbar( {
 		showGroupButtons,
 		showLockButtons,
 		showSwitchSectionStyleButton,
+		hasFixedToolbar,
+		isNavigationMode,
 	} = useSelect( ( select ) => {
 		const {
 			getBlockName,
@@ -85,8 +87,10 @@ export function PrivateBlockToolbar( {
 			getBlockAttributes,
 			getBlockParentsByBlockName,
 			getTemplateLock,
+			getSettings,
 			getParentSectionBlock,
 			isZoomOut,
+			isNavigationMode: _isNavigationMode,
 		} = unlock( select( blockEditorStore ) );
 		const selectedBlockClientIds = getSelectedBlockClientIds();
 		const selectedBlockClientId = selectedBlockClientIds[ 0 ];
@@ -119,6 +123,9 @@ export function PrivateBlockToolbar( {
 		const _hasTemplateLock = selectedBlockClientIds.some(
 			( id ) => getTemplateLock( id ) === 'contentOnly'
 		);
+
+		const _isZoomOut = isZoomOut();
+
 		return {
 			blockClientId: selectedBlockClientId,
 			blockClientIds: selectedBlockClientIds,
@@ -127,7 +134,7 @@ export function PrivateBlockToolbar( {
 			shouldShowVisualToolbar: isValid && isVisual,
 			toolbarKey: `${ selectedBlockClientId }${ parentClientId }`,
 			showParentSelector:
-				! isZoomOut() &&
+				! _isZoomOut &&
 				parentBlockType &&
 				getBlockEditingMode( parentClientId ) !== 'disabled' &&
 				hasBlockSupport(
@@ -139,11 +146,13 @@ export function PrivateBlockToolbar( {
 			isUsingBindings: _isUsingBindings,
 			hasParentPattern: _hasParentPattern,
 			hasContentOnlyLocking: _hasTemplateLock,
-			showShuffleButton: isZoomOut(),
-			showSlots: ! isZoomOut(),
-			showGroupButtons: ! isZoomOut(),
-			showLockButtons: ! isZoomOut(),
-			showSwitchSectionStyleButton: isZoomOut(),
+			showShuffleButton: _isZoomOut,
+			showSlots: ! _isZoomOut,
+			showGroupButtons: ! _isZoomOut,
+			showLockButtons: ! _isZoomOut,
+			showSwitchSectionStyleButton: _isZoomOut,
+			hasFixedToolbar: getSettings().hasFixedToolbar,
+			isNavigationMode: _isNavigationMode(),
 		};
 	}, [] );
 
@@ -170,6 +179,7 @@ export function PrivateBlockToolbar( {
 	// Shifts the toolbar to make room for the parent block selector.
 	const classes = clsx( 'block-editor-block-contextual-toolbar', {
 		'has-parent': showParentSelector,
+		'is-inverted-toolbar': isNavigationMode && ! hasFixedToolbar,
 	} );
 
 	const innerClasses = clsx( 'block-editor-block-toolbar', {

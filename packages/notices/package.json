@@ -1,6 +1,6 @@
 {
 	"name": "@wordpress/notices",
-	"version": "5.12.1-next.082ed6819.0",
+	"version": "5.13.0",
 	"description": "State management for notices.",
 	"author": "The WordPress Contributors",
 	"license": "GPL-2.0-or-later",
@@ -29,7 +29,7 @@
 	"types": "build-types",
 	"dependencies": {
 		"@babel/runtime": "7.25.7",
-		"@wordpress/a11y": "^4.12.1-next.082ed6819.0",
+		"@wordpress/a11y": "*",
 		"@wordpress/data": "*"
 	},
 	"peerDependencies": {

@@ -1,6 +1,6 @@
 {
 	"name": "@wordpress/format-library",
-	"version": "5.12.1-next.082ed6819.0",
+	"version": "5.13.0",
 	"description": "Format library for the WordPress editor.",
 	"author": "The WordPress Contributors",
 	"license": "GPL-2.0-or-later",
@@ -28,18 +28,18 @@
 	"wpScript": true,
 	"dependencies": {
 		"@babel/runtime": "7.25.7",
-		"@wordpress/a11y": "^4.12.1-next.082ed6819.0",
-		"@wordpress/block-editor": "^14.7.1-next.082ed6819.0",
+		"@wordpress/a11y": "*",
+		"@wordpress/block-editor": "*",
 		"@wordpress/components": "*",
-		"@wordpress/compose": "^7.12.1-next.082ed6819.0",
+		"@wordpress/compose": "*",
 		"@wordpress/data": "*",
-		"@wordpress/element": "^6.12.1-next.082ed6819.0",
-		"@wordpress/html-entities": "^4.12.1-next.082ed6819.0",
-		"@wordpress/i18n": "^5.12.1-next.082ed6819.0",
-		"@wordpress/icons": "^10.12.1-next.082ed6819.0",
-		"@wordpress/private-apis": "^1.12.1-next.082ed6819.0",
-		"@wordpress/rich-text": "^7.12.1-next.082ed6819.0",
-		"@wordpress/url": "^4.12.1-next.082ed6819.0"
+		"@wordpress/element": "*",
+		"@wordpress/html-entities": "*",
+		"@wordpress/i18n": "*",
+		"@wordpress/icons": "*",
+		"@wordpress/private-apis": "*",
+		"@wordpress/rich-text": "*",
+		"@wordpress/url": "*"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0",

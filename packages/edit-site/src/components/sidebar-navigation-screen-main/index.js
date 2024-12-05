@@ -15,32 +15,28 @@ import SidebarNavigationItem from '../sidebar-navigation-item';
 import { SidebarNavigationItemGlobalStyles } from '../sidebar-navigation-screen-global-styles';
 import { unlock } from '../../lock-unlock';
 import { store as editSiteStore } from '../../store';
-import {
-	NAVIGATION_POST_TYPE,
-	TEMPLATE_POST_TYPE,
-	PATTERN_TYPES,
-} from '../../utils/constants';
 
 export function MainSidebarNavigationContent() {
 	return (
 		<ItemGroup>
 			<SidebarNavigationItem
 				uid="navigation-navigation-item"
-				params={ { postType: NAVIGATION_POST_TYPE } }
+				to="/navigation"
 				withChevron
 				icon={ navigation }
 			>
 				{ __( 'Navigation' ) }
 			</SidebarNavigationItem>
 			<SidebarNavigationItemGlobalStyles
-				uid="styles-navigation-item"
+				to="/styles"
+				uid="global-styles-navigation-item"
 				icon={ styles }
 			>
 				{ __( 'Styles' ) }
 			</SidebarNavigationItemGlobalStyles>
 			<SidebarNavigationItem
 				uid="page-navigation-item"
-				params={ { postType: 'page' } }
+				to="/page"
 				withChevron
 				icon={ page }
 			>
@@ -48,7 +44,7 @@ export function MainSidebarNavigationContent() {
 			</SidebarNavigationItem>
 			<SidebarNavigationItem
 				uid="template-navigation-item"
-				params={ { postType: TEMPLATE_POST_TYPE } }
+				to="/template"
 				withChevron
 				icon={ layout }
 			>
@@ -56,7 +52,7 @@ export function MainSidebarNavigationContent() {
 			</SidebarNavigationItem>
 			<SidebarNavigationItem
 				uid="patterns-navigation-item"
-				params={ { postType: PATTERN_TYPES.user } }
+				to="/pattern"
 				withChevron
 				icon={ symbol }
 			>

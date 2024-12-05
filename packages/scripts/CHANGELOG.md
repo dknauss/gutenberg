@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Bug Fix
+
+-   Make React Fast Refresh in the `start` command work with multiple blocks ([64924](https://github.com/WordPress/gutenberg/pull/64924)).
+
+## 30.6.0 (2024-11-27)
+
 ## 30.5.1 (2024-11-18)
 
 ### Bug Fix

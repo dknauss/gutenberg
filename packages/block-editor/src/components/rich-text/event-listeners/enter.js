@@ -19,10 +19,21 @@ export default ( props ) => ( element ) => {
 			value,
 			onSplitAtDoubleLineEnd,
 			registry,
+			onSplitAtEnd,
 		} = props.current;
 		const { text, start, end } = value;
 
-		if (
+		if ( event.shiftKey ) {
+			if ( ! disableLineBreaks ) {
+				event.preventDefault();
+				onChange( insert( value, '\n' ) );
+			}
+		} else if ( onSplitAtEnd && start === end && end === text.length ) {
+			event.preventDefault();
+			onSplitAtEnd();
+		} else if ( onReplace && onSplit ) {
+			event.__deprecatedOnSplit = true;
+		} else if (
 			! supportsSplitting &&
 			! disableLineBreaks &&
 			! event.defaultPrevented
@@ -47,10 +58,6 @@ export default ( props ) => ( element ) => {
 				onChange( insert( value, '\n' ) );
 			}
 		}
-
-		if ( onReplace && onSplit ) {
-			event.__deprecatedOnSplit = true;
-		}
 	}
 
 	function onDefaultKeyDown( event ) {
@@ -68,20 +75,9 @@ export default ( props ) => ( element ) => {
 			return;
 		}
 
-		const { value, onChange, disableLineBreaks, onSplitAtEnd } =
-			props.current;
-
+		// On ENTER, we ALWAYS want to prevent the default browser behaviour
+		// at this last interception point.
 		event.preventDefault();
-
-		const { text, start, end } = value;
-
-		if ( event.shiftKey ) {
-			if ( ! disableLineBreaks ) {
-				onChange( insert( value, '\n' ) );
-			}
-		} else if ( onSplitAtEnd && start === end && end === text.length ) {
-			onSplitAtEnd();
-		}
 	}
 
 	const { defaultView } = element.ownerDocument;

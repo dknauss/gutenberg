@@ -3,11 +3,11 @@
  */
 import type { Form } from './types';
 
-export type NormalizedFormField = {
+interface NormalizedFormField {
 	id: string;
 	layout: 'regular' | 'panel';
 	labelPosition: 'side' | 'top' | 'none';
-};
+}
 
 export default function normalizeFormFields(
 	form: Form
@@ -20,10 +20,10 @@ export default function normalizeFormFields(
 	const labelPosition =
 		form.labelPosition ?? ( layout === 'regular' ? 'top' : 'side' );
 
-	return Object.entries( form.fields ?? {} ).map( ( [ id, field ] ) => {
+	return ( form.fields ?? [] ).map( ( field ) => {
 		if ( typeof field === 'string' ) {
 			return {
-				id,
+				id: field,
 				layout,
 				labelPosition,
 			};
@@ -35,7 +35,6 @@ export default function normalizeFormFields(
 			( fieldLayout === 'regular' ? 'top' : 'side' );
 		return {
 			...field,
-			id,
 			layout: fieldLayout,
 			labelPosition: fieldLabelPosition,
 		};

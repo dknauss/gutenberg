@@ -7,6 +7,7 @@ import { privateApis as corePrivateApis } from '@wordpress/core-data';
 import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { privateApis as routerPrivateApis } from '@wordpress/router';
 import { privateApis as editorPrivateApis } from '@wordpress/editor';
+import { templateTitleField } from '@wordpress/fields';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -23,12 +24,7 @@ import {
 } from '../../utils/constants';
 import { unlock } from '../../lock-unlock';
 import { useEditPostAction } from '../dataviews-actions';
-import {
-	authorField,
-	descriptionField,
-	previewField,
-	titleField,
-} from './fields';
+import { authorField, descriptionField, previewField } from './fields';
 
 const { usePostActions } = unlock( editorPrivateApis );
 const { useHistory, useLocation } = unlock( routerPrivateApis );
@@ -172,7 +168,7 @@ export default function PageTemplates() {
 	const fields = useMemo(
 		() => [
 			previewField,
-			titleField,
+			templateTitleField,
 			descriptionField,
 			{
 				...authorField,
@@ -227,6 +223,10 @@ export default function PageTemplates() {
 				view={ view }
 				onChangeView={ onChangeView }
 				onChangeSelection={ onChangeSelection }
+				isItemClickable={ () => true }
+				onClickItem={ ( { id } ) => {
+					history.navigate( `/wp_template/${ id }?canvas=edit` );
+				} }
 				selection={ selection }
 				defaultLayouts={ defaultLayouts }
 			/>

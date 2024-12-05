@@ -60,6 +60,16 @@
 			color: var(--wp-admin-theme-color);
 		}
 	}
+
+	&.dataviews-view-grid__primary-field--clickable span,
+	> .dataviews-view-table__cell-content--clickable span {
+		color: $gray-900;
+
+		&:hover {
+			color: var(--wp-admin-theme-color);
+		}
+		@include link-reset();
+	}
 }
 
 .dataviews-view-list__primary-field--clickable,

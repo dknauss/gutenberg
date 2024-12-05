@@ -4,13 +4,7 @@
 import { store as coreStore } from '@wordpress/core-data';
 import type { Action, Field } from '@wordpress/dataviews';
 import { doAction } from '@wordpress/hooks';
-
-/**
- * Internal dependencies
- */
-import type { PostType } from '../types';
-import { store as editorStore } from '../../store';
-import { unlock } from '../../lock-unlock';
+import type { PostType } from '@wordpress/fields';
 import {
 	viewPost,
 	viewPostRevisions,
@@ -24,6 +18,7 @@ import {
 	renamePost,
 	resetPost,
 	deletePost,
+	duplicateTemplatePart,
 	featuredImageField,
 	dateField,
 	parentField,
@@ -33,8 +28,17 @@ import {
 	statusField,
 	authorField,
 	titleField,
+	templateField,
+	templateTitleField,
+	pageTitleField,
+	patternTitleField,
 } from '@wordpress/fields';
-import duplicateTemplatePart from '../actions/duplicate-template-part';
+
+/**
+ * Internal dependencies
+ */
+import { store as editorStore } from '../../store';
+import { unlock } from '../../lock-unlock';
 
 export function registerEntityAction< Item >(
 	kind: string,
@@ -161,17 +165,30 @@ export const registerPostTypeSchema =
 
 		const fields = [
 			postTypeConfig.supports?.thumbnail &&
-				currentTheme?.[ 'theme-supports' ]?.[ 'post-thumbnails' ] &&
+				currentTheme?.theme_supports?.[ 'post-thumbnails' ] &&
 				featuredImageField,
-			titleField,
 			postTypeConfig.supports?.author && authorField,
 			statusField,
 			dateField,
 			slugField,
 			postTypeConfig.supports?.[ 'page-attributes' ] && parentField,
 			postTypeConfig.supports?.comments && commentStatusField,
+			templateField,
 			passwordField,
 		].filter( Boolean );
+		if ( postTypeConfig.supports?.title ) {
+			let _titleField;
+			if ( postType === 'page' ) {
+				_titleField = pageTitleField;
+			} else if ( postType === 'wp_template' ) {
+				_titleField = templateTitleField;
+			} else if ( postType === 'wp_block' ) {
+				_titleField = patternTitleField;
+			} else {
+				_titleField = titleField;
+			}
+			fields.push( _titleField );
+		}
 
 		registry.batch( () => {
 			actions.forEach( ( action ) => {

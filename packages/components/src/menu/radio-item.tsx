@@ -33,16 +33,22 @@ export const MenuRadioItem = forwardRef<
 ) {
 	const menuContext = useContext( MenuContext );
 
+	if ( ! menuContext?.store ) {
+		throw new Error(
+			'Menu.RadioItem can only be rendered inside a Menu component'
+		);
+	}
+
 	return (
 		<Styled.MenuRadioItem
 			ref={ ref }
 			{ ...props }
 			accessibleWhenDisabled
 			hideOnClick={ hideOnClick }
-			store={ menuContext?.store }
+			store={ menuContext.store }
 		>
 			<Ariakit.MenuItemCheck
-				store={ menuContext?.store }
+				store={ menuContext.store }
 				render={ <Styled.ItemPrefixWrapper /> }
 				// Override some ariakit inline styles
 				style={ { width: 'auto', height: 'auto' } }

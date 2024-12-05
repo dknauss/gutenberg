@@ -10,6 +10,9 @@
 
 -   `GradientPicker`: Add `enableAlpha` prop ([#66974](https://github.com/WordPress/gutenberg/pull/66974))
 -   `CustomGradientPicker`: Add `enableAlpha` prop ([#66974](https://github.com/WordPress/gutenberg/pull/66974))
+-   `Menu`: Replace hardcoded white color with theme-ready variable ([#67649](https://github.com/WordPress/gutenberg/pull/67649)).
+-   `Navigation` (deprecated): Replace hardcoded white color with theme-ready variable ([#67649](https://github.com/WordPress/gutenberg/pull/67649)).
+-   `ToggleGroupControl`: Replace hardcoded white color with theme-ready variable ([#67649](https://github.com/WordPress/gutenberg/pull/67649)).
 
 ### Deprecations
 

@@ -61,7 +61,11 @@ export default function Edit( {
 			<>
 				{ blockControls }
 				<div { ...blockProps }>
-					<p>{ __( 'This is the Comment Content block.' ) }</p>
+					<p>
+						{ __(
+							'This is the Comment Content block. It displays the text of user comments submitted on your site, ranging from short remarks to longer, multi-paragraph responses.'
+						) }
+					</p>
 				</div>
 			</>
 		);

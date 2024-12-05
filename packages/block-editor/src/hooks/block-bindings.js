@@ -223,33 +223,44 @@ function EditableBlockBindingsPanelItems( {
 							<BlockBindingsPanelDropdown
 								fieldsList={ fieldsList }
 								onClick={ ( sourceName ) => {
-									const {
-										data: newData,
-										paginationInfo: newPaginationInfo,
-									} = filterSortAndPaginate(
-										Object.entries(
-											fieldsList[ sourceName ]
-										).map( ( [ key, field ] ) => {
-											const value =
-												field.value === undefined
-													? `${ field.label } value`
-													: field.value;
+									if (
+										Object.keys( fieldsList[ sourceName ] )
+											.length !== 0
+									) {
+										const {
+											data: newData,
+											paginationInfo: newPaginationInfo,
+										} = filterSortAndPaginate(
+											Object.entries(
+												fieldsList[ sourceName ]
+											).map( ( [ key, field ] ) => {
+												const value =
+													field.value === undefined
+														? `${ field.label } value`
+														: field.value;
 
-											return {
-												id: key,
-												label: field.label || key,
-												value:
-													value !== ''
-														? value
-														: `Add a new ${ field.label }`,
-											};
-										} ),
-										view,
-										fields
-									);
-									setData( newData );
-									setPaginationInfo( newPaginationInfo );
-									setOuterModalOpen( true );
+												return {
+													id: key,
+													label: field.label || key,
+													value:
+														value !== ''
+															? value
+															: `Add a new ${ field.label }`,
+												};
+											} ),
+											view,
+											fields
+										);
+										setData( newData );
+										setPaginationInfo( newPaginationInfo );
+										setOuterModalOpen( true );
+									} else {
+										updateBlockBindings( {
+											[ attribute ]: {
+												source: sourceName,
+											},
+										} );
+									}
 								} }
 							/>
 						</Menu>
@@ -295,22 +306,24 @@ export const BlockBindingsPanel = ( { name: blockName, metadata } ) => {
 			const registeredSources = getBlockBindingsSources();
 			Object.entries( registeredSources ).forEach(
 				( [ sourceName, { getFieldsList, usesContext } ] ) => {
-					if ( getFieldsList ) {
-						// Populate context.
-						const context = {};
-						if ( usesContext?.length ) {
-							for ( const key of usesContext ) {
-								context[ key ] = blockContext[ key ];
-							}
+					if ( sourceName === 'core/pattern-overrides' ) {
+						return;
+					}
+					// Populate context.
+					const context = {};
+					if ( usesContext?.length ) {
+						for ( const key of usesContext ) {
+							context[ key ] = blockContext[ key ];
 						}
+					}
+					if ( getFieldsList ) {
 						const sourceList = getFieldsList( {
 							select,
 							context,
 						} );
-						// Only add source if the list is not empty.
-						if ( Object.keys( sourceList || {} ).length ) {
-							_fieldsList[ sourceName ] = { ...sourceList };
-						}
+						_fieldsList[ sourceName ] = { ...sourceList };
+					} else {
+						_fieldsList[ sourceName ] = {};
 					}
 				}
 			);

@@ -125,9 +125,21 @@ $swatch-gap: 12px;
 .block-editor-panel-color-gradient-settings__reset {
 	position: absolute;
 	right: 0;
-	top: 0;
+	top: 8px;
+	margin: auto $grid-unit auto;
 	opacity: 0;
 	transition: opacity 0.1s ease-in-out;
+	@include reduce-motion("transition");
+
+	// Override the button style.
+	&.components-button.has-icon {
+		border-radius: 0;
+		height: $button-size-small;
+		width: $button-size-small;
+		min-width: 0;
+		padding: 0;
+
+	}
 
 	.block-editor-panel-color-gradient-settings__dropdown:hover + &,
 	&:focus,

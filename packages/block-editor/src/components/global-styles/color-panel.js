@@ -245,11 +245,7 @@ function ColorPanelDropdown( {
 								<Button
 									__next40pxDefaultSize
 									label={ __( 'Reset' ) }
-									aria-label={ sprintf(
-										/* translators: %s: The name of the color property being reset e.g. "Background" */
-										__( 'Reset %s' ),
-										label.toLowerCase()
-									) }
+									aria-label={ __( 'Reset' ) }
 									className="block-editor-panel-color-gradient-settings__reset"
 									icon={ resetIcon }
 									onClick={ () => {

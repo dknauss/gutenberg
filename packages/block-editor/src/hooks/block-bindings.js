@@ -161,7 +161,7 @@ function EditableBlockBindingsPanelItems( {
 				updateBlockBindings( {
 					content: {
 						source: 'core/post-meta',
-						args: { key: field[ 0 ].id },
+						args: { key: field[ 0 ]?.id },
 					},
 				} );
 				setOuterModalOpen( false );

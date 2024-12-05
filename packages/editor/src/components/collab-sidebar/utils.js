@@ -27,7 +27,10 @@ export function getCommentIdsFromBlocks( blocks ) {
 				block.attributes.blockCommentId &&
 				! commentIds.includes( block.attributes.blockCommentId )
 			) {
-				commentIds.push( block.attributes.blockCommentId );
+				commentIds.push( {
+					clientID: block.clientId,
+					commentID: block.attributes.blockCommentId,
+				} );
 			}
 
 			// Recursively check inner blocks

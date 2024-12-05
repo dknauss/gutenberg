@@ -294,16 +294,26 @@ export default function CollabSidebar() {
 		}
 
 		const blockCommentIds = getCommentIdsFromBlocks( blocks );
+		const blockCommentIdMap = new Map(
+			blockCommentIds.map( ( item ) => [ item.commentID, item ] )
+		);
+
+		const updatedResult = result.map( ( item ) => {
+			return {
+				...item,
+				clientId: blockCommentIdMap.get( item.id )?.clientID,
+			};
+		} );
 
 		const threadIdMap = new Map(
-			result.map( ( thread ) => [ thread.id, thread ] )
+			updatedResult.map( ( thread ) => [ thread.id, thread ] )
 		);
 
 		const sortedComments = blockCommentIds
-			.map( ( id ) => threadIdMap.get( id ) )
+			.map( ( item ) => threadIdMap.get( item.commentID ) )
 			.filter( ( thread ) => thread !== undefined );
 
-		return { resultComments: result, sortedThreads: sortedComments };
+		return { resultComments: updatedResult, sortedThreads: sortedComments };
 	}, [ threads, blocks ] );
 
 	// Get the global styles to set the background color of the sidebar.

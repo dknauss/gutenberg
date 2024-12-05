@@ -12,6 +12,7 @@ import { store as editorStore } from '../../store';
 import { unlock } from '../../lock-unlock';
 import { useSetAsHomepageAction } from './set-as-homepage';
 import { useUnsetAsHomepageAction } from './unset-as-homepage';
+import { useSetAsPostsPageAction } from './set-as-posts-page';
 import { useUnsetAsPostsPageAction } from './unset-as-posts-page';
 
 export function usePostActions( { postType, onActionPerformed, context } ) {
@@ -46,6 +47,7 @@ export function usePostActions( { postType, onActionPerformed, context } ) {
 
 	const setAsHomepageAction = useSetAsHomepageAction();
 	const unsetAsHomepageAction = useUnsetAsHomepageAction();
+	const setAsPostsPageAction = useSetAsPostsPageAction();
 	const unsetAsPostsPageAction = useUnsetAsPostsPageAction();
 	const shouldShowHomepageActions =
 		canManageOptions && ! hasFrontPageTemplate;
@@ -61,6 +63,7 @@ export function usePostActions( { postType, onActionPerformed, context } ) {
 			actions.push(
 				setAsHomepageAction,
 				unsetAsHomepageAction,
+				setAsPostsPageAction,
 				unsetAsPostsPageAction
 			);
 		}
@@ -131,6 +134,7 @@ export function usePostActions( { postType, onActionPerformed, context } ) {
 		defaultActions,
 		onActionPerformed,
 		setAsHomepageAction,
+		setAsPostsPageAction,
 		shouldShowHomepageActions,
 		unsetAsHomepageAction,
 		unsetAsPostsPageAction,

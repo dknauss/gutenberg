@@ -50,6 +50,8 @@ import useBlockDisplayTitle from './components/block-title/use-block-display-tit
 import TabbedSidebar from './components/tabbed-sidebar';
 import CommentIconSlotFill from './components/collab/block-comment-icon-slot';
 import CommentIconToolbarSlotFill from './components/collab/block-comment-icon-toolbar-slot';
+import { useBlockElement } from './components/block-list/use-block-props/use-block-refs';
+
 /**
  * Private @wordpress/block-editor APIs.
  */
@@ -97,4 +99,5 @@ lock( privateApis, {
 	sectionRootClientIdKey,
 	CommentIconSlotFill,
 	CommentIconToolbarSlotFill,
+	useBlockElement,
 } );

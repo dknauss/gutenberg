@@ -220,3 +220,30 @@ export function getPresetValueFromControlValue(
 	}
 	return `var:preset|border-radius|${ presets[ controlValue ]?.slug }`;
 }
+
+/**
+ * Converts a custom value to preset value if one can be found.
+ *
+ * Returns value as-is if no match is found.
+ *
+ * @param {string} value   Value to convert
+ * @param {Array}  presets Array of the current border radius preset objects
+ *
+ * @return {string} The preset value if it can be found.
+ */
+export function getPresetValueFromCustomValue( value, presets ) {
+	// Return value as-is if it is undefined or is already a preset, or '0';
+	if ( ! value || isValuePreset( value ) || value === '0' ) {
+		return value;
+	}
+
+	const spacingMatch = presets.find(
+		( size ) => String( size.size ) === String( value )
+	);
+
+	if ( spacingMatch?.slug ) {
+		return `var:preset|border-radius|${ spacingMatch.slug }`;
+	}
+
+	return value;
+}

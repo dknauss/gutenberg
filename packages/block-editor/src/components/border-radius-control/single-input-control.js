@@ -29,6 +29,7 @@ import {
 	getAllValue,
 	getCustomValueFromPreset,
 	getPresetValueFromControlValue,
+	getPresetValueFromCustomValue,
 	getSliderValueFromPreset,
 	isValuePreset,
 } from './utils';
@@ -120,7 +121,10 @@ export default function SingleInputControl( {
 					bottomRight: valuesProp,
 			  };
 
-	const value = corner === 'all' ? getAllValue( values ) : values[ corner ];
+	const value = getPresetValueFromCustomValue(
+		corner === 'all' ? getAllValue( values ) : values[ corner ],
+		presets
+	);
 	const resolvedPresetValue = isValuePreset( value )
 		? getCustomValueFromPreset( value, presets )
 		: value;

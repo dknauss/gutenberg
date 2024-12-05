@@ -75,7 +75,7 @@ const ResetPostsPageModal = ( { items, closeModal } ) => {
 	const modalText = sprintf(
 		// translators: %1$s: title of the page to be unset as the posts page, %2$s: post pages warning message.
 		__(
-			'Reset the posts page? "%1$s" will no longer be the posts page. %2$s'
+			'Reset the posts page? "%1$s" will no longer show the latest posts. %2$s'
 		),
 		pageTitle,
 		modalWarning

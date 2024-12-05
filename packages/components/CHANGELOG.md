@@ -6,6 +6,7 @@
 
 -   `GradientPicker`: Add `enableAlpha` prop ([#66974](https://github.com/WordPress/gutenberg/pull/66974))
 -   `CustomGradientPicker`: Add `enableAlpha` prop ([#66974](https://github.com/WordPress/gutenberg/pull/66974))
+-   `BoxControl`: Refactor internals to unify the different combinations of sides. ([#67626](https://github.com/WordPress/gutenberg/pull/67626))
 
 ### Deprecations
 

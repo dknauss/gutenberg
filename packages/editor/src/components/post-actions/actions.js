@@ -11,9 +11,9 @@ import { store as coreStore } from '@wordpress/core-data';
 import { store as editorStore } from '../../store';
 import { unlock } from '../../lock-unlock';
 import { useSetAsHomepageAction } from './set-as-homepage';
-import { useUnsetAsHomepageAction } from './unset-as-homepage';
+import { useResetHomepageAction } from './reset-homepage';
 import { useSetAsPostsPageAction } from './set-as-posts-page';
-import { useUnsetAsPostsPageAction } from './unset-as-posts-page';
+import { useResetPostsPageAction } from './reset-posts-page';
 
 export function usePostActions( { postType, onActionPerformed, context } ) {
 	const { defaultActions } = useSelect(
@@ -46,9 +46,9 @@ export function usePostActions( { postType, onActionPerformed, context } ) {
 	);
 
 	const setAsHomepageAction = useSetAsHomepageAction();
-	const unsetAsHomepageAction = useUnsetAsHomepageAction();
+	const resetHomepageAction = useResetHomepageAction();
 	const setAsPostsPageAction = useSetAsPostsPageAction();
-	const unsetAsPostsPageAction = useUnsetAsPostsPageAction();
+	const resetPostsPageAction = useResetPostsPageAction();
 	const shouldShowHomepageActions =
 		canManageOptions && ! hasFrontPageTemplate;
 
@@ -62,9 +62,9 @@ export function usePostActions( { postType, onActionPerformed, context } ) {
 		if ( shouldShowHomepageActions ) {
 			actions.push(
 				setAsHomepageAction,
-				unsetAsHomepageAction,
+				resetHomepageAction,
 				setAsPostsPageAction,
-				unsetAsPostsPageAction
+				resetPostsPageAction
 			);
 		}
 
@@ -133,10 +133,10 @@ export function usePostActions( { postType, onActionPerformed, context } ) {
 		context,
 		defaultActions,
 		onActionPerformed,
+		resetHomepageAction,
+		resetPostsPageAction,
 		setAsHomepageAction,
 		setAsPostsPageAction,
 		shouldShowHomepageActions,
-		unsetAsHomepageAction,
-		unsetAsPostsPageAction,
 	] );
 }

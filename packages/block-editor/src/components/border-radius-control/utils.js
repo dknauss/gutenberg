@@ -119,11 +119,11 @@ export function hasDefinedValues( values ) {
 }
 
 /**
- * Checks is given value is a spacing preset.
+ * Checks is given value is a radius preset.
  *
  * @param {string} value Value to check
  *
- * @return {boolean} Return true if value is string in format var:preset|spacing|.
+ * @return {boolean} Return true if value is string in format var:preset|border-radius|.
  */
 export function isValuePreset( value ) {
 	if ( ! value?.includes ) {
@@ -154,7 +154,7 @@ export function getPresetSlug( value ) {
 }
 
 /**
- * Converts spacing preset value into a Range component value .
+ * Converts radius preset value into a Range component value .
  *
  * @param {string} presetValue Value to convert to Range value.
  * @param {Array}  presets     Array of current radius preset value objects.
@@ -181,9 +181,9 @@ export function getSliderValueFromPreset( presetValue, presets ) {
  * Converts a preset into a custom value.
  *
  * @param {string} value   Value to convert
- * @param {Array}  presets Array of the current spacing preset objects
+ * @param {Array}  presets Array of the current radius preset objects
  *
- * @return {string} Mapping of the spacing preset to its equivalent custom value.
+ * @return {string} Mapping of the radius preset to its equivalent custom value.
  */
 export function getCustomValueFromPreset( value, presets ) {
 	if ( ! isValuePreset( value ) ) {

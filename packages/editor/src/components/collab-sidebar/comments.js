@@ -6,7 +6,7 @@ import clsx from 'clsx';
 /**
  * WordPress dependencies
  */
-import { useState, RawHTML, useEffect } from '@wordpress/element';
+import { useState, RawHTML } from '@wordpress/element';
 import {
 	__experimentalHStack as HStack,
 	__experimentalVStack as VStack,
@@ -48,28 +48,21 @@ export function Comments( {
 	showCommentBoard,
 	setShowCommentBoard,
 } ) {
-	const [ focusThread, setFocusThread ] = useState( null );
+	const { blockCommentId } = useSelect( ( select ) => {
+		const { getBlockAttributes, getSelectedBlockClientId } =
+			select( blockEditorStore );
+		const _clientId = getSelectedBlockClientId();
 
-	const blockCommentId = useSelect( ( select ) => {
-		const clientID = select( blockEditorStore ).getSelectedBlockClientId();
-		return (
-			select( blockEditorStore ).getBlock( clientID )?.attributes
-				?.blockCommentId ?? false
-		);
+		return {
+			blockCommentId: _clientId
+				? getBlockAttributes( _clientId )?.blockCommentId
+				: null,
+		};
 	}, [] );
 
-	// Set active thread when block is selected.
-	useEffect( () => {
-		setFocusThread( null );
-		setShowCommentBoard( false );
-	}, [ blockCommentId ] );
-
-	// Set thread focus when block is selected and comment icon is clicked.
-	useEffect( () => {
-		if ( blockCommentId && showCommentBoard ) {
-			setFocusThread( blockCommentId );
-		}
-	}, [ showCommentBoard ] );
+	const [ focusThread, setFocusThread ] = useState(
+		showCommentBoard && blockCommentId ? blockCommentId : null
+	);
 
 	const clearThreadFocus = () => {
 		setFocusThread( null );

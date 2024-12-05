@@ -112,6 +112,7 @@ export type BoxControlInputControlProps = UnitControlPassthroughProps & {
 	setSelectedUnits: React.Dispatch< React.SetStateAction< BoxControlValue > >;
 	sides: BoxControlProps[ 'sides' ];
 	values: BoxControlValue;
+	side: keyof typeof LABELS;
 };
 
 export type BoxControlIconProps = {

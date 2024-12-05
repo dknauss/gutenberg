@@ -134,11 +134,11 @@ export const ItemBaseUI = styled.li`
 
 	&.is-active {
 		background-color: ${ COLORS.theme.accent };
-		color: ${ COLORS.white };
+		color: ${ COLORS.theme.accentInverted };
 
 		> button,
 		> a {
-			color: ${ COLORS.white };
+			color: ${ COLORS.theme.accentInverted };
 			opacity: 1;
 		}
 	}

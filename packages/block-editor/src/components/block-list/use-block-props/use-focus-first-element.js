@@ -43,6 +43,10 @@ export function useFocusFirstElement( { clientId, initialPosition } ) {
 			return;
 		}
 
+		if ( initialPosition === undefined || initialPosition === null ) {
+			return;
+		}
+
 		if ( ! ref.current ) {
 			return;
 		}
@@ -54,7 +58,7 @@ export function useFocusFirstElement( { clientId, initialPosition } ) {
 			return;
 		}
 
-		if ( initialPosition === undefined || initialPosition === null ) {
+		if ( initialPosition === true ) {
 			ref.current.focus();
 			return;
 		}

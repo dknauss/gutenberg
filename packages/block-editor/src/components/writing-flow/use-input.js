@@ -159,7 +159,7 @@ export default function useInput() {
 
 							if ( nextClientId ) {
 								event.preventDefault();
-								selectBlock( nextClientId, null );
+								selectBlock( nextClientId, true );
 							}
 						}
 					}

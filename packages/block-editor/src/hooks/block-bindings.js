@@ -309,14 +309,14 @@ export const BlockBindingsPanel = ( { name: blockName, metadata } ) => {
 					if ( sourceName === 'core/pattern-overrides' ) {
 						return;
 					}
-					// Populate context.
-					const context = {};
-					if ( usesContext?.length ) {
-						for ( const key of usesContext ) {
-							context[ key ] = blockContext[ key ];
-						}
-					}
 					if ( getFieldsList ) {
+						// Populate context.
+						const context = {};
+						if ( usesContext?.length ) {
+							for ( const key of usesContext ) {
+								context[ key ] = blockContext[ key ];
+							}
+						}
 						const sourceList = getFieldsList( {
 							select,
 							context,

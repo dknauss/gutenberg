@@ -51,7 +51,7 @@ const mergeConfigs = require( './merge-configs' );
  * @property {WPSource[]}                themeSources   Themes to load in the environment.
  * @property {number}                    port           The port to use.
  * @property {number}                    mysqlPort      The port to use for MySQL. Random if empty.
- * @property {number}                    phpmyadminPort The port to use for PHPMyAdmin.
+ * @property {number}                    phpmyadminPort The port to use for phpMyAdmin. If empty, disabled phpMyAdmin.
  * @property {Object}                    config         Mapping of wp-config.php constants to their desired values.
  * @property {Object.<string, WPSource>} mappings       Mapping of WordPress directories to local directories which should be mounted.
  * @property {string|null}               phpVersion     Version of PHP to use in the environments, of the format 0.0.
@@ -88,7 +88,7 @@ const DEFAULT_ENVIRONMENT_CONFIG = {
 	port: 8888,
 	testsPort: 8889,
 	mysqlPort: null,
-	phpmyadminPort: 9000,
+	phpmyadminPort: null,
 	mappings: {},
 	config: {
 		FS_METHOD: 'direct',

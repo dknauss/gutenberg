@@ -133,12 +133,6 @@ module.exports = function cli() {
 					'Download source updates and apply WordPress configuration.',
 				default: false,
 			} );
-			args.option( 'phpmyadmin', {
-				describe:
-					'Enables PHPMyAdmin. By default, a PHPMyAdmin server will be available on port 9000 (override with WP_ENV_PHPMYADMIN_PORT).',
-				type: 'boolean',
-				default: false,
-			} );
 			args.option( 'xdebug', {
 				describe:
 					'Enables Xdebug. If not passed, Xdebug is turned off. If no modes are set, uses "debug". You may set multiple Xdebug modes by passing them in a comma-separated list: `--xdebug=develop,coverage`. See https://xdebug.org/docs/all_settings#mode for information about Xdebug modes.',

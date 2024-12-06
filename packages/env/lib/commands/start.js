@@ -43,18 +43,16 @@ const CONFIG_CACHE_KEY = 'config_checksum';
  * Starts the development server.
  *
  * @param {Object}  options
- * @param {Object}  options.spinner    A CLI spinner which indicates progress.
- * @param {boolean} options.update     If true, update sources.
- * @param {string}  options.xdebug     The Xdebug mode to set.
- * @param {string}  options.phpmyadmin Indicated whether or not PHPMyAdmin should be started.
- * @param {boolean} options.scripts    Indicates whether or not lifecycle scripts should be executed.
- * @param {boolean} options.debug      True if debug mode is enabled.
+ * @param {Object}  options.spinner A CLI spinner which indicates progress.
+ * @param {boolean} options.update  If true, update sources.
+ * @param {string}  options.xdebug  The Xdebug mode to set.
+ * @param {boolean} options.scripts Indicates whether or not lifecycle scripts should be executed.
+ * @param {boolean} options.debug   True if debug mode is enabled.
  */
 module.exports = async function start( {
 	spinner,
 	update,
 	xdebug,
-	phpmyadmin,
 	scripts,
 	debug,
 } ) {
@@ -182,8 +180,17 @@ module.exports = async function start( {
 		}
 	);
 
-	if ( phpmyadmin ) {
+	if ( config.env.development.phpmyadminPort ) {
 		await dockerCompose.upOne( 'phpmyadmin', {
+			...dockerComposeConfig,
+			commandOptions: shouldConfigureWp
+				? [ '--build', '--force-recreate' ]
+				: [],
+		} );
+	}
+
+	if ( config.env.tests.phpmyadminPort ) {
+		await dockerCompose.upOne( 'tests-phpmyadmin', {
 			...dockerComposeConfig,
 			commandOptions: shouldConfigureWp
 				? [ '--build', '--force-recreate' ]
@@ -248,8 +255,16 @@ module.exports = async function start( {
 		dockerComposeConfig
 	);
 
-	const phpmyadminPort = phpmyadmin
+	const phpmyadminPort = config.env.development.phpmyadminPort
 		? await getPublicDockerPort( 'phpmyadmin', 80, dockerComposeConfig )
+		: null;
+
+	const testsPhpmyadminPort = config.env.tests.phpmyadminPort
+		? await getPublicDockerPort(
+				'tests-phpmyadmin',
+				80,
+				dockerComposeConfig
+		  )
 		: null;
 
 	spinner.prefixText = [
@@ -259,7 +274,10 @@ module.exports = async function start( {
 			( testsSiteUrl ? ` at ${ testsSiteUrl }` : '.' ),
 		`MySQL is listening on port ${ mySQLPort }`,
 		`MySQL for automated testing is listening on port ${ testsMySQLPort }`,
-		phpmyadminPort && `phpMyAdmin is listening on port ${ phpmyadminPort }`,
+		phpmyadminPort &&
+			`phpMyAdmin started at http://localhost:${ phpmyadminPort }`,
+		testsPhpmyadminPort &&
+			`phpMyAdmin for automated testing started at http://localhost:${ testsPhpmyadminPort }`,
 	]
 		.filter( Boolean )
 		.join( '\n' );

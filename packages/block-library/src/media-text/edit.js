@@ -157,7 +157,10 @@ function MediaTextEdit( {
 		allowedBlocks,
 		useFeaturedImage,
 	} = attributes;
-	const mediaSizeSlug = attributes.mediaSizeSlug || DEFAULT_MEDIA_SIZE_SLUG;
+	const { getSettings } = useSelect( blockEditorStore );
+	const { imageDefaultSize } = getSettings();
+	const mediaSizeSlug =
+		attributes.mediaSizeSlug || imageDefaultSize || DEFAULT_MEDIA_SIZE_SLUG;
 
 	const [ featuredImage ] = useEntityProp(
 		'postType',
@@ -200,7 +203,6 @@ function MediaTextEdit( {
 
 	const { imageSizes, image } = useSelect(
 		( select ) => {
-			const { getSettings } = select( blockEditorStore );
 			return {
 				image:
 					mediaId && isSelected
@@ -223,7 +225,10 @@ function MediaTextEdit( {
 
 	const [ temporaryMediaWidth, setTemporaryMediaWidth ] = useState( null );
 
-	const onSelectMedia = attributesFromMedia( { attributes, setAttributes } );
+	const onSelectMedia = attributesFromMedia( {
+		attributes: { ...attributes, mediaSizeSlug },
+		setAttributes,
+	} );
 
 	const onSetHref = ( props ) => {
 		setAttributes( props );

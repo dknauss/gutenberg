@@ -28,7 +28,7 @@ type Props = {
 const ColorExamples = ( {
 	colors,
 	type,
-	templateColumns = 'repeat(auto-fill, minmax(400px, 1fr))',
+	templateColumns = '1fr 1fr',
 	itemHeight = '52px',
 }: Props ): JSX.Element | null => {
 	if ( ! colors ) {

@@ -15,6 +15,7 @@ import {
 	FlexItem,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useInstanceId } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -66,6 +67,7 @@ function GridItem< Item >( {
 	const { showTitle = true, showMedia = true, showDescription = true } = view;
 	const hasBulkAction = useHasAPossibleBulkAction( actions, item );
 	const id = getItemId( item );
+	const instanceId = useInstanceId( GridItem );
 	const isSelected = selection.includes( id );
 	const renderedMediaField = mediaField?.render ? (
 		<mediaField.render item={ item } />
@@ -112,7 +114,12 @@ function GridItem< Item >( {
 			} }
 		>
 			{ showMedia && renderedMediaField && (
-				<div { ...clickableMediaItemProps }>{ renderedMediaField }</div>
+				<div
+					{ ...clickableMediaItemProps }
+					aria-labelledby={ `dataviews-view-grid__title-field-${ instanceId }` }
+				>
+					{ renderedMediaField }
+				</div>
 			) }
 			{ showMedia && renderedMediaField && (
 				<DataViewsSelectionCheckbox
@@ -128,7 +135,10 @@ function GridItem< Item >( {
 				justify="space-between"
 				className="dataviews-view-grid__title-actions"
 			>
-				<div { ...clickablePrimaryItemProps }>
+				<div
+					{ ...clickablePrimaryItemProps }
+					id={ `dataviews-view-grid__title-field-${ instanceId }` }
+				>
 					{ renderedTitleField }
 				</div>
 				<ItemActions item={ item } actions={ actions } isCompact />

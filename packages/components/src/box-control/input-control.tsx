@@ -151,6 +151,7 @@ export default function BoxInputControl( {
 	const hasValues = isValuesDefined( values );
 	const isMixed =
 		hasValues &&
+		defaultValuesToModify.length > 1 &&
 		isValuesMixed( values, selectedUnits, defaultValuesToModify );
 	const mixedPlaceholder = isMixed ? __( 'Mixed' ) : undefined;
 	const [ parsedQuantity, parsedUnit ] =

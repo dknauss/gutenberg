@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useMemo, useState } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 import { privateApis as routerPrivateApis } from '@wordpress/router';
 import { useViewportMatch } from '@wordpress/compose';
 import {
@@ -19,6 +20,7 @@ import Page from '../page';
 import { unlock } from '../../lock-unlock';
 import StyleBook from '../style-book';
 import { STYLE_BOOK_COLOR_GROUPS } from '../style-book/constants';
+import { store as editSiteStore } from '../../store';
 
 const { useLocation, useHistory } = unlock( routerPrivateApis );
 const { Menu } = unlock( componentsPrivateApis );
@@ -26,6 +28,7 @@ const { Menu } = unlock( componentsPrivateApis );
 const GlobalStylesPageActions = ( {
 	isStyleBookOpened,
 	setIsStyleBookOpened,
+	setIsStyleBookClosed,
 } ) => {
 	return (
 		<Menu
@@ -68,6 +71,9 @@ export default function GlobalStylesUIWrapper() {
 	const { canvas = 'view' } = query;
 	const [ isStyleBookOpened, setIsStyleBookOpened ] = useState( false );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
+	const { setEditorCanvasContainerView } = unlock(
+		useDispatch( editSiteStore )
+	);
 	const [ section, onChangeSection ] = useMemo( () => {
 		return [
 			query.section ?? '/',
@@ -80,6 +86,26 @@ export default function GlobalStylesUIWrapper() {
 			},
 		];
 	}, [ path, query.section, history ] );
+console.log( { isStyleBookOpened, section, canvas } );
+
+/*
+  @TODO This needs refactoring. Or at least ScreenRevision needs to be refactored/abstracted
+  so that it doesn't know about the editorCanvasContainerView.
+
+ */
+/*	const turnOn = () => {
+		setEditorCanvasContainerView(
+			section === '/revisions'
+				? 'global-styles-revisions:style-book'
+				: 'style-book'
+		);
+		setIsStyleBookOpened( true );
+	};
+
+	const turnOff = () => {
+		setEditorCanvasContainerView( 'style-book' );
+		setIsStyleBookOpened( false );
+	};*/
 
 	return (
 		<>

@@ -30,20 +30,20 @@ export function SidebarNavigationItemGlobalStyles( props ) {
 
 export default function SidebarNavigationScreenGlobalStyles() {
 	const history = useHistory();
-	const { path, query } = useLocation();
+	const { path } = useLocation();
 	const {
 		revisions,
 		isLoading: isLoadingRevisions,
 		revisionsCount,
 	} = useGlobalStylesRevisions();
 	const openRevisions = useCallback(
-		async () =>
+		() =>
 			history.navigate(
 				addQueryArgs( path, {
 					section: '/revisions',
 				} )
 			),
-		[ path, query.section, history ]
+		[ path, history ]
 	);
 
 	// If there are no revisions, do not render a footer.

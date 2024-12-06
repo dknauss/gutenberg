@@ -21,6 +21,7 @@ import { moreVertical } from '@wordpress/icons';
 import { store as coreStore } from '@wordpress/core-data';
 import { useEffect } from '@wordpress/element';
 import { usePrevious } from '@wordpress/compose';
+import { privateApis as routerPrivateApis } from '@wordpress/router';
 
 /**
  * Internal dependencies
@@ -52,6 +53,7 @@ const SLOT_FILL_NAME = 'GlobalStylesMenu';
 const { useGlobalStylesReset } = unlock( blockEditorPrivateApis );
 const { Slot: GlobalStylesMenuSlot, Fill: GlobalStylesMenuFill } =
 	createSlotFill( SLOT_FILL_NAME );
+const { useLocation } = unlock( routerPrivateApis );
 
 function GlobalStylesActionMenu() {
 	const [ canReset, onReset ] = useGlobalStylesReset();
@@ -329,6 +331,8 @@ function NavigationSync( { path: parentPath, onPathChange, children } ) {
 
 function GlobalStylesUI( { path, onPathChange } ) {
 	const blocks = getBlockTypes();
+	const { query } = useLocation();
+	const { canvas } = query;
 	const editorCanvasContainerView = useSelect(
 		( select ) =>
 			unlock( select( editSiteStore ) ).getEditorCanvasContainerView(),
@@ -440,7 +444,7 @@ function GlobalStylesUI( { path, onPathChange } ) {
 
 			<GlobalStylesActionMenu />
 			<GlobalStylesBlockLink />
-			<GlobalStylesEditorCanvasContainerLink />
+			{ 'edit' === canvas && <GlobalStylesEditorCanvasContainerLink /> }
 		</Navigator>
 	);
 }

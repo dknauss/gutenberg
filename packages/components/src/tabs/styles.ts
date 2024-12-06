@@ -151,9 +151,11 @@ export const StyledTabList = styled( Ariakit.TabList )`
 export const Tab = styled( Ariakit.Tab )`
 	& {
 		/* Resets */
+		appearance: auto;
 		border-radius: 0;
 		background: transparent;
 		border: none;
+		box-sizing: border-box;
 		box-shadow: none;
 
 		flex: 1 0 auto;

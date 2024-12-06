@@ -57,12 +57,7 @@ export const getBlockPatternsForPostType = createRegistrySelector(
  */
 export const getEntityRecordsPermissions = createRegistrySelector( ( select ) =>
 	createSelector(
-		(
-			state: State,
-			kind: string,
-			name: string,
-			ids: string | string[]
-		) => {
+		( state: State, kind: string, name: string, ids: string[] ) => {
 			const normalizedIds = Array.isArray( ids ) ? ids : [ ids ];
 			return normalizedIds.map( ( id ) => ( {
 				delete: select( STORE_NAME ).canUser( 'delete', {
@@ -97,7 +92,7 @@ export function getEntityRecordPermissions(
 	name: string,
 	id: string
 ) {
-	return getEntityRecordsPermissions( state, kind, name, id )[ 0 ];
+	return getEntityRecordsPermissions( state, kind, name, [ id ] )[ 0 ];
 }
 
 /**

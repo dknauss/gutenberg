@@ -456,12 +456,21 @@ export default function useBlockDropZone( {
 				const [ targetIndex, operation, nearestSide ] =
 					dropTargetPosition;
 
-				if ( isZoomOut() && operation !== 'insert' ) {
+				// check whether the target block is an unmodified default block
+				const targetBlock = blocks[ targetIndex ];
+
+				const isTargetUnmodifiedDefaultBlock =
+					getIsUnmodifiedDefaultBlock( targetBlock );
+
+				if (
+					isZoomOut() &&
+					! isTargetUnmodifiedDefaultBlock && // unmodified default blocks are always replaced
+					operation !== 'insert'
+				) {
 					return;
 				}
 
 				if ( operation === 'group' ) {
-					const targetBlock = blocks[ targetIndex ];
 					const areAllImages = [
 						targetBlock.name,
 						...draggedBlockNames,

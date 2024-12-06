@@ -87,7 +87,7 @@ function getOverviewBlockExamples(
 				<ColorExamples
 					colors={ themePalette.colors }
 					type={ colors }
-					columns={ 4 }
+					templateColumns="repeat(auto-fill, minmax(150px, 1fr))"
 				/>
 			),
 		};

@@ -12,8 +12,7 @@ import {
 	createBlock,
 	privateApis,
 } from '@wordpress/blocks';
-import { combineReducers, select } from '@wordpress/data';
-import { store as preferencesStore } from '@wordpress/preferences';
+import { combineReducers } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -3576,6 +3575,7 @@ describe( 'state', () => {
 				blocks,
 				settings,
 				zoomLevel,
+				blockEditingModes,
 			} )
 		);
 
@@ -3598,15 +3598,6 @@ describe( 'state', () => {
 		describe( 'edit mode', () => {
 			let initialState;
 			beforeAll( () => {
-				select.mockImplementation( ( storeName ) => {
-					if ( storeName === preferencesStore ) {
-						return {
-							get: jest.fn( () => 'edit' ),
-						};
-					}
-					return select( storeName );
-				} );
-
 				initialState = dispatchActions(
 					[
 						{
@@ -3651,10 +3642,6 @@ describe( 'state', () => {
 				);
 			} );
 
-			afterAll( () => {
-				select.mockRestore();
-			} );
-
 			it( 'returns no block editing modes when zoomed out / navigation mode are not active and there are no synced patterns', () => {
 				expect( initialState.derivedBlockEditingModes ).toEqual(
 					new Map()
@@ -3665,15 +3652,6 @@ describe( 'state', () => {
 		describe( 'synced patterns', () => {
 			let initialState;
 			beforeAll( () => {
-				select.mockImplementation( ( storeName ) => {
-					if ( storeName === preferencesStore ) {
-						return {
-							get: jest.fn( () => 'edit' ),
-						};
-					}
-					return select( storeName );
-				} );
-
 				// Simulates how the editor typically inserts controlled blocks,
 				// - first the pattern is inserted with no inner blocks.
 				// - next the pattern is marked as a controlled block.
@@ -3818,10 +3796,6 @@ describe( 'state', () => {
 				);
 			} );
 
-			afterAll( () => {
-				select.mockRestore();
-			} );
-
 			it( 'returns the expected block editing modes for synced patterns', () => {
 				// Only the parent pattern and its own children that have bindings
 				// are in contentOnly mode. All other blocks are disabled.
@@ -3831,6 +3805,28 @@ describe( 'state', () => {
 							'pattern-paragraph': 'disabled',
 							'pattern-group': 'disabled',
 							'pattern-paragraph-with-overrides': 'contentOnly',
+							'nested-pattern': 'disabled',
+							'nested-paragraph': 'disabled',
+							'nested-group': 'disabled',
+							'nested-paragraph-with-overrides': 'disabled',
+						} )
+					)
+				);
+			} );
+
+			it( 'returns the expected block editing modes for synced patterns in navigation mode', () => {
+				expect( initialState.derivedNavModeBlockEditingModes ).toEqual(
+					new Map(
+						Object.entries( {
+							'': 'contentOnly', // Section root.
+							'group-1': 'contentOnly', // Section.
+							'paragraph-1': 'contentOnly', // Content block in section.
+							'group-2': 'disabled',
+							'paragraph-2': 'contentOnly', // Content block in section.
+							'root-pattern': 'contentOnly', // Section.
+							'pattern-paragraph': 'disabled',
+							'pattern-group': 'disabled',
+							'pattern-paragraph-with-overrides': 'contentOnly', // Pattern child with bindings.
 							'nested-pattern': 'disabled',
 							'nested-paragraph': 'disabled',
 							'nested-group': 'disabled',
@@ -3853,74 +3849,6 @@ describe( 'state', () => {
 				);
 
 				expect( derivedBlockEditingModes ).toEqual( new Map() );
-			} );
-
-			it( 'returns the expected block editing modes for synced patterns when switching to navigation mode', () => {
-				select.mockImplementation( ( storeName ) => {
-					if ( storeName === preferencesStore ) {
-						return {
-							get: jest.fn( () => 'navigation' ),
-						};
-					}
-					return select( storeName );
-				} );
-
-				const {
-					derivedBlockEditingModes,
-					derivedNavModeBlockEditingModes,
-				} = dispatchActions(
-					[
-						{
-							type: 'SET_EDITOR_MODE',
-							mode: 'navigation',
-						},
-					],
-					testReducer,
-					initialState
-				);
-
-				expect( derivedBlockEditingModes ).toEqual(
-					new Map(
-						Object.entries( {
-							'pattern-paragraph': 'disabled',
-							'pattern-group': 'disabled',
-							'pattern-paragraph-with-overrides': 'contentOnly', // Pattern child with bindings.
-							'nested-pattern': 'disabled',
-							'nested-paragraph': 'disabled',
-							'nested-group': 'disabled',
-							'nested-paragraph-with-overrides': 'disabled',
-						} )
-					)
-				);
-
-				expect( derivedNavModeBlockEditingModes ).toEqual(
-					new Map(
-						Object.entries( {
-							'': 'contentOnly', // Section root.
-							'group-1': 'contentOnly', // Section.
-							'paragraph-1': 'contentOnly', // Content block in section.
-							'group-2': 'disabled',
-							'paragraph-2': 'contentOnly', // Content block in section.
-							'root-pattern': 'contentOnly', // Section.
-							'pattern-paragraph': 'disabled',
-							'pattern-group': 'disabled',
-							'pattern-paragraph-with-overrides': 'contentOnly', // Pattern child with bindings.
-							'nested-pattern': 'disabled',
-							'nested-paragraph': 'disabled',
-							'nested-group': 'disabled',
-							'nested-paragraph-with-overrides': 'disabled',
-						} )
-					)
-				);
-
-				select.mockImplementation( ( storeName ) => {
-					if ( storeName === preferencesStore ) {
-						return {
-							get: jest.fn( () => 'edit' ),
-						};
-					}
-					return select( storeName );
-				} );
 			} );
 
 			it( 'returns the expected block editing modes for synced patterns when switching to zoomed out mode', () => {
@@ -3961,15 +3889,6 @@ describe( 'state', () => {
 			let initialState;
 
 			beforeAll( () => {
-				select.mockImplementation( ( storeName ) => {
-					if ( storeName === preferencesStore ) {
-						return {
-							get: jest.fn( () => 'navigation' ),
-						};
-					}
-					return select( storeName );
-				} );
-
 				initialState = dispatchActions(
 					[
 						{
@@ -4075,10 +3994,6 @@ describe( 'state', () => {
 				);
 			} );
 
-			afterAll( () => {
-				select.mockRestore();
-			} );
-
 			it( 'returns the expected block editing modes', () => {
 				expect( initialState.derivedNavModeBlockEditingModes ).toEqual(
 					new Map(
@@ -4094,6 +4009,38 @@ describe( 'state', () => {
 							'paragraph-1': 'contentOnly', // Content block in section.
 							'group-2': 'disabled', // Non-content block in section.
 							'paragraph-2': 'contentOnly', // Content block in section.
+						} )
+					)
+				);
+			} );
+
+			it( 'allows content blocks to be disabled explicitly using the block editing mode', () => {
+				const { derivedNavModeBlockEditingModes } = dispatchActions(
+					[
+						{
+							type: 'SET_BLOCK_EDITING_MODE',
+							clientId: 'paragraph-1',
+							mode: 'disabled',
+						},
+					],
+					testReducer,
+					initialState
+				);
+
+				expect( derivedNavModeBlockEditingModes ).toEqual(
+					new Map(
+						Object.entries( {
+							'': 'disabled',
+							header: 'contentOnly',
+							'header-group': 'disabled',
+							'header-paragraph': 'contentOnly',
+							footer: 'contentOnly',
+							'footer-paragraph': 'contentOnly',
+							'section-root': 'contentOnly',
+							'group-1': 'contentOnly',
+							'paragraph-1': 'disabled', // Block explicitly disabled.
+							'group-2': 'disabled',
+							'paragraph-2': 'contentOnly',
 						} )
 					)
 				);
@@ -4313,49 +4260,6 @@ describe( 'state', () => {
 						} )
 					)
 				);
-			} );
-
-			it( 'overrides navigation mode', () => {
-				select.mockImplementation( ( storeName ) => {
-					if ( storeName === preferencesStore ) {
-						return {
-							get: jest.fn( () => 'navigation' ),
-						};
-					}
-					return select( storeName );
-				} );
-
-				const { derivedBlockEditingModes } = dispatchActions(
-					[
-						{
-							type: 'SET_EDITOR_MODE',
-							mode: 'navigation',
-						},
-					],
-					testReducer,
-					initialState
-				);
-
-				expect( derivedBlockEditingModes ).toEqual(
-					new Map(
-						Object.entries( {
-							'': 'contentOnly', // Section root.
-							'group-1': 'contentOnly', // Section block.
-							'paragraph-1': 'disabled',
-							'group-2': 'disabled',
-							'paragraph-2': 'disabled',
-						} )
-					)
-				);
-
-				select.mockImplementation( ( storeName ) => {
-					if ( storeName === preferencesStore ) {
-						return {
-							get: jest.fn( () => 'edit' ),
-						};
-					}
-					return select( storeName );
-				} );
 			} );
 
 			it( 'removes block editing modes when blocks are removed', () => {

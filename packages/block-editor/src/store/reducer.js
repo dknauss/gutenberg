@@ -2327,7 +2327,7 @@ function getDerivedBlockEditingModesForTree(
 					templatePartClientIds
 				);
 				// Allow contentOnly blocks in template parts outside of sections
-				// to be editable. Only disable blocks that aren't don't fit this criteria.
+				// to be editable. Only disable blocks that don't fit this criteria.
 				if ( ! isInTemplatePart && ! isContentBlock( blockName ) ) {
 					derivedBlockEditingModes.set( clientId, 'disabled' );
 					return;
@@ -2369,7 +2369,12 @@ function getDerivedBlockEditingModesForTree(
 				}
 			}
 
-			if ( blockName && isContentBlock( blockName ) ) {
+			if (
+				// Honor the explicit disabled mode for content blocks.
+				state.blockEditingModes.get( clientId ) !== 'disabled' &&
+				blockName &&
+				isContentBlock( blockName, clientId )
+			) {
 				derivedBlockEditingModes.set( clientId, 'contentOnly' );
 				return;
 			}
@@ -2598,11 +2603,15 @@ export function withDerivedBlockEditingModes( reducer ) {
 				}
 				break;
 			}
+			case 'SET_BLOCK_EDITING_MODE':
+			case 'UNSET_BLOCK_EDITING_MODE':
 			case 'SET_HAS_CONTROLLED_INNER_BLOCKS': {
 				const updatedBlock = nextState.blocks.tree.get(
 					action.clientId
 				);
-				// The block might have been removed.
+
+				// The block might have been removed in which case it'll be
+				// handled by the `REMOVE_BLOCKS` action.
 				if ( ! updatedBlock ) {
 					break;
 				}
@@ -2611,6 +2620,7 @@ export function withDerivedBlockEditingModes( reducer ) {
 					getDerivedBlockEditingModesUpdates( {
 						prevState: state,
 						nextState,
+						removedClientIds: [ action.clientId ],
 						addedBlocks: [ updatedBlock ],
 						isNavMode: false,
 					} );
@@ -2618,6 +2628,7 @@ export function withDerivedBlockEditingModes( reducer ) {
 					getDerivedBlockEditingModesUpdates( {
 						prevState: state,
 						nextState,
+						removedClientIds: [ action.clientId ],
 						addedBlocks: [ updatedBlock ],
 						isNavMode: true,
 					} );

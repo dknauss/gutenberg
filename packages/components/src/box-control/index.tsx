@@ -21,7 +21,7 @@ import { parseQuantityAndUnitFromRawValue } from '../unit-control/utils';
 import {
 	DEFAULT_VALUES,
 	getInitialSide,
-	isValuesMixed,
+	isValueMixed,
 	isValuesDefined,
 	getAllowedSides,
 } from './utils';
@@ -95,7 +95,7 @@ function BoxControl( {
 
 	const [ isDirty, setIsDirty ] = useState( hasInitialValue );
 	const [ isLinked, setIsLinked ] = useState(
-		! hasInitialValue || ! isValuesMixed( inputValues ) || hasOneSide
+		! hasInitialValue || ! isValueMixed( inputValues ) || hasOneSide
 	);
 
 	const [ side, setSide ] = useState< BoxControlIconProps[ 'side' ] >(

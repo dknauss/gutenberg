@@ -6,7 +6,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { parseQuantityAndUnitFromRawValue } from '../unit-control/utils';
 import type {
 	BoxControlInputControlProps,
 	BoxControlProps,
@@ -83,56 +82,46 @@ function mode< T >( arr: T[] ) {
 }
 
 /**
- * Gets the 'all' input value and unit from values data.
+ * Gets the merged input value and unit from values data.
  *
  * @param values         Box values.
- * @param selectedUnits  Box units.
  * @param availableSides Available box sides to evaluate.
  *
  * @return A value + unit for the 'all' input.
  */
-export function getAllValue(
+export function getMergedValue(
 	values: BoxControlValue = {},
-	selectedUnits?: BoxControlValue,
 	availableSides: BoxControlProps[ 'sides' ] = ALL_SIDES
 ) {
 	const sides = normalizeSides( availableSides );
-	const parsedQuantitiesAndUnits = sides.map( ( side ) =>
-		parseQuantityAndUnitFromRawValue( values[ side ] )
-	);
-	const allParsedQuantities = parsedQuantitiesAndUnits.map(
-		( value ) => value[ 0 ] ?? ''
-	);
-	const allParsedUnits = parsedQuantitiesAndUnits.map(
-		( value ) => value[ 1 ]
-	);
-
-	const commonQuantity = allParsedQuantities.every(
-		( v ) => v === allParsedQuantities[ 0 ]
-	)
-		? allParsedQuantities[ 0 ]
-		: '';
-
-	/**
-	 * The typeof === 'number' check is important. On reset actions, the incoming value
-	 * may be null or an empty string.
-	 *
-	 * Also, the value may also be zero (0), which is considered a valid unit value.
-	 *
-	 * typeof === 'number' is more specific for these cases, rather than relying on a
-	 * simple truthy check.
-	 */
-	let commonUnit;
-	if ( typeof commonQuantity === 'number' ) {
-		commonUnit = mode( allParsedUnits );
-	} else {
-		// Set meaningful unit selection if no commonQuantity and user has previously
-		// selected units without assigning values while controls were unlinked.
-		commonUnit =
-			getAllUnitFallback( selectedUnits ) ?? mode( allParsedUnits );
+	if (
+		sides.every(
+			( side: keyof BoxControlValue ) =>
+				values[ side ] === values[ sides[ 0 ] ]
+		)
+	) {
+		return values[ sides[ 0 ] ];
 	}
 
-	return [ commonQuantity, commonUnit ].join( '' );
+	return undefined;
+}
+
+/**
+ * Checks if the values are mixed.
+ *
+ * @param values         Box values.
+ * @param availableSides Available box sides to evaluate.
+ * @return Whether the values are mixed.
+ */
+export function isValueMixed(
+	values: BoxControlValue = {},
+	availableSides: BoxControlProps[ 'sides' ] = ALL_SIDES
+) {
+	const sides = normalizeSides( availableSides );
+	return sides.some(
+		( side: keyof BoxControlValue ) =>
+			values[ side ] !== values[ sides[ 0 ] ]
+	);
 }
 
 /**
@@ -149,26 +138,6 @@ export function getAllUnitFallback( selectedUnits?: BoxControlValue ) {
 	const filteredUnits = Object.values( selectedUnits ).filter( Boolean );
 
 	return mode( filteredUnits );
-}
-
-/**
- * Checks to determine if values are mixed.
- *
- * @param values        Box values.
- * @param selectedUnits Box units.
- * @param sides         Available box sides to evaluate.
- *
- * @return Whether values are mixed.
- */
-export function isValuesMixed(
-	values: BoxControlValue = {},
-	selectedUnits?: BoxControlValue,
-	sides: BoxControlProps[ 'sides' ] = ALL_SIDES
-) {
-	const allValue = getAllValue( values, selectedUnits, sides );
-	const isMixed = isNaN( parseFloat( allValue ) );
-
-	return isMixed;
 }
 
 /**

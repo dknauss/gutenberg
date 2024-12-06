@@ -12,9 +12,9 @@ import { parseQuantityAndUnitFromRawValue } from '../unit-control/utils';
 import {
 	CUSTOM_VALUE_SETTINGS,
 	getAllowedSides,
-	getAllValue,
+	getMergedValue,
+	isValueMixed,
 	isValuesDefined,
-	isValuesMixed,
 	LABELS,
 } from './utils';
 import {
@@ -125,16 +125,12 @@ export default function BoxInputControl( {
 		setSelectedUnits( newUnits );
 	};
 
-	const mergedValue = getAllValue(
-		values,
-		selectedUnits,
-		defaultValuesToModify
-	);
+	const mergedValue = getMergedValue( values, defaultValuesToModify );
 	const hasValues = isValuesDefined( values );
 	const isMixed =
 		hasValues &&
 		defaultValuesToModify.length > 1 &&
-		isValuesMixed( values, selectedUnits, defaultValuesToModify );
+		isValueMixed( values, defaultValuesToModify );
 	const mixedPlaceholder = isMixed ? __( 'Mixed' ) : undefined;
 	const [ parsedQuantity, parsedUnit ] =
 		parseQuantityAndUnitFromRawValue( mergedValue );

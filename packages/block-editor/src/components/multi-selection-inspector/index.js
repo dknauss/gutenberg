@@ -37,18 +37,18 @@ export default function MultiSelectionInspector() {
 		<HStack
 			justify="flex-start"
 			align="flex-start"
-			spacing={ 2 }
+			spacing={ 0 }
 			className="block-editor-multi-selection-inspector__card"
 		>
 			<BlockIcon icon={ copy } showColors />
 			<VStack spacing={ 1 }>
-				<p className="block-editor-multi-selection-inspector__card-title">
+				<h2 className="block-editor-multi-selection-inspector__card-title">
 					{ sprintf(
 						/* translators: %d: number of blocks */
 						_n( '%d Block', '%d Blocks', selectedBlockCount ),
 						selectedBlockCount
 					) }
-				</p>
+				</h2>
 				{ isUsingBindings && (
 					<Text
 						as="p"

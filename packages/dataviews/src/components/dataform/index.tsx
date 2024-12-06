@@ -16,13 +16,14 @@ export default function DataForm< Item >( {
 	form,
 	fields,
 	onChange,
+	isLoading = false,
 }: DataFormProps< Item > ) {
 	const normalizedFields = useMemo(
 		() => normalizeFields( fields ),
 		[ fields ]
 	);
 
-	if ( ! form.fields ) {
+	if ( ! form.fields || isLoading ) {
 		return null;
 	}
 

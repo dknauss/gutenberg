@@ -8,6 +8,13 @@
 	border-bottom: none;
 }
 
+// 0-2-0 specificity required to enforce block instance
+// color selections over global styles.
+.wp-block-separator.has-background,
+.wp-block-separator.has-text-color {
+	border-color: currentColor;
+}
+
 // Dots block style variation
 :root :where(.wp-block-separator.is-style-dots) {
 	text-align: center;

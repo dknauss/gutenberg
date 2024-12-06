@@ -359,6 +359,22 @@ export const StyleBookPreview = ( {
 
 	const [ resizeObserver, sizes ] = useResizeObserver();
 	const { colors, gradients } = useMultipleOriginColorsAndGradients();
+
+	const [ duotones ] = useSettings( 'color.duotone.theme' );
+
+	const themeDuotone = duotones?.length
+		? [
+				{
+					name: _x(
+						'Theme',
+						'Indicates these duotone filters come from the theme.'
+					),
+					slug: 'theme',
+					duotones,
+				},
+		  ]
+		: null;
+
 	// Exclude the default colors and gradients.
 	const themeColors = colors?.filter( ( color ) => color.slug === 'theme' );
 	const themeGradients = gradients?.filter(
@@ -368,7 +384,7 @@ export const StyleBookPreview = ( {
 	const examples = getExamples( {
 		colors: themeColors,
 		gradients: themeGradients,
-		duotones: [], // Classic themes don't support duotone palettes.
+		duotones: themeDuotone || [],
 	} );
 	const examplesForSinglePageUse = getExamplesForSinglePageUse( examples );
 

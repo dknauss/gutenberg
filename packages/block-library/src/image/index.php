@@ -80,7 +80,7 @@ function render_block_core_image( $attributes, $content, $block ) {
 		 * if the way the blocks are rendered changes, or if a new kind of filter is
 		 * introduced.
 		 */
-		add_filter( 'render_block_core/image', 'block_core_image_render_lightbox', 15, 2 );
+		add_filter( 'render_block_core/image', 'block_core_image_render_lightbox', 15, 3 );
 	} else {
 		/*
 		 * Remove the filter if previously added by other Image blocks.
@@ -130,12 +130,13 @@ function block_core_image_get_lightbox_settings( $block ) {
  *
  * @since 6.4.0
  *
- * @param string $block_content Rendered block content.
- * @param array  $block         Block object.
+ * @param string $block_content  Rendered block content.
+ * @param array  $block          Block object.
+ * @param array  $block_instance Block instance.
  *
  * @return string Filtered block content.
  */
-function block_core_image_render_lightbox( $block_content, $block ) {
+function block_core_image_render_lightbox( $block_content, $block, $block_instance ) {
 	/*
 	 * If there's no IMG tag in the block then return the given block content
 	 * as-is. There's nothing that this code can knowingly modify to add the
@@ -172,7 +173,6 @@ function block_core_image_render_lightbox( $block_content, $block ) {
 
 	// Create unique id and set the image metadata in the state.
 	$unique_image_id = uniqid();
-
 	wp_interactivity_state(
 		'core/image',
 		array(
@@ -188,29 +188,11 @@ function block_core_image_render_lightbox( $block_content, $block ) {
 					'scaleAttr'        => $block['attrs']['scale'] ?? false,
 					'alt'              => $alt,
 					'screenReaderText' => empty( $alt ) ? $screen_reader_text : "$screen_reader_text: $alt",
+					'galleryId'        => $block_instance->context['galleryId'] ?? null,
 				),
 			),
 		)
 	);
-
-	$state      = wp_interactivity_state( 'core/gallery' );
-	$gallery_id = $state['galleryId'];
-	if ( isset( $gallery_id ) ) {
-		$images = $state['images'][ $gallery_id ];
-		if ( ! isset( $images ) ) {
-			$images = array();
-		}
-		$images[] = $unique_image_id;
-
-		wp_interactivity_state(
-			'core/gallery',
-			array(
-				'images' => array(
-					$gallery_id => $images,
-				),
-			)
-		);
-	}
 
 	$p->add_class( 'wp-lightbox-container' );
 	$p->set_attribute( 'data-wp-interactive', 'core/image' );

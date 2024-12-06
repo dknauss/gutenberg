@@ -35,33 +35,22 @@ function block_core_gallery_data_id_backcompatibility( $parsed_block ) {
 add_filter( 'render_block_data', 'block_core_gallery_data_id_backcompatibility' );
 
 /**
- * Handles interactivity state initialization for Gallery Block.
+ * Adds a unique ID to the gallery block context.
  *
- * @since 6.7.0
+ * @since 6.8.0
  *
- * @param string $block_content Rendered block content.
- * @param array  $block         Block object.
- *
- * @return string Filtered block content.
+ * @param array $context      Default context.
+ * @param array $parsed_block Block being rendered, filtered by render_block_data.
+ * @return array Filtered context.
  */
-function block_core_gallery_interactivity_state( $block_content, $block ) {
-	if ( 'core/gallery' !== $block['blockName'] ) {
-		return $block_content;
+function block_core_gallery_render_context( $context, $parsed_block ) {
+	if ( 'core/gallery' === $parsed_block['blockName'] ) {
+		$context['galleryId'] = uniqid();
 	}
-
-	$unique_gallery_id = uniqid();
-	wp_interactivity_state(
-		'core/gallery',
-		array(
-			'images'    => array(),
-			'galleryId' => $unique_gallery_id,
-		)
-	);
-
-	return $block_content;
+	return $context;
 }
 
-add_filter( 'render_block_data', 'block_core_gallery_interactivity_state', 15, 2 );
+add_filter( 'render_block_context', 'block_core_gallery_render_context', 10, 2 );
 
 /**
  * Renders the `core/gallery` block on the server.
@@ -69,10 +58,11 @@ add_filter( 'render_block_data', 'block_core_gallery_interactivity_state', 15, 2
  * @since 6.0.0
  *
  * @param array  $attributes Attributes of the block being rendered.
- * @param string $content Content of the block being rendered.
+ * @param string $content    Content of the block being rendered.
+ * @param array  $block      The block instance being rendered.
  * @return string The content of the block being rendered.
  */
-function block_core_gallery_render( $attributes, $content ) {
+function block_core_gallery_render( $attributes, $content, $block ) {
 	// Adds a style tag for the --wp--style--unstable-gallery-gap var.
 	// The Gallery block needs to recalculate Image block width based on
 	// the current gap setting in order to maintain the number of flex columns
@@ -150,16 +140,24 @@ function block_core_gallery_render( $attributes, $content ) {
 		)
 	);
 
-	$state      = wp_interactivity_state( 'core/gallery' );
-	$gallery_id = $state['galleryId'];
+	// Get all image IDs from the state that match this gallery's ID.
+	$state      = wp_interactivity_state( 'core/image' );
+	$gallery_id = $block->context['galleryId'] ?? null;
+	$image_ids  = array();
+	if ( isset( $gallery_id ) && isset( $state['metadata'] ) ) {
+		foreach ( $state['metadata'] as $image_id => $metadata ) {
+			if ( isset( $metadata['galleryId'] ) && $metadata['galleryId'] === $gallery_id ) {
+				$image_ids[] = $image_id;
+			}
+		}
+	}
 
 	$processed_content->set_attribute( 'data-wp-interactive', 'core/gallery' );
 	$processed_content->set_attribute(
 		'data-wp-context',
 		wp_json_encode(
 			array(
-				'galleryId' => $gallery_id,
-				'lightbox'  => true,
+				'images' => $image_ids,
 			),
 			JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
 		)

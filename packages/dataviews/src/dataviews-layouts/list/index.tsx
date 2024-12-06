@@ -35,7 +35,12 @@ import {
 	ActionsMenuGroup,
 	ActionModal,
 } from '../../components/dataviews-item-actions';
-import type { Action, NormalizedField, ViewListProps } from '../../types';
+import type {
+	Action,
+	NormalizedField,
+	ViewListProps,
+	ActionModal as ActionModalType,
+} from '../../types';
 
 interface ListViewItemProps< Item > {
 	actions: Action< Item >[];
@@ -144,7 +149,11 @@ function ListItem< Item >( {
 	const labelId = `${ idPrefix }-label`;
 	const descriptionId = `${ idPrefix }-description`;
 
+	const registry = useRegistry();
 	const [ isHovered, setIsHovered ] = useState( false );
+	const [ activeModalAction, setActiveModalAction ] = useState(
+		null as ActionModalType< Item > | null
+	);
 	const handleHover: React.MouseEventHandler = ( { type } ) => {
 		const isHover = type === 'mouseenter';
 		setIsHovered( isHover );
@@ -221,8 +230,17 @@ function ListItem< Item >( {
 						<ActionsMenuGroup
 							actions={ eligibleActions }
 							item={ item }
+							registry={ registry }
+							setActiveModalAction={ setActiveModalAction }
 						/>
 					</Menu>
+					{ !! activeModalAction && (
+						<ActionModal
+							action={ activeModalAction }
+							items={ [ item ] }
+							closeModal={ () => setActiveModalAction( null ) }
+						/>
+					) }
 				</div>
 			) }
 		</HStack>

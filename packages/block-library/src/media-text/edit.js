@@ -125,6 +125,8 @@ function attributesFromMedia( {
 			mediaId: media.id,
 			mediaType,
 			mediaUrl: src || media.url,
+			// Reset to default size if the selected size is not available in media.
+			mediaSizeSlug: src ? mediaSizeSlug : DEFAULT_MEDIA_SIZE_SLUG,
 			mediaLink: media.link || undefined,
 			href: newHref,
 			focalPoint: undefined,

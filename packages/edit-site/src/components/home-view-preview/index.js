@@ -4,6 +4,7 @@
 
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -28,11 +29,12 @@ export function HomeViewPreview() {
 	) : (
 		<iframe
 			src={ siteUrl }
-			title="front-end view"
+			title={ __( 'Site Preview' ) }
 			style={ {
 				display: 'block',
 				width: '100%',
 				height: '100%',
+				backgroundColor: '#fff',
 			} }
 			onLoad={ ( event ) => {
 				// Hide the admin bar in the front-end preview.
@@ -41,10 +43,14 @@ export function HomeViewPreview() {
 				document
 					.getElementsByTagName( 'html' )[ 0 ]
 					.setAttribute( 'style', 'margin-top: 0 !important;' );
-				// Make links unclickable.
-				const links = document.getElementsByTagName( 'a' );
-				Array.from( links ).forEach( ( link ) => {
-					link.style.pointerEvents = 'none';
+				// Make interactive elements unclickable.
+				const interactiveElements = document.querySelectorAll(
+					'a, button, input, details, audio'
+				);
+				interactiveElements.forEach( ( element ) => {
+					element.style.pointerEvents = 'none';
+					element.tabIndex = -1;
+					element.setAttribute( 'aria-hidden', 'true' );
 				} );
 			} }
 		/>

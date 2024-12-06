@@ -61,45 +61,46 @@ const EditWithGeneratedProps = ( props ) => {
 	const registry = useRegistry();
 	const blockType = getBlockType( name );
 	const blockContext = useContext( BlockContext );
-	const registeredSources = useSelect( ( select ) =>
-		unlock( select( blocksStore ) ).getAllBlockBindingsSources()
+	const registeredSources = useSelect(
+		( select ) =>
+			unlock( select( blocksStore ) ).getAllBlockBindingsSources(),
+		[]
 	);
 
-	const blockBindings = useMemo(
-		() =>
-			replacePatternOverridesDefaultBinding(
-				name,
-				attributes?.metadata?.bindings
-			),
-		[ attributes?.metadata?.bindings, name ]
-	);
-
-	// Assign context values using the block type's declared context needs.
-	const context = useMemo( () => {
-		const _context =
-			blockType && blockType.usesContext
-				? Object.fromEntries(
-						Object.entries( blockContext ).filter( ( [ key ] ) =>
-							blockType.usesContext.includes( key )
-						)
-				  )
-				: DEFAULT_BLOCK_CONTEXT;
-		// Add block bindings context.
-		const blockBindingsContext = {};
+	const { blockBindings, context, hasPatternOverrides } = useMemo( () => {
+		// Assign context values using the block type's declared context needs.
+		const computedContext = blockType?.usesContext
+			? Object.fromEntries(
+					Object.entries( blockContext ).filter( ( [ key ] ) =>
+						blockType.usesContext.includes( key )
+					)
+			  )
+			: DEFAULT_BLOCK_CONTEXT;
+		// Add context requested by Block Bindings sources.
 		if ( attributes?.metadata?.bindings ) {
 			Object.values( attributes?.metadata?.bindings || {} ).forEach(
 				( binding ) => {
 					registeredSources[ binding?.source ]?.usesContext?.forEach(
 						( key ) => {
-							blockBindingsContext[ key ] = blockContext[ key ];
+							computedContext[ key ] = blockContext[ key ];
 						}
 					);
 				}
 			);
 		}
-		return { ..._context, ...blockBindingsContext };
+		return {
+			blockBindings: replacePatternOverridesDefaultBinding(
+				name,
+				attributes?.metadata?.bindings
+			),
+			context: computedContext,
+			hasPatternOverrides: hasPatternOverridesDefaultBinding(
+				attributes?.metadata?.bindings
+			),
+		};
 	}, [
-		blockType,
+		name,
+		blockType?.usesContext,
 		blockContext,
 		attributes?.metadata?.bindings,
 		registeredSources,
@@ -179,9 +180,6 @@ const EditWithGeneratedProps = ( props ) => {
 		]
 	);
 
-	const hasPatternOverrides = hasPatternOverridesDefaultBinding(
-		attributes?.metadata?.bindings
-	);
 	const setBoundAttributes = useCallback(
 		( nextAttributes ) => {
 			if ( ! blockBindings ) {

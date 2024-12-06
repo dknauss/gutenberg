@@ -5,17 +5,11 @@ import {
 	Icon,
 	BaseControl,
 	TextControl,
-	Flex,
-	FlexItem,
-	FlexBlock,
 	Button,
 	Modal,
-	__experimentalRadioGroup as RadioGroup,
-	__experimentalRadio as Radio,
 	__experimentalHStack as HStack,
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
@@ -39,6 +33,13 @@ import {
 	getUniqueTemplatePartTitle,
 	useExistingTemplateParts,
 } from './utils';
+
+function getAreaRadioId( value: string ) {
+	return `fields-create-template-part-modal__area-option-${ value }`;
+}
+function getAreaRadioDescriptionId( value: string ) {
+	return `fields-create-template-part-modal__area-option-description-${ value }`;
+}
 
 type CreateTemplatePartModalContentsProps = {
 	defaultArea?: string;
@@ -122,7 +123,6 @@ export function CreateTemplatePartModalContents( {
 	const [ title, setTitle ] = useState( defaultTitle );
 	const [ area, setArea ] = useState( defaultArea );
 	const [ isSubmitting, setIsSubmitting ] = useState( false );
-	const instanceId = useInstanceId( CreateTemplatePartModal );
 
 	const defaultTemplatePartAreas = useSelect( ( select ) => {
 		const areas =
@@ -202,51 +202,60 @@ export function CreateTemplatePartModalContents( {
 					onChange={ setTitle }
 					required
 				/>
-				<BaseControl
-					__nextHasNoMarginBottom
-					label={ __( 'Area' ) }
-					id={ `fields-create-template-part-modal__area-selection-${ instanceId }` }
-					className="fields-create-template-part-modal__area-base-control"
-				>
-					<RadioGroup
-						label={ __( 'Area' ) }
-						className="fields-create-template-part-modal__area-radio-group"
-						id={ `fields-create-template-part-modal__area-selection-${ instanceId }` }
-						onChange={ ( value ) =>
-							value && typeof value === 'string'
-								? setArea( value )
-								: () => void 0
-						}
-						checked={ area }
+				<fieldset>
+					<BaseControl.VisualLabel
+						as="legend"
+						className="fields-create-template-part-modal__area-radio-group-label"
 					>
+						{ __( 'Area' ) }
+					</BaseControl.VisualLabel>
+					<div className="fields-create-template-part-modal__area-radio-group">
 						{ defaultTemplatePartAreas.map(
 							( { icon, label, area: value, description } ) => (
-								<Radio
-									__next40pxDefaultSize
-									key={ label }
-									value={ value }
-									className="fields-create-template-part-modal__area-radio"
+								<div
+									key={ value }
+									className="fields-create-template-part-modal__area-radio-wrapper"
 								>
-									<Flex align="start" justify="start">
-										<FlexItem>
-											<Icon icon={ icon } />
-										</FlexItem>
-										<FlexBlock className="fields-create-template-part-modal__option-label">
-											{ label }
-											<div>{ description }</div>
-										</FlexBlock>
-
-										<FlexItem className="fields-create-template-part-modal__checkbox">
-											{ area === value && (
-												<Icon icon={ check } />
-											) }
-										</FlexItem>
-									</Flex>
-								</Radio>
+									<input
+										type="radio"
+										id={ getAreaRadioId( value ) }
+										name="fields-create-template-part-modal__area"
+										value={ value }
+										checked={ area === value }
+										onChange={ () => {
+											setArea( value );
+										} }
+										aria-describedby={ getAreaRadioDescriptionId(
+											value
+										) }
+									/>
+									<Icon
+										icon={ icon }
+										className="fields-create-template-part-modal__area-radio-icon"
+									/>
+									<label
+										htmlFor={ getAreaRadioId( value ) }
+										className="fields-create-template-part-modal__area-radio-label"
+									>
+										{ label }
+									</label>
+									<Icon
+										icon={ check }
+										className="fields-create-template-part-modal__area-radio-checkmark"
+									/>
+									<p
+										className="fields-create-template-part-modal__area-radio-description"
+										id={ getAreaRadioDescriptionId(
+											value
+										) }
+									>
+										{ description }
+									</p>
+								</div>
 							)
 						) }
-					</RadioGroup>
-				</BaseControl>
+					</div>
+				</fieldset>
 				<HStack justify="right">
 					<Button
 						__next40pxDefaultSize

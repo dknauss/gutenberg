@@ -3,6 +3,8 @@
  */
 import { useInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
+import { settings } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -12,9 +14,12 @@ import { parseQuantityAndUnitFromRawValue } from '../unit-control/utils';
 import {
 	ALL_SIDES,
 	CUSTOM_VALUE_SETTINGS,
-	getAllValue,
+	getMergedValue,
+	getPresetIndexFromValue,
+	getPresetValueFromIndex,
+	isValuePreset,
 	isValuesDefined,
-	isValuesMixed,
+	isValueMixed,
 	LABELS,
 } from './utils';
 import {
@@ -24,6 +29,7 @@ import {
 	StyledUnitControl,
 } from './styles/box-control-styles';
 import type { BoxControlInputControlProps, BoxControlValue } from './types';
+import Button from '../button';
 
 const noop = () => {};
 
@@ -96,6 +102,8 @@ export default function BoxInputControl( {
 	setSelectedUnits,
 	sides,
 	side,
+	presets,
+	presetKey,
 	...props
 }: BoxControlInputControlProps ) {
 	const defaultValuesToModify = getSidesToModify( side, sides );
@@ -106,6 +114,15 @@ export default function BoxInputControl( {
 
 	const handleOnChange = ( nextValues: BoxControlValue ) => {
 		onChange( nextValues );
+	};
+
+	const handleRewOnValueChange = ( next?: string ) => {
+		const nextValues = { ...values };
+		defaultValuesToModify.forEach( ( modifiedSide ) => {
+			nextValues[ modifiedSide ] = next;
+		} );
+
+		handleOnChange( nextValues );
 	};
 
 	const handleOnValueChange = (
@@ -143,15 +160,9 @@ export default function BoxInputControl( {
 		setSelectedUnits( newUnits );
 	};
 
-	const mergedValue = getAllValue(
-		values,
-		selectedUnits,
-		defaultValuesToModify
-	);
+	const mergedValue = getMergedValue( values, defaultValuesToModify );
 	const hasValues = isValuesDefined( values );
-	const isMixed =
-		hasValues &&
-		isValuesMixed( values, selectedUnits, defaultValuesToModify );
+	const isMixed = hasValues && isValueMixed( values, defaultValuesToModify );
 	const mixedPlaceholder = isMixed ? __( 'Mixed' ) : undefined;
 	const [ parsedQuantity, parsedUnit ] =
 		parseQuantityAndUnitFromRawValue( mergedValue );
@@ -160,52 +171,136 @@ export default function BoxInputControl( {
 		: selectedUnits[ defaultValuesToModify[ 0 ] ];
 	const generatedId = useInstanceId( BoxInputControl, 'box-control-input' );
 	const inputId = [ generatedId, side ].join( '-' );
+	const hasPresets = presets && presets.length > 0 && presetKey;
+	const hasPresetValue =
+		hasPresets &&
+		mergedValue !== undefined &&
+		! isMixed &&
+		isValuePreset( mergedValue, presetKey );
+	const [ showCustomValueControl, setShowCustomValueControl ] = useState(
+		! hasPresets ||
+			( ! hasPresetValue && ! isMixed && mergedValue !== undefined )
+	);
+	const showRangeControl = true;
+	const presetIndex = hasPresetValue
+		? getPresetIndexFromValue( mergedValue, presetKey, presets )
+		: undefined;
+	const marks = hasPresets
+		? [ { value: 0, label: __( 'None' ) } ].concat(
+				presets.map( ( preset, index ) => ( {
+					value: index + 1,
+					label: preset.name,
+				} ) )
+		  )
+		: [];
 
 	return (
 		<InputWrapper key={ `box-control-${ side }` } expanded>
 			<FlexedBoxControlIcon side={ side } sides={ sides } />
-			<Tooltip placement="top-end" text={ LABELS[ side ] }>
-				<StyledUnitControl
-					{ ...props }
-					__shouldNotWarnDeprecated36pxSize
-					__next40pxDefaultSize={ __next40pxDefaultSize }
-					className="component-box-control__unit-control"
-					id={ inputId }
-					isPressEnterToChange
-					value={ mergedValue }
-					onChange={ ( nextValue, extra ) =>
-						handleOnValueChange( nextValue, extra )
-					}
-					onUnitChange={ handleOnUnitChange }
-					onFocus={ handleOnFocus }
-					label={ LABELS[ side ] }
-					placeholder={ mixedPlaceholder }
-					hideLabelFromVision
-				/>
-			</Tooltip>
+			{ showCustomValueControl && (
+				<>
+					<Tooltip placement="top-end" text={ LABELS[ side ] }>
+						<StyledUnitControl
+							{ ...props }
+							__shouldNotWarnDeprecated36pxSize
+							__next40pxDefaultSize={ __next40pxDefaultSize }
+							className="component-box-control__unit-control"
+							id={ inputId }
+							isPressEnterToChange
+							value={ mergedValue }
+							onChange={ ( nextValue, extra ) =>
+								handleOnValueChange( nextValue, extra )
+							}
+							onUnitChange={ handleOnUnitChange }
+							onFocus={ handleOnFocus }
+							label={ LABELS[ side ] }
+							placeholder={ mixedPlaceholder }
+							hideLabelFromVision
+						/>
+					</Tooltip>
 
-			<FlexedRangeControl
-				__nextHasNoMarginBottom
-				__next40pxDefaultSize={ __next40pxDefaultSize }
-				__shouldNotWarnDeprecated36pxSize
-				aria-controls={ inputId }
-				label={ LABELS[ side ] }
-				hideLabelFromVision
-				onChange={ ( newValue ) => {
-					handleOnValueChange(
-						newValue !== undefined
-							? [ newValue, computedUnit ].join( '' )
-							: undefined
-					);
-				} }
-				min={ 0 }
-				max={ CUSTOM_VALUE_SETTINGS[ computedUnit ?? 'px' ]?.max ?? 10 }
-				step={
-					CUSTOM_VALUE_SETTINGS[ computedUnit ?? 'px' ]?.step ?? 0.1
-				}
-				value={ parsedQuantity ?? 0 }
-				withInputField={ false }
-			/>
+					<FlexedRangeControl
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize={ __next40pxDefaultSize }
+						__shouldNotWarnDeprecated36pxSize
+						aria-controls={ inputId }
+						label={ LABELS[ side ] }
+						hideLabelFromVision
+						onChange={ ( newValue ) => {
+							handleOnValueChange(
+								newValue !== undefined
+									? [ newValue, computedUnit ].join( '' )
+									: undefined
+							);
+						} }
+						min={ 0 }
+						max={
+							CUSTOM_VALUE_SETTINGS[ computedUnit ?? 'px' ]
+								?.max ?? 10
+						}
+						step={
+							CUSTOM_VALUE_SETTINGS[ computedUnit ?? 'px' ]
+								?.step ?? 0.1
+						}
+						value={ parsedQuantity ?? 0 }
+						withInputField={ false }
+					/>
+				</>
+			) }
+
+			{ hasPresets && ! showCustomValueControl && showRangeControl && (
+				<FlexedRangeControl
+					__next40pxDefaultSize
+					className="spacing-sizes-control__range-control"
+					value={ presetIndex !== undefined ? presetIndex + 1 : 0 }
+					onChange={ ( newIndex ) => {
+						const newValue =
+							newIndex === 0 || newIndex === undefined
+								? undefined
+								: getPresetValueFromIndex(
+										newIndex - 1,
+										presetKey,
+										presets
+								  );
+						handleRewOnValueChange( newValue );
+					} }
+					withInputField={ false }
+					aria-valuenow={
+						presetIndex !== undefined ? presetIndex + 1 : 0
+					}
+					aria-valuetext={
+						marks[ presetIndex !== undefined ? presetIndex + 1 : 0 ]
+							.label
+					}
+					renderTooltipContent={ ( index ) =>
+						marks[ ! index ? 0 : index ].label
+					}
+					min={ 0 }
+					max={ marks.length - 1 }
+					marks={ marks }
+					label={ LABELS[ side ] }
+					hideLabelFromVision
+					__nextHasNoMarginBottom
+				/>
+			) }
+
+			{ hasPresets && (
+				<Button
+					label={
+						showCustomValueControl
+							? __( 'Use size preset' )
+							: __( 'Set custom size' )
+					}
+					icon={ settings }
+					onClick={ () => {
+						setShowCustomValueControl( ! showCustomValueControl );
+					} }
+					isPressed={ showCustomValueControl }
+					size="small"
+					className="spacing-sizes-control__custom-toggle"
+					iconSize={ 24 }
+				/>
+			) }
 		</InputWrapper>
 	);
 }

@@ -21,7 +21,7 @@ import { parseQuantityAndUnitFromRawValue } from '../unit-control/utils';
 import {
 	DEFAULT_VALUES,
 	getInitialSide,
-	isValuesMixed,
+	isValueMixed,
 	isValuesDefined,
 	ALL_SIDES,
 } from './utils';
@@ -83,6 +83,8 @@ function BoxControl( {
 	splitOnAxis = false,
 	allowReset = true,
 	resetValues = DEFAULT_VALUES,
+	presets,
+	presetKey,
 	onMouseOver,
 	onMouseOut,
 }: BoxControlProps ) {
@@ -95,7 +97,7 @@ function BoxControl( {
 
 	const [ isDirty, setIsDirty ] = useState( hasInitialValue );
 	const [ isLinked, setIsLinked ] = useState(
-		! hasInitialValue || ! isValuesMixed( inputValues ) || hasOneSide
+		! hasInitialValue || ! isValueMixed( inputValues ) || hasOneSide
 	);
 
 	const [ side, setSide ] = useState< BoxControlIconProps[ 'side' ] >(
@@ -153,6 +155,8 @@ function BoxControl( {
 		sides,
 		values: inputValues,
 		__next40pxDefaultSize,
+		presets,
+		presetKey,
 	};
 
 	maybeWarnDeprecated36pxSize( {

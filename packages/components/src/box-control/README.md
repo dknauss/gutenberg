@@ -124,3 +124,18 @@ The current values of the control, expressed as an object of `top`, `right`, `bo
 
  - Type: `BoxControlValue`
  - Required: No
+
+### `presets`
+
+The list of presets to pick from.
+
+ - Type: `Preset`
+ - Required: No
+
+### `presetKey`
+
+The key of the preset to apply. If you provide a list of presets, you must provide a preset key to use. The format of preset selected values is going to be `var:preset|${ presetKey }|${ presetSlug }`
+
+ - Type: `string`
+ - Required: No
+

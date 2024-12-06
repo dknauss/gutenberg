@@ -7,7 +7,12 @@ import type { Meta, StoryFn } from '@storybook/react';
  * WordPress dependencies
  */
 import { wordpress, more, link } from '@wordpress/icons';
-import { useState } from '@wordpress/element';
+import {
+	useState,
+	forwardRef,
+	createContext,
+	useContext,
+} from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -492,3 +497,125 @@ const TabGetsRemovedTemplate: StoryFn< typeof Tabs > = ( props ) => {
 	);
 };
 export const TabGetsRemoved = TabGetsRemovedTemplate.bind( {} );
+
+const WITH_LINKS_PAGES = [
+	{
+		title: 'Page 1',
+		url: 'page1',
+	},
+	{
+		title: 'Page 2',
+		url: 'page2',
+	},
+	{
+		title: 'Page 3',
+		url: 'page3',
+	},
+];
+
+const SimpleRouterContext = createContext< {
+	currentPath: string | undefined;
+	goTo: ( path: string | undefined ) => void;
+} >( {
+	currentPath: undefined,
+	goTo: () => {},
+} );
+
+const SimpleRouter = ( {
+	children,
+	initialRoute = '/',
+}: {
+	children: React.ReactNode;
+	initialRoute?: string;
+} ) => {
+	const [ currentPath, setCurrentPath ] = useState< string | undefined >(
+		initialRoute
+	);
+
+	const goTo = ( path: string | undefined ) => {
+		setCurrentPath( path );
+	};
+
+	return (
+		<SimpleRouterContext.Provider value={ { currentPath, goTo } }>
+			{ children }
+		</SimpleRouterContext.Provider>
+	);
+};
+
+const SimpleRouterLink = forwardRef(
+	(
+		{
+			to,
+			children,
+			onClick,
+			style,
+			...restProps
+		}: {
+			to: string;
+			children?: React.ReactNode;
+		} & React.HTMLProps< HTMLAnchorElement >,
+		ref: React.ForwardedRef< HTMLAnchorElement >
+	) => {
+		const { goTo } = useContext( SimpleRouterContext );
+
+		return (
+			<a
+				href={ to }
+				ref={ ref }
+				onClick={ ( event ) => {
+					event.preventDefault();
+					goTo( to );
+					onClick?.( event );
+				} }
+				style={ {
+					...style,
+					textDecoration: 'none',
+				} }
+				{ ...restProps }
+			>
+				{ children }
+			</a>
+		);
+	}
+);
+
+const WithLinksTabs = ( props: React.ComponentProps< typeof Tabs > ) => {
+	const { currentPath, goTo } = useContext( SimpleRouterContext );
+
+	return (
+		<Tabs
+			selectedTabId={ currentPath }
+			onSelect={ ( newTabId ) => {
+				goTo( newTabId ?? undefined );
+			} }
+			{ ...props }
+		>
+			<Tabs.TabList>
+				{ WITH_LINKS_PAGES.map( ( page ) => (
+					<Tabs.Tab
+						tabId={ page.url }
+						key={ page.url }
+						render={ <SimpleRouterLink to={ page.url } /> }
+					>
+						{ page.title }
+					</Tabs.Tab>
+				) ) }
+			</Tabs.TabList>
+			{ WITH_LINKS_PAGES.map( ( page ) => (
+				<Tabs.TabPanel tabId={ page.url } key={ page.url }>
+					<p>Selected tab: { page.title }</p>
+				</Tabs.TabPanel>
+			) ) }
+		</Tabs>
+	);
+};
+
+const WithLinksTemplate: StoryFn< typeof Tabs > = ( props ) => {
+	return (
+		<SimpleRouter initialRoute={ WITH_LINKS_PAGES[ 0 ].url }>
+			<WithLinksTabs { ...props } />
+		</SimpleRouter>
+	);
+};
+export const WithLinks = WithLinksTemplate.bind( {} );

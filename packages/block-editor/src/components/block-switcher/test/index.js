@@ -149,7 +149,7 @@ describe( 'BlockSwitcher', () => {
 		expect( blockSwitcher ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
-	test( 'should render message for no available transforms', async () => {
+	test( 'should render accessibly disabled block switcher when there are no available transforms', async () => {
 		useSelect.mockImplementation( () => ( {
 			possibleBlockTransformations: [],
 			blocks: [ headingBlock1 ],
@@ -157,26 +157,10 @@ describe( 'BlockSwitcher', () => {
 			canRemove: true,
 		} ) );
 		render( <BlockSwitcher clientIds={ [ headingBlock1.clientId ] } /> );
-		const user = userEvent.setup();
-		await user.type(
-			screen.getByRole( 'button', {
-				name: 'Block Name',
-				expanded: false,
-			} ),
-			'[ArrowDown]'
-		);
-		await waitFor( () =>
-			expect(
-				screen.getByRole( 'button', {
-					name: 'Block Name',
-					expanded: true,
-				} )
-			).toBeVisible()
-		);
-		expect(
-			screen.getByRole( 'menu', {
-				name: 'Block Name',
-			} )
-		).toHaveTextContent( 'No transforms.' );
+		const blockSwitcher = screen.getByRole( 'button', {
+			name: 'Block Name',
+		} );
+		expect( blockSwitcher ).toBeEnabled();
+		expect( blockSwitcher ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );

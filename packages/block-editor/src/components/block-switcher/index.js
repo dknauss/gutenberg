@@ -229,7 +229,7 @@ export const BlockSwitcher = ( { clientIds } ) => {
 	const hideTooltip = blockSwitcherLabel === blockIndicatorText;
 
 	const hasPossibleBlockTransformations =
-		!! possibleBlockTransformations.length && canRemove && ! isTemplate;
+		!! possibleBlockTransformations?.length && canRemove && ! isTemplate;
 	const hasPossibleBlockVariationTransformations =
 		!! blockVariationTransformations?.length;
 	const hasPatternTransformation = !! patterns?.length && canRemove;

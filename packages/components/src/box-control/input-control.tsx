@@ -156,9 +156,7 @@ export default function BoxInputControl( {
 					id={ inputId }
 					isPressEnterToChange
 					value={ mergedValue }
-					onChange={ ( nextValue, extra ) =>
-						handleOnValueChange( nextValue, extra )
-					}
+					onChange={ handleOnValueChange }
 					onUnitChange={ handleOnUnitChange }
 					onFocus={ handleOnFocus }
 					label={ LABELS[ side ] }

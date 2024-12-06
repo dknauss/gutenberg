@@ -22,7 +22,8 @@ import { createSlotFill, Provider as SlotFillProvider } from '../../slot-fill';
 import { ContextSystemProvider } from '../../context';
 
 const meta: Meta< typeof Menu > = {
-	title: 'Components (Experimental)/Menu',
+	id: 'components-experimental-menu',
+	title: 'Components (Experimental)/Actions/Menu',
 	component: Menu,
 	subcomponents: {
 		// @ts-expect-error - See https://github.com/storybookjs/storybook/issues/23170
@@ -45,8 +46,8 @@ const meta: Meta< typeof Menu > = {
 		ItemHelpText: Menu.ItemHelpText,
 	},
 	argTypes: {
-		children: { control: { type: null } },
-		trigger: { control: { type: null } },
+		children: { control: false },
+		trigger: { control: false },
 	},
 	tags: [ 'status-private' ],
 	parameters: {

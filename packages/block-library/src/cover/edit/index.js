@@ -120,7 +120,9 @@ function CoverEdit( {
 			select( coreStore ).getMedia( featuredImage, { context: 'view' } ),
 		[ featuredImage ]
 	);
-	const mediaUrl = media?.source_url;
+	const mediaUrl =
+		media?.media_details?.sizes?.[ sizeSlug ]?.source_url ??
+		media?.source_url;
 
 	// User can change the featured image outside of the block, but we still
 	// need to update the block when that happens. This effect should only
@@ -201,7 +203,7 @@ function CoverEdit( {
 			averageBackgroundColor
 		);
 
-		if ( backgroundType === IMAGE_BACKGROUND_TYPE && mediaAttributes.id ) {
+		if ( backgroundType === IMAGE_BACKGROUND_TYPE && mediaAttributes?.id ) {
 			const { imageDefaultSize } = getSettings();
 
 			// Try to use the previous selected image size if it's available
@@ -451,6 +453,7 @@ function CoverEdit( {
 			toggleUseFeaturedImage={ toggleUseFeaturedImage }
 			updateDimRatio={ onUpdateDimRatio }
 			onClearMedia={ onClearMedia }
+			featuredImage={ media }
 		/>
 	);
 
@@ -471,7 +474,7 @@ function CoverEdit( {
 			setAttributes( { minHeight: newMinHeight } );
 		},
 		// Hide the resize handle if an aspect ratio is set, as the aspect ratio takes precedence.
-		showHandle: ! attributes.style?.dimensions?.aspectRatio ? true : false,
+		showHandle: ! attributes.style?.dimensions?.aspectRatio,
 		size: resizableBoxDimensions,
 		width,
 	};

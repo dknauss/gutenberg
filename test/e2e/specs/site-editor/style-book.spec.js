@@ -19,6 +19,9 @@ test.describe( 'Style Book', () => {
 	} );
 
 	test.beforeEach( async ( { admin, editor, styleBook, page } ) => {
+		await page.addInitScript( () => {
+			window.__experimentalEditorWriteMode = true;
+		} );
 		await admin.visitSiteEditor();
 		await editor.canvas.locator( 'body' ).click();
 		await styleBook.open();
@@ -52,14 +55,10 @@ test.describe( 'Style Book', () => {
 			'[name="style-book-canvas"]'
 		);
 
+		// In the Overview tab, expect a button for the main typography section.
 		await expect(
 			styleBookIframe.getByRole( 'button', {
-				name: 'Open Headings styles in Styles panel',
-			} )
-		).toBeVisible();
-		await expect(
-			styleBookIframe.getByRole( 'button', {
-				name: 'Open Paragraph styles in Styles panel',
+				name: 'Open Typography styles in Styles panel',
 			} )
 		).toBeVisible();
 
@@ -83,13 +82,13 @@ test.describe( 'Style Book', () => {
 		await page
 			.frameLocator( '[name="style-book-canvas"]' )
 			.getByRole( 'button', {
-				name: 'Open Headings styles in Styles panel',
+				name: 'Open Image styles in Styles panel',
 			} )
 			.click();
 
 		await expect(
 			page.locator(
-				'role=region[name="Editor settings"i] >> role=heading[name="Heading"i]'
+				'role=region[name="Editor settings"i] >> role=heading[name="Image"i]'
 			)
 		).toBeVisible();
 	} );
@@ -103,7 +102,7 @@ test.describe( 'Style Book', () => {
 		await page
 			.frameLocator( '[name="style-book-canvas"]' )
 			.getByRole( 'button', {
-				name: 'Open Quote styles in Styles panel',
+				name: 'Open Pullquote styles in Styles panel',
 			} )
 			.click();
 

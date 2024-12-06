@@ -19,13 +19,14 @@ import type { ModalProps } from '../types';
 
 const meta: Meta< typeof Modal > = {
 	component: Modal,
-	title: 'Components/Modal',
+	title: 'Components/Overlays/Modal',
+	id: 'components-modal',
 	argTypes: {
 		children: {
-			control: { type: null },
+			control: false,
 		},
 		onKeyDown: {
-			control: { type: null },
+			control: false,
 		},
 		focusOnMount: {
 			options: [ true, false, 'firstElement', 'firstContentElement' ],
@@ -110,7 +111,7 @@ export const WithHeaderActions: StoryFn< typeof Modal > = Template.bind( {} );
 WithHeaderActions.args = {
 	...Default.args,
 	headerActions: (
-		<Button icon={ fullscreen } label="Fullscreen mode" size="small" />
+		<Button icon={ fullscreen } label="Fullscreen mode" size="compact" />
 	),
 	children: <div style={ { height: '200px' } } />,
 };

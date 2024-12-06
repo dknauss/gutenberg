@@ -328,6 +328,10 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 					: settings.template,
 			__experimentalSetIsInserterOpened: setIsInserterOpened,
 			[ sectionRootClientIdKey ]: sectionRootClientId,
+			editorTool:
+				renderingMode === 'post-only' && postType !== 'wp_template'
+					? 'edit'
+					: undefined,
 		};
 
 		return blockEditorSettings;
@@ -355,6 +359,7 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 		sectionRootClientId,
 		globalStylesData,
 		globalStylesLinksData,
+		renderingMode,
 	] );
 }
 

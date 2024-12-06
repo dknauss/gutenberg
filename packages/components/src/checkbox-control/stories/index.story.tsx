@@ -17,13 +17,14 @@ import { HStack } from '../../h-stack';
 
 const meta: Meta< typeof CheckboxControl > = {
 	component: CheckboxControl,
-	title: 'Components/CheckboxControl',
+	title: 'Components/Selection & Input/Common/CheckboxControl',
+	id: 'components-checkboxcontrol',
 	argTypes: {
 		onChange: {
 			action: 'onChange',
 		},
 		checked: {
-			control: { type: null },
+			control: false,
 		},
 		help: { control: { type: 'text' } },
 	},

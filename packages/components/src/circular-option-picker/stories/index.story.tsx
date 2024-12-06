@@ -17,7 +17,8 @@ const CircularOptionPickerStoryContext = createContext< {
 } >( {} );
 
 const meta: Meta< typeof CircularOptionPicker > = {
-	title: 'Components/CircularOptionPicker',
+	title: 'Components/Selection & Input/Color/CircularOptionPicker',
+	id: 'components-circularoptionpicker',
 	component: CircularOptionPicker,
 	subcomponents: {
 		// @ts-expect-error - See https://github.com/storybookjs/storybook/issues/23170
@@ -31,8 +32,8 @@ const meta: Meta< typeof CircularOptionPicker > = {
 			CircularOptionPicker.DropdownLinkAction,
 	},
 	argTypes: {
-		actions: { control: { type: null } },
-		options: { control: { type: null } },
+		actions: { control: false },
+		options: { control: false },
 		children: { control: { type: 'text' } },
 	},
 	parameters: {

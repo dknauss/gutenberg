@@ -109,17 +109,16 @@ function getEnabledClientIdsTreeUnmemoized( state, rootClientId ) {
  *
  * @return {Object[]} Tree of block objects with only clientID and innerBlocks set.
  */
-export const getEnabledClientIdsTree = createSelector(
-	getEnabledClientIdsTreeUnmemoized,
-	( state ) => [
+export const getEnabledClientIdsTree = createRegistrySelector( ( select ) =>
+	createSelector( getEnabledClientIdsTreeUnmemoized, ( state ) => [
 		state.blocks.order,
+		state.derivedBlockEditingModes,
+		state.derivedNavModeBlockEditingModes,
 		state.blockEditingModes,
 		state.settings.templateLock,
 		state.blockListSettings,
-		state.editorMode,
-		state.zoomLevel,
-		getSectionRootClientId( state ),
-	]
+		select( STORE_NAME ).__unstableGetEditorMode( state ),
+	] )
 );
 
 /**
@@ -317,7 +316,7 @@ export const hasAllowedPatterns = createRegistrySelector( ( select ) =>
 		},
 		( state, rootClientId ) => [
 			...getAllPatternsDependants( select )( state ),
-			...getInsertBlockTypeDependants( state, rootClientId ),
+			...getInsertBlockTypeDependants( select )( state, rootClientId ),
 		]
 	)
 );
@@ -331,7 +330,7 @@ function mapUserPattern(
 		id: userPattern.id,
 		type: INSERTER_PATTERN_TYPES.user,
 		title: userPattern.title.raw,
-		categories: userPattern.wp_pattern_category.map( ( catId ) => {
+		categories: userPattern.wp_pattern_category?.map( ( catId ) => {
 			const category = __experimentalUserPatternCategories.find(
 				( { id } ) => id === catId
 			);
@@ -403,21 +402,6 @@ export const getAllPatterns = createRegistrySelector( ( select ) =>
 		].filter(
 			( x, index, arr ) =>
 				index === arr.findIndex( ( y ) => x.name === y.name )
-		);
-	}, getAllPatternsDependants( select ) )
-);
-
-export const isResolvingPatterns = createRegistrySelector( ( select ) =>
-	createSelector( ( state ) => {
-		const blockPatternsSelect = state.settings[ selectBlockPatternsKey ];
-		const reusableBlocksSelect = state.settings[ reusableBlocksSelectKey ];
-		return (
-			( blockPatternsSelect
-				? blockPatternsSelect( select ) === undefined
-				: false ) ||
-			( reusableBlocksSelect
-				? reusableBlocksSelect( select ) === undefined
-				: false )
 		);
 	}, getAllPatternsDependants( select ) )
 );

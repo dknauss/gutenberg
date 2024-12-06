@@ -1,6 +1,6 @@
 {
 	"name": "@wordpress/editor",
-	"version": "14.11.0",
+	"version": "14.13.0",
 	"description": "Enhanced block editor for WordPress posts.",
 	"author": "The WordPress Contributors",
 	"license": "GPL-2.0-or-later",
@@ -26,6 +26,7 @@
 	"module": "build-module/index.js",
 	"react-native": "src/index",
 	"wpScript": true,
+	"types": "build-types",
 	"sideEffects": [
 		"build-style/**",
 		"src/**/*.scss",

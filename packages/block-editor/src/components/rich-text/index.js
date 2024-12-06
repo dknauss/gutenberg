@@ -233,7 +233,14 @@ export function RichTextWrapper(
 				bindingsLabel: _bindingsLabel,
 			};
 		},
-		[ blockBindings, identifier, blockName, blockContext, adjustedValue ]
+		[
+			blockBindings,
+			identifier,
+			blockName,
+			adjustedValue,
+			clientId,
+			blockContext,
+		]
 	);
 
 	const shouldDisableEditing = readOnly || disableBoundBlock;
@@ -424,6 +431,11 @@ export function RichTextWrapper(
 				aria-multiline={ ! disableLineBreaks }
 				aria-readonly={ shouldDisableEditing }
 				{ ...props }
+				// Unset draggable (coming from block props) for contentEditable
+				// elements because it will interfere with multi block selection
+				// when the contentEditable and draggable elements are the same
+				// element.
+				draggable={ undefined }
 				aria-label={
 					bindingsLabel || props[ 'aria-label' ] || placeholder
 				}

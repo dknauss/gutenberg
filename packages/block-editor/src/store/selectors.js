@@ -1794,10 +1794,12 @@ const canInsertBlockTypeUnmemoized = (
  *
  * @return {boolean} Whether the given block type is allowed to be inserted.
  */
-export const canInsertBlockType = createSelector(
-	canInsertBlockTypeUnmemoized,
-	( state, blockName, rootClientId ) =>
-		getInsertBlockTypeDependants( state, rootClientId )
+export const canInsertBlockType = createRegistrySelector( ( select ) =>
+	createSelector(
+		canInsertBlockTypeUnmemoized,
+		( state, blockName, rootClientId ) =>
+			getInsertBlockTypeDependants( select )( state, rootClientId )
+	)
 );
 
 /**
@@ -2224,7 +2226,7 @@ export const getInserterItems = createRegistrySelector( ( select ) =>
 			unlock( select( STORE_NAME ) ).getReusableBlocks(),
 			state.blocks.order,
 			state.preferences.insertUsage,
-			...getInsertBlockTypeDependants( state, rootClientId ),
+			...getInsertBlockTypeDependants( select )( state, rootClientId ),
 		]
 	)
 );
@@ -2255,44 +2257,51 @@ export const getInserterItems = createRegistrySelector( ( select ) =>
  *                                          this item.
  * @property {number}          frecency     Heuristic that combines frequency and recency.
  */
-export const getBlockTransformItems = createSelector(
-	( state, blocks, rootClientId = null ) => {
-		const normalizedBlocks = Array.isArray( blocks ) ? blocks : [ blocks ];
-		const buildBlockTypeTransformItem = buildBlockTypeItem( state, {
-			buildScope: 'transform',
-		} );
-		const blockTypeTransformItems = getBlockTypes()
-			.filter( ( blockType ) =>
-				canIncludeBlockTypeInInserter( state, blockType, rootClientId )
-			)
-			.map( buildBlockTypeTransformItem );
+export const getBlockTransformItems = createRegistrySelector( ( select ) =>
+	createSelector(
+		( state, blocks, rootClientId = null ) => {
+			const normalizedBlocks = Array.isArray( blocks )
+				? blocks
+				: [ blocks ];
+			const buildBlockTypeTransformItem = buildBlockTypeItem( state, {
+				buildScope: 'transform',
+			} );
+			const blockTypeTransformItems = getBlockTypes()
+				.filter( ( blockType ) =>
+					canIncludeBlockTypeInInserter(
+						state,
+						blockType,
+						rootClientId
+					)
+				)
+				.map( buildBlockTypeTransformItem );
 
-		const itemsByName = Object.fromEntries(
-			Object.entries( blockTypeTransformItems ).map( ( [ , value ] ) => [
-				value.name,
-				value,
-			] )
-		);
+			const itemsByName = Object.fromEntries(
+				Object.entries( blockTypeTransformItems ).map(
+					( [ , value ] ) => [ value.name, value ]
+				)
+			);
 
-		const possibleTransforms = getPossibleBlockTransformations(
-			normalizedBlocks
-		).reduce( ( accumulator, block ) => {
-			if ( itemsByName[ block?.name ] ) {
-				accumulator.push( itemsByName[ block.name ] );
-			}
-			return accumulator;
-		}, [] );
-		return orderBy(
-			possibleTransforms,
-			( block ) => itemsByName[ block.name ].frecency,
-			'desc'
-		);
-	},
-	( state, blocks, rootClientId ) => [
-		getBlockTypes(),
-		state.preferences.insertUsage,
-		...getInsertBlockTypeDependants( state, rootClientId ),
-	]
+			const possibleTransforms = getPossibleBlockTransformations(
+				normalizedBlocks
+			).reduce( ( accumulator, block ) => {
+				if ( itemsByName[ block?.name ] ) {
+					accumulator.push( itemsByName[ block.name ] );
+				}
+				return accumulator;
+			}, [] );
+			return orderBy(
+				possibleTransforms,
+				( block ) => itemsByName[ block.name ].frecency,
+				'desc'
+			);
+		},
+		( state, blocks, rootClientId ) => [
+			getBlockTypes(),
+			state.preferences.insertUsage,
+			...getInsertBlockTypeDependants( select )( state, rootClientId ),
+		]
+	)
 );
 
 /**
@@ -2360,7 +2369,7 @@ export const getAllowedBlocks = createRegistrySelector( ( select ) =>
 		( state, rootClientId ) => [
 			getBlockTypes(),
 			unlock( select( STORE_NAME ) ).getReusableBlocks(),
-			...getInsertBlockTypeDependants( state, rootClientId ),
+			...getInsertBlockTypeDependants( select )( state, rootClientId ),
 		]
 	)
 );
@@ -2435,7 +2444,7 @@ export const __experimentalGetParsedPattern = createRegistrySelector(
 
 const getAllowedPatternsDependants = ( select ) => ( state, rootClientId ) => [
 	...getAllPatternsDependants( select )( state ),
-	...getInsertBlockTypeDependants( state, rootClientId ),
+	...getInsertBlockTypeDependants( select )( state, rootClientId ),
 ];
 
 const patternsWithParsedBlocks = new WeakMap();
@@ -2764,8 +2773,14 @@ export function isNavigationMode( state ) {
  * @return {string} the editor mode.
  */
 export const __unstableGetEditorMode = createRegistrySelector(
-	( select ) => () => {
-		return select( preferencesStore ).get( 'core', 'editorTool' );
+	( select ) => ( state ) => {
+		if ( ! window?.__experimentalEditorWriteMode ) {
+			return 'edit';
+		}
+		return (
+			state.settings.editorTool ??
+			select( preferencesStore ).get( 'core', 'editorTool' )
+		);
 	}
 );
 
@@ -2985,14 +3000,6 @@ export function __unstableIsWithinBlockOverlay( state, clientId ) {
 	return false;
 }
 
-function isWithinBlock( state, clientId, parentClientId ) {
-	let parent = state.blocks.parents.get( clientId );
-	while ( !! parent && parent !== parentClientId ) {
-		parent = state.blocks.parents.get( parent );
-	}
-	return parent === parentClientId;
-}
-
 /**
  * @typedef {import('../components/block-editing-mode').BlockEditingMode} BlockEditingMode
  */
@@ -3034,68 +3041,26 @@ export const getBlockEditingMode = createRegistrySelector(
 				clientId = '';
 			}
 
-			// In zoom-out mode, override the behavior set by
-			// __unstableSetBlockEditingMode to only allow editing the top-level
-			// sections.
-			if ( isZoomOut( state ) ) {
-				const sectionRootClientId = getSectionRootClientId( state );
+			const isNavMode = isNavigationMode( state );
 
-				if ( clientId === '' /* ROOT_CONTAINER_CLIENT_ID */ ) {
-					return sectionRootClientId ? 'disabled' : 'contentOnly';
-				}
-				if ( clientId === sectionRootClientId ) {
-					return 'contentOnly';
-				}
-				const sectionsClientIds = getBlockOrder(
-					state,
-					sectionRootClientId
-				);
-
-				// Sections are always contentOnly.
-				if ( sectionsClientIds?.includes( clientId ) ) {
-					return 'contentOnly';
-				}
-
-				return 'disabled';
+			// If the editor is currently not in navigation mode, check if the clientId
+			// has an editing mode set in the regular derived map.
+			// There may be an editing mode set here for synced patterns or in zoomed out
+			// mode.
+			if (
+				! isNavMode &&
+				state.derivedBlockEditingModes?.has( clientId )
+			) {
+				return state.derivedBlockEditingModes.get( clientId );
 			}
 
-			const editorMode = __unstableGetEditorMode( state );
-			if ( editorMode === 'navigation' ) {
-				const sectionRootClientId = getSectionRootClientId( state );
-
-				// The root section is "default mode"
-				if ( clientId === sectionRootClientId ) {
-					return 'default';
-				}
-
-				// Sections should always be contentOnly in navigation mode.
-				const sectionsClientIds = getBlockOrder(
-					state,
-					sectionRootClientId
-				);
-				if ( sectionsClientIds.includes( clientId ) ) {
-					return 'contentOnly';
-				}
-
-				// Blocks outside sections should be disabled.
-				const isWithinSectionRoot = isWithinBlock(
-					state,
-					clientId,
-					sectionRootClientId
-				);
-				if ( ! isWithinSectionRoot ) {
-					return 'disabled';
-				}
-
-				// The rest of the blocks depend on whether they are content blocks or not.
-				// This "flattens" the sections tree.
-				const name = getBlockName( state, clientId );
-				const { hasContentRoleAttribute } = unlock(
-					select( blocksStore )
-				);
-				const isContent = hasContentRoleAttribute( name );
-
-				return isContent ? 'contentOnly' : 'disabled';
+			// If the editor *is* in navigation mode, the block editing mode states
+			// are stored in the derivedNavModeBlockEditingModes map.
+			if (
+				isNavMode &&
+				state.derivedNavModeBlockEditingModes?.has( clientId )
+			) {
+				return state.derivedNavModeBlockEditingModes.get( clientId );
 			}
 
 			// In normal mode, consider that an explicitely set editing mode takes over.
@@ -3105,7 +3070,7 @@ export const getBlockEditingMode = createRegistrySelector(
 			}
 
 			// In normal mode, top level is default mode.
-			if ( ! clientId ) {
+			if ( clientId === '' ) {
 				return 'default';
 			}
 

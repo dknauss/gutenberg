@@ -16,8 +16,15 @@
 		}
 
 		.dataviews-view-grid__primary-field {
-			min-height: $grid-unit-40; // Preserve layout when there is no ellipsis button
+			min-height: $grid-unit-30; // Preserve layout when there is no ellipsis button
+			display: flex;
+			align-items: center;
+
+			&--clickable {
+				width: fit-content;
+			}
 		}
+
 
 		&.is-selected {
 			.dataviews-view-grid__fields .dataviews-view-grid__field .dataviews-view-grid__field-value {
@@ -74,36 +81,23 @@
 		}
 
 		.dataviews-view-grid__field {
-			align-items: flex-start;
 			min-height: $grid-unit-30;
+			align-items: center;
+
+			.dataviews-view-grid__field-name {
+				width: 35%;
+				color: $gray-700;
+			}
+
+			.dataviews-view-grid__field-value {
+				width: 65%;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
 
 			&:not(:has(.dataviews-view-grid__field-value:not(:empty))) {
 				display: none;
-			}
-
-			&:not(.is-column) {
-				align-items: center;
-
-				.dataviews-view-grid__field-name {
-					width: 35%;
-				}
-
-				.dataviews-view-grid__field-value {
-					width: 65%;
-					overflow: hidden;
-					text-overflow: ellipsis;
-					white-space: nowrap;
-				}
-			}
-
-			&.is-column {
-				& + .is-row {
-					margin-top: $grid-unit-05;
-				}
-			}
-
-			.dataviews-view-grid__field-name {
-				color: $gray-700;
 			}
 		}
 	}
@@ -170,4 +164,8 @@
 		padding-left: $grid-unit-30;
 		padding-right: $grid-unit-30;
 	}
+}
+
+.dataviews-view-grid__media--clickable {
+	cursor: pointer;
 }

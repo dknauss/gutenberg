@@ -17,7 +17,7 @@ const meta: Meta< typeof BoxControl > = {
 	title: 'Components/BoxControl',
 	component: BoxControl,
 	argTypes: {
-		values: { control: { type: null } },
+		values: { control: false },
 	},
 	parameters: {
 		actions: { argTypesRegex: '^on.*' },
@@ -49,6 +49,7 @@ const TemplateControlled: StoryFn< typeof BoxControl > = ( props ) => {
 export const Default = TemplateUncontrolled.bind( {} );
 Default.args = {
 	label: 'Label',
+	__next40pxDefaultSize: true,
 };
 
 export const Controlled = TemplateControlled.bind( {} );

@@ -19,7 +19,7 @@ import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
 import { moreVertical } from '@wordpress/icons';
 import { store as coreStore } from '@wordpress/core-data';
-import { useEffect, Fragment } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { usePrevious } from '@wordpress/compose';
 
 /**
@@ -200,6 +200,11 @@ function GlobalStylesStyleBook() {
 				) {
 					// Go to color palettes Global Styles.
 					navigator.goTo( '/colors/palette' );
+					return;
+				}
+				if ( blockName === 'typography' ) {
+					// Go to typography Global Styles.
+					navigator.goTo( '/typography' );
 					return;
 				}
 

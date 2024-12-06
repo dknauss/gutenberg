@@ -4,21 +4,29 @@
 const { test, expect } = require( '@wordpress/e2e-test-utils-playwright' );
 
 test.describe( 'Write/Design mode', () => {
-	test.beforeEach( async ( { admin, editor } ) => {
-		await admin.createNewPost();
-		await expect(
-			editor.canvas.getByRole( 'textbox', { name: 'Add title' } )
-		).toBeFocused();
+	test.beforeAll( async ( { requestUtils } ) => {
+		await requestUtils.activateTheme( 'emptytheme' );
 	} );
-
+	test.beforeEach( async ( { admin, page } ) => {
+		await page.addInitScript( () => {
+			window.__experimentalEditorWriteMode = true;
+		} );
+		await admin.visitSiteEditor( {
+			postId: 'emptytheme//index',
+			postType: 'wp_template',
+			canvas: 'edit',
+		} );
+	} );
 	test.afterAll( async ( { requestUtils } ) => {
-		await requestUtils.deleteAllPosts();
+		await requestUtils.activateTheme( 'twentytwentyone' );
 	} );
-
 	test( 'Should prevent selecting intermediary blocks', async ( {
 		editor,
 		page,
 	} ) => {
+		// Clear all content
+		await editor.setContent( '' );
+
 		// Insert a section with a nested block and an editable block.
 		await editor.insertBlock( {
 			name: 'core/group',
@@ -112,5 +120,60 @@ test.describe( 'Write/Design mode', () => {
 		await expect(
 			editorSettings.getByRole( 'button', { name: 'Content' } )
 		).toBeVisible();
+	} );
+
+	test( 'hides the blocks that cannot be interacted with in List View', async ( {
+		editor,
+		page,
+		pageUtils,
+	} ) => {
+		await editor.setContent( '' );
+
+		// Insert a section with a nested block and an editable block.
+		await editor.insertBlock( {
+			name: 'core/group',
+			attributes: {},
+			innerBlocks: [
+				{
+					name: 'core/group',
+					attributes: {
+						metadata: {
+							name: 'Non-content block',
+						},
+					},
+					innerBlocks: [
+						{
+							name: 'core/paragraph',
+							attributes: {
+								content: 'Something',
+							},
+						},
+					],
+				},
+			],
+		} );
+
+		// Select the inner paragraph block so that List View is expanded.
+		await editor.canvas
+			.getByRole( 'document', {
+				name: 'Block: Paragraph',
+			} )
+			.click();
+
+		// Open List View.
+		await pageUtils.pressKeys( 'access+o' );
+		const listView = page.getByRole( 'treegrid', {
+			name: 'Block navigation structure',
+		} );
+		const nonContentBlock = listView.getByRole( 'link', {
+			name: 'Non-content block',
+		} );
+
+		await expect( nonContentBlock ).toBeVisible();
+
+		// Switch to write mode.
+		await editor.switchEditorTool( 'Write' );
+
+		await expect( nonContentBlock ).toBeHidden();
 	} );
 } );

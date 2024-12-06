@@ -67,11 +67,14 @@ function isObjectEmpty( object ) {
  * @param {HTMLIFrameElement} iframe   The target iframe.
  */
 const scrollToSection = ( anchorId, iframe ) => {
-	if ( ! iframe || ! iframe?.contentDocument ) {
+	if ( ! anchorId || ! iframe || ! iframe?.contentDocument ) {
 		return;
 	}
 
-	const element = iframe.contentDocument.getElementById( anchorId );
+	const element =
+		anchorId === 'top'
+			? iframe.contentDocument.body
+			: iframe.contentDocument.getElementById( anchorId );
 	if ( element ) {
 		element.scrollIntoView( {
 			behavior: 'smooth',
@@ -89,6 +92,17 @@ const scrollToSection = ( anchorId, iframe ) => {
  */
 const getStyleBookNavigationFromPath = ( path ) => {
 	if ( path && typeof path === 'string' ) {
+		if ( path === '/' ) {
+			return {
+				top: true,
+			};
+		}
+
+		if ( path.startsWith( '/typography' ) ) {
+			return {
+				block: 'typography',
+			};
+		}
 		let block = path.includes( '/blocks/' )
 			? decodeURIComponent( path.split( '/blocks/' )[ 1 ] )
 			: null;
@@ -203,6 +217,22 @@ function StyleBook( {
 		[ examples ]
 	);
 
+	const examplesForSinglePageUse = [];
+	const overviewCategoryExamples = getExamplesByCategory(
+		{ slug: 'overview' },
+		examples
+	);
+	examplesForSinglePageUse.push( ...overviewCategoryExamples.examples );
+	const otherExamples = examples.filter( ( example ) => {
+		return (
+			example.category !== 'overview' &&
+			! overviewCategoryExamples.examples.find(
+				( overviewExample ) => overviewExample.name === example.name
+			)
+		);
+	} );
+	examplesForSinglePageUse.push( ...otherExamples );
+
 	const { base: baseConfig } = useContext( GlobalStylesContext );
 	const goTo = getStyleBookNavigationFromPath( path );
 
@@ -286,7 +316,7 @@ function StyleBook( {
 					</Tabs>
 				) : (
 					<StyleBookBody
-						examples={ examples }
+						examples={ examplesForSinglePageUse }
 						isSelected={ isSelected }
 						onClick={ onClick }
 						onSelect={ onSelect }
@@ -344,10 +374,19 @@ const StyleBookBody = ( {
 
 	const handleLoad = () => setHasIframeLoaded( true );
 	useLayoutEffect( () => {
-		if ( goTo?.block && hasIframeLoaded && iframeRef?.current ) {
-			scrollToSection( `example-${ goTo?.block }`, iframeRef?.current );
+		if ( hasIframeLoaded && iframeRef?.current ) {
+			if ( goTo?.top ) {
+				scrollToSection( 'top', iframeRef?.current );
+				return;
+			}
+			if ( goTo?.block ) {
+				scrollToSection(
+					`example-${ goTo?.block }`,
+					iframeRef?.current
+				);
+			}
 		}
-	}, [ iframeRef?.current, goTo?.block, scrollToSection, hasIframeLoaded ] );
+	}, [ iframeRef?.current, goTo, scrollToSection, hasIframeLoaded ] );
 
 	return (
 		<Iframe

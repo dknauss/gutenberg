@@ -22,11 +22,11 @@ function useNavigateToPreviousEntityRecord() {
 	const history = useHistory();
 	const goBack = useMemo( () => {
 		const isFocusMode =
-			location.params.focusMode ||
-			( location.params.postId &&
-				FOCUSABLE_ENTITIES.includes( location.params.postType ) );
+			location.query.focusMode ||
+			( location?.params?.postId &&
+				FOCUSABLE_ENTITIES.includes( location?.params?.postType ) );
 		const didComeFromEditorCanvas =
-			previousLocation?.params.canvas === 'edit';
+			previousLocation?.query.canvas === 'edit';
 		const showBackButton = isFocusMode && didComeFromEditorCanvas;
 		return showBackButton ? () => history.back() : undefined;
 		// `previousLocation` changes when the component updates for any reason, not
@@ -37,28 +37,16 @@ function useNavigateToPreviousEntityRecord() {
 }
 
 export function useSpecificEditorSettings() {
-	const { params } = useLocation();
-	const { canvas = 'view' } = params;
+	const { query } = useLocation();
+	const { canvas = 'view' } = query;
 	const onNavigateToEntityRecord = useNavigateToEntityRecord();
-	const { settings, shouldUseTemplateAsDefaultRenderingMode } = useSelect(
-		( select ) => {
-			const { getEditedPostContext, getSettings } = unlock(
-				select( editSiteStore )
-			);
-			const _context = getEditedPostContext();
-			return {
-				settings: getSettings(),
-				// TODO: The `postType` check should be removed when the default rendering mode per post type is merged.
-				// @see https://github.com/WordPress/gutenberg/pull/62304/
-				shouldUseTemplateAsDefaultRenderingMode:
-					_context?.postId && _context?.postType !== 'post',
-			};
-		},
-		[]
-	);
-	const defaultRenderingMode = shouldUseTemplateAsDefaultRenderingMode
-		? 'template-locked'
-		: 'post-only';
+	const { settings } = useSelect( ( select ) => {
+		const { getSettings } = select( editSiteStore );
+		return {
+			settings: getSettings(),
+		};
+	}, [] );
+
 	const onNavigateToPreviousEntityRecord =
 		useNavigateToPreviousEntityRecord();
 	const defaultEditorSettings = useMemo( () => {
@@ -68,7 +56,6 @@ export function useSpecificEditorSettings() {
 			richEditingEnabled: true,
 			supportsTemplateMode: true,
 			focusMode: canvas !== 'view',
-			defaultRenderingMode,
 			onNavigateToEntityRecord,
 			onNavigateToPreviousEntityRecord,
 			isPreviewMode: canvas === 'view',
@@ -76,7 +63,6 @@ export function useSpecificEditorSettings() {
 	}, [
 		settings,
 		canvas,
-		defaultRenderingMode,
 		onNavigateToEntityRecord,
 		onNavigateToPreviousEntityRecord,
 	] );

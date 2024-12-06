@@ -10,6 +10,7 @@ import {
 	__unstableMotion as motion,
 	__unstableAnimatePresence as AnimatePresence,
 	__unstableUseNavigateRegions as useNavigateRegions,
+	SlotFillProvider,
 } from '@wordpress/components';
 import {
 	useReducedMotion,
@@ -17,21 +18,25 @@ import {
 	useResizeObserver,
 	usePrevious,
 } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useState, useRef, useEffect } from '@wordpress/element';
 import { CommandMenu } from '@wordpress/commands';
 import { privateApis as blockEditorPrivateApis } from '@wordpress/block-editor';
 import {
 	EditorSnackbars,
+	UnsavedChangesWarning,
+	ErrorBoundary,
 	privateApis as editorPrivateApis,
 } from '@wordpress/editor';
 import { privateApis as coreCommandsPrivateApis } from '@wordpress/core-commands';
 import { privateApis as routerPrivateApis } from '@wordpress/router';
+import { PluginArea } from '@wordpress/plugins';
+import { store as noticesStore } from '@wordpress/notices';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import ErrorBoundary from '../error-boundary';
 import { default as SiteHub, SiteHubMobile } from '../site-hub';
 import ResizableFrame from '../resizable-frame';
 import { unlock } from '../../lock-unlock';
@@ -44,14 +49,14 @@ import SavePanel from '../save-panel';
 
 const { useCommands } = unlock( coreCommandsPrivateApis );
 const { useGlobalStyle } = unlock( blockEditorPrivateApis );
-const { NavigableRegion } = unlock( editorPrivateApis );
+const { NavigableRegion, GlobalStylesProvider } = unlock( editorPrivateApis );
 const { useLocation } = unlock( routerPrivateApis );
 
 const ANIMATION_DURATION = 0.3;
 
-export default function Layout( { route } ) {
-	const { params } = useLocation();
-	const { canvas = 'view' } = params;
+function Layout() {
+	const { query, name: routeKey, areas, widths } = useLocation();
+	const { canvas = 'view' } = query;
 	useCommands();
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 	const toggleRef = useRef();
@@ -61,7 +66,6 @@ export default function Layout( { route } ) {
 	const isEditorLoading = useIsSiteEditorLoading();
 	const [ isResizableFrameOversized, setIsResizableFrameOversized ] =
 		useState( false );
-	const { name: routeKey, areas, widths } = route;
 	const animationRef = useMovingAnimation( {
 		triggerAnimationOnChange: routeKey + '-' + canvas,
 	} );
@@ -78,6 +82,7 @@ export default function Layout( { route } ) {
 
 	return (
 		<>
+			<UnsavedChangesWarning />
 			<CommandMenu />
 			{ canvas === 'view' && <SaveKeyboardShortcut /> }
 			<div
@@ -131,7 +136,9 @@ export default function Layout( { route } ) {
 											}
 											routeKey={ routeKey }
 										>
-											{ areas.sidebar }
+											<ErrorBoundary>
+												{ areas.sidebar }
+											</ErrorBoundary>
 										</SidebarContent>
 										<SaveHub />
 										<SavePanel />
@@ -155,7 +162,7 @@ export default function Layout( { route } ) {
 									/>
 								</SidebarContent>
 							) }
-							{ areas.mobile }
+							<ErrorBoundary>{ areas.mobile }</ErrorBoundary>
 						</div>
 					) }
 
@@ -168,7 +175,7 @@ export default function Layout( { route } ) {
 									maxWidth: widths?.content,
 								} }
 							>
-								{ areas.content }
+								<ErrorBoundary>{ areas.content }</ErrorBoundary>
 							</div>
 						) }
 
@@ -179,7 +186,7 @@ export default function Layout( { route } ) {
 								maxWidth: widths?.edit,
 							} }
 						>
-							{ areas.edit }
+							<ErrorBoundary>{ areas.edit }</ErrorBoundary>
 						</div>
 					) }
 
@@ -229,5 +236,30 @@ export default function Layout( { route } ) {
 				</div>
 			</div>
 		</>
+	);
+}
+
+export default function LayoutWithGlobalStylesProvider( props ) {
+	const { createErrorNotice } = useDispatch( noticesStore );
+	function onPluginAreaError( name ) {
+		createErrorNotice(
+			sprintf(
+				/* translators: %s: plugin name */
+				__(
+					'The "%s" plugin has encountered an error and cannot be rendered.'
+				),
+				name
+			)
+		);
+	}
+
+	return (
+		<SlotFillProvider>
+			<GlobalStylesProvider>
+				{ /** This needs to be within the SlotFillProvider */ }
+				<PluginArea onError={ onPluginAreaError } />
+				<Layout { ...props } />
+			</GlobalStylesProvider>
+		</SlotFillProvider>
 	);
 }

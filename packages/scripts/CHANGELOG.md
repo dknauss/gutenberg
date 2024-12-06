@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Internal
+
+-   The bundled `sass` dependency has been updated from `^1.35.2` to `^1.50.1` ([#67572](https://github.com/WordPress/gutenberg/pull/67572)).
+-   The bundled `sass-loader` dependency has been updated from `^12.1.0` to `^16.0.3` ([#67572](https://github.com/WordPress/gutenberg/pull/67572)).
+-   The bundled `mini-css-extract-plugin` dependency has been updated from `^2.5.1` to `^2.9.2` ([#67572](https://github.com/WordPress/gutenberg/pull/67572)).
+-   The bundled `webpack` dependency has been updated from `^5.95.0` to `^5.97.0` ([#67572](https://github.com/WordPress/gutenberg/pull/67572)).
+
+### Bug Fix
+
+-   Make React Fast Refresh in the `start` command work with multiple blocks ([64924](https://github.com/WordPress/gutenberg/pull/64924)).
+
+## 30.6.0 (2024-11-27)
+
+## 30.5.1 (2024-11-18)
+
+### Bug Fix
+
+-   Revert changes from [#61121](https://github.com/WordPress/gutenberg/pull/61121) that inlined CSS files imported from other CSS files before optimization in the `build` command.
+
+## 30.5.0 (2024-11-16)
+
 ### Bug Fix
 
 -   Make `start` script more resilient for developer errors ([#66752](https://github.com/WordPress/gutenberg/pull/66752)).

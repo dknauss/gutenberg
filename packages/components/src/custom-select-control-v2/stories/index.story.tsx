@@ -14,15 +14,16 @@ import { useState } from '@wordpress/element';
 import CustomSelectControlV2 from '..';
 
 const meta: Meta< typeof CustomSelectControlV2 > = {
-	title: 'Components/CustomSelectControl v2',
+	title: 'Components/Selection & Input/Common/CustomSelectControl v2',
+	id: 'components-customselectcontrol-v2',
 	component: CustomSelectControlV2,
 	subcomponents: {
 		// @ts-expect-error - See https://github.com/storybookjs/storybook/issues/23170
 		'CustomSelectControlV2.Item': CustomSelectControlV2.Item,
 	},
 	argTypes: {
-		children: { control: { type: null } },
-		value: { control: { type: null } },
+		children: { control: false },
+		value: { control: false },
 	},
 	tags: [ 'status-wip' ],
 	parameters: {

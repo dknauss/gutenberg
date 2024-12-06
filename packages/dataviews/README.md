@@ -17,6 +17,8 @@ npm install @wordpress/dataviews --save
 
 <div class="callout callout-info">At <a href="https://wordpress.github.io/gutenberg/">WordPress Gutenberg's Storybook</a> there's and <a href="https://wordpress.github.io/gutenberg/?path=/docs/dataviews-dataviews--docs">example implementation of the Dataviews component</a>.</div>
 
+**Important note** If you're trying to use the `DataViews` component in a WordPress plugin or theme and you're building your scripts using the `@wordpress/scripts` package, you need to import the components from `@wordpress/dataviews/wp` instead of `@wordpress/dataviews`.
+
 ### Usage
 
 The `DataViews` component receives data and some other configuration to render the dataset. It'll call the `onChangeView` callback every time the user has interacted with the dataset in some way (sorted, filtered, changed layout, etc.):
@@ -163,6 +165,7 @@ const view = {
 		field: 'date',
 		direction: 'desc',
 	},
+	titleField: 'title',
 	fields: [ 'author', 'status' ],
 	layout: {},
 };
@@ -182,49 +185,21 @@ Properties:
 
     -   `field`: the field used for sorting the dataset.
     -   `direction`: the direction to use for sorting, one of `asc` or `desc`.
-
--   `fields`: a list of field `id` that are visible in the UI and the specific order in which they are displayed.
+-   `titleField`: The id of the field reprensenting the title of the record.
+-   `mediaField`: The id of the field reprensenting the media of the record.
+-   `descriptionField`: The id of field the reprensenting the description of the record.
+-   `showTitle`: Whether the title should be shown in the UI. `true` by default.
+-   `showMedia`: Whether the media should be shown in the UI. `true` by default.
+-   `showDescription`: Whether the description should be shown in the UI. `true` by default.
+-   `fields`: a list of remaining field `id` that are visible in the UI and the specific order in which they are displayed.
 -   `layout`: config that is specific to a particular layout type.
 
 ##### Properties of `layout`
 
 | Properties of `layout`                                                                                          | Table | Grid | List |
 | --------------------------------------------------------------------------------------------------------------- | ----- | ---- | ---- |
-| `primaryField`: the field's `id` to be highlighted in each layout. It's not hidable.                            | ✓     | ✓    | ✓    |
-| `mediaField`: the field's `id` to be used for rendering each card's media. It's not hiddable.                   |       | ✓    | ✓    |
-| `columnFields`: a list of field's `id` to render vertically stacked instead of horizontally (the default).      |       | ✓    |      |
 | `badgeFields`: a list of field's `id` to render without label and styled as badges.                             |       | ✓    |      |
-| `combinedFields`: a list of "virtual" fields that are made by combining others. See "Combining fields" section. | ✓     |      |      |
 | `styles`: additional `width`, `maxWidth`, `minWidth` styles for each field column.                              | ✓     |      |      |
-
-##### Combining fields
-
-The `table` layout has the ability to create "virtual" fields that are made out by combining existing ones.
-
-Each "virtual field", has to provide an `id` and `label` (optionally a `header` instead), which have the same meaning as any other field.
-
-Additionally, they need to provide:
-
--   `children`: a list of field's `id` to combine
--   `direction`: how should they be stacked, `vertical` or `horizontal`
-
-For example, this is how you'd define a `site` field which is a combination of a `title` and `description` fields, which are not displayed:
-
-```js
-{
-	fields: [ 'site', 'status' ],
-	layout: {
-		combinedFields: [
-			{
-				id: 'site',
-				label: 'Site',
-				children: [ 'title', 'description' ],
-				direction: 'vertical',
-			}
-		]
-	}
-}
-```
 
 #### `onChangeView`: `function`
 
@@ -253,6 +228,7 @@ function MyCustomPageTable() {
 				value: [ 'publish', 'draft' ],
 			},
 		],
+		titleField: 'title',
 		fields: [ 'author', 'status' ],
 		layout: {},
 	} );
@@ -293,23 +269,54 @@ function MyCustomPageTable() {
 
 #### `actions`: `Object[]`
 
-Collection of operations that can be performed upon each record.
+A list of actions that can be performed on the dataset. See "Actions API" for more details.
 
-Each action is an object with the following properties:
+Example:
 
--   `id`: string, required. Unique identifier of the action. For example, `move-to-trash`.
--   `label`: string|function, required. User facing description of the action. For example, `Move to Trash`. It can also take a function that takes the selected items as a parameter and returns a string: this can be useful to provide a dynamic label based on the selection.
--   `isPrimary`: boolean, optional. Whether the action should be listed inline (primary) or in hidden in the more actions menu (secondary).
--   `icon`: SVG element. Icon to show for primary actions. It's required for a primary action, otherwise the action would be considered secondary.
--   `isEligible`: function, optional. Whether the action can be performed for a given record. If not present, the action is considered to be eligible for all items. It takes the given record as input.
--   `isDestructive`: boolean, optional. Whether the action can delete data, in which case the UI would communicate it via red color.
--   `supportsBulk`: Whether the action can be used as a bulk action. False by default.
--   `disabled`: Whether the action is disabled. False by default.
--   `context`: where this action would be visible. One of `list`, `single`.
--   `callback`: function, required unless `RenderModal` is provided. Callback function that takes as input the list of items to operate with, and performs the required action.
--   `RenderModal`: ReactElement, optional. If an action requires that some UI be rendered in a modal, it can provide a component which takes as input the the list of `items` to operate with, `closeModal` function, and `onActionPerformed` function. When this prop is provided, the `callback` property is ignored.
--   `hideModalHeader`: boolean, optional. This property is used in combination with `RenderModal` and controls the visibility of the modal's header. If the action renders a modal and doesn't hide the header, the action's label is going to be used in the modal's header.
--   `modalHeader`: string, optional. The header of the modal.
+```js
+const actions = [
+	{
+		id: 'view',
+		label: 'View',
+		isPrimary: true,
+		icon: <Icon icon={ view } />,
+		isEligible: ( item ) => item.status === 'published'
+		callback: ( items ) => {
+			console.log( 'Viewing item:', items[0] );
+		},
+	},
+	{
+		id: 'edit',
+		label: 'Edit',
+		icon: <Icon icon={ edit } />,
+		supportsBulk: true,
+		callback: ( items ) => {
+			console.log( 'Editing items:', items );
+		}
+	},
+	{
+		id: 'delete',
+		label: 'Delete',
+		isDestructive: true,
+		supportsBulk: true,
+		RenderModal: ( { items, closeModal, onActionPerformed } ) => (
+			<div>
+				<p>Are you sure you want to delete { items.length } item(s)?</p>
+				<Button 
+					variant="primary" 
+					onClick={() => {
+						console.log( 'Deleting items:', items );
+						onActionPerformed();
+						closeModal();
+					}}
+				>
+					Confirm Delete
+				</Button>
+			</div>
+		)
+	}
+];
+```
 
 #### `paginationInfo`: `Object`
 
@@ -337,14 +344,15 @@ For example, this is how you'd enable only the table view type:
 ```js
 const defaultLayouts = {
 	table: {
-		layout: {
-			primaryField: 'my-key',
-		},
+		showMedia: false,
 	},
+	grid: {
+		showMedia: true,
+	}
 };
 ```
 
-The `defaultLayouts` property should be an object that includes properties named `table`, `grid`, or `list`. Each of these properties should contain a `layout` property, which holds the configuration for each specific layout type. Check "Properties of layout" for the full list of properties available for each layout's configuration
+The `defaultLayouts` property should be an object that includes properties named `table`, `grid`, or `list`. These properties are applied to the view object each time the user switches to the corresponding layout.
 
 #### `selection`: `string[]`
 
@@ -357,6 +365,14 @@ If `selection` and `onChangeSelection` are provided, the `DataViews` component b
 Callback that signals the user selected one of more items. It receives the list of selected items' ids as a parameter.
 
 If `selection` and `onChangeSelection` are provided, the `DataViews` component behaves as a controlled component, otherwise, it behaves like an uncontrolled component.
+
+### `isItemClickable`: `function`
+
+A function that determines if a media field or a primary field are clickable. It receives an item as an argument and returns a boolean value indicating whether the item can be clicked.
+
+### `onClickItem`: `function`
+
+A callback function that is triggered when a user clicks on a media field or primary field. This function is currently implemented only in the `grid` and `list` views.
 
 #### `header`: React component
 
@@ -493,6 +509,164 @@ Parameters:
 - `form`: the form config, as described in the "form" property of DataForm.
 
 Returns a boolean indicating if the item is valid (true) or not (false).
+
+## Actions API
+
+### `id`
+
+The unique identifier of the action.
+
+- Type: `string`
+- Required
+- Example: `move-to-trash`
+
+### `label` 
+
+The user facing description of the action.
+
+- Type: `string | function`
+- Required
+- Example:
+
+```js
+{
+	label: Move to Trash
+}
+```
+
+or
+
+```js
+{
+	label: ( items ) => items.length > 1 ? 'Delete items' : 'Delete item'
+}
+```
+
+### `isPrimary`
+
+Whether the action should be displayed inline (primary) or only displayed in the "More actions" menu (secondary).
+
+- Type: `boolean`
+- Optional
+
+### `icon`
+
+Icon to show for primary actions.
+
+- Type: SVG element
+- Required for primary actions, optional for secondary actions.
+
+### `isEligible`
+
+Function that determines whether the action can be performed for a given record.
+
+- Type: `function`
+- Optional. If not present, action is considered eligible for all items.
+- Example:
+
+```js
+{
+	isEligible: ( item ) => item.status === 'published'
+}
+```
+
+### `isDestructive`
+
+Whether the action can delete data, in which case the UI communicates it via a red color.
+
+- Type: `boolean`
+- Optional
+
+### `supportsBulk`
+
+Whether the action can operate over multiple items at once.
+
+- Type: `boolean`
+- Optional
+- Default: `false`
+
+### `disabled`
+
+Whether the action is disabled.
+
+- Type: `boolean`
+- Optional
+- Default: `false`
+
+### `context`
+
+Where this action would be visible.
+
+- Type: `string`
+- Optional
+- One of: `list`, `single`
+
+### `callback`
+
+Function that performs the required action.
+
+- Type: `function`
+- Either `callback` or `RenderModal` must be provided. If `RenderModal` is provided, `callback` will be ignored
+- Example:
+
+```js
+{
+	callback: ( items, { onActionPerformed } ) => {
+		// Perform action.
+		onActionPerformed?.( items );
+	}
+}
+```
+
+### `RenderModal`
+
+Component to render UI in a modal for the action.
+
+- Type: `ReactElement`
+- Either `callback` or `RenderModal` must be provided. If `RenderModal` is provided, `callback` will be ignored.
+- Example:
+
+```jsx
+{
+	RenderModal: ( { items, closeModal, onActionPerformed } ) => {
+		const onSubmit = ( event ) => {
+			event.preventDefault();
+			// Perform action.
+			closeModal?.();
+			onActionPerformed?.( items );
+		};
+		return (
+			<form onSubmit={ onSubmit }>
+				<p>Modal UI</p>
+				<HStack>
+					<Button variant="tertiary" onClick={ closeModal }>
+						Cancel
+					</Button>
+					<Button variant="primary" type="submit">
+						Submit
+					</Button>
+				</HStack>
+			</form>
+		);
+	}
+}
+```
+
+### `hideModalHeader`
+
+Controls visibility of the modal's header when using `RenderModal`.
+
+- Type: `boolean`
+- Optional
+- When false and using `RenderModal`, the action's label is used in modal header
+
+### `modalHeader`
+
+The header text to show in the modal.
+
+- Type: `string`
+- Optional
+
 
 ## Fields API
 

@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "core/comments-pagination-next",
 	"title": "Comments Next Page",
 	"category": "theme",
@@ -10,6 +10,11 @@
 	"attributes": {
 		"label": {
 			"type": "string"
+		}
+	},
+	"example": {
+		"attributes": {
+			"label": "Comments Next Page"
 		}
 	},
 	"usesContext": [ "postId", "comments/paginationArrow" ],
@@ -35,6 +40,9 @@
 			"__experimentalDefaultControls": {
 				"fontSize": true
 			}
+		},
+		"interactivity": {
+			"clientNavigation": true
 		}
 	}
 }

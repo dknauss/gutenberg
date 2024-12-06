@@ -11,55 +11,49 @@ import {
 	useBlockProps,
 	store as blockEditorStore,
 	__experimentalBlockVariationPicker,
-	__experimentalGetMatchingVariation as getMatchingVariation,
 } from '@wordpress/block-editor';
 import { Button, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import { useScopedBlockVariations } from '../utils';
+import { useBlockPatterns } from './pattern-selection';
 
 export default function QueryPlaceholder( {
 	attributes,
 	clientId,
 	name,
 	openPatternSelectionModal,
-	setAttributes,
 } ) {
 	const [ isStartingBlank, setIsStartingBlank ] = useState( false );
 	const blockProps = useBlockProps();
-
-	const { blockType, allVariations, hasPatterns } = useSelect(
+	const { blockType, activeBlockVariation } = useSelect(
 		( select ) => {
-			const { getBlockVariations, getBlockType } = select( blocksStore );
-			const {
-				getBlockRootClientId,
-				__experimentalGetPatternsByBlockTypes,
-			} = select( blockEditorStore );
-			const rootClientId = getBlockRootClientId( clientId );
-
+			const { getActiveBlockVariation, getBlockType } =
+				select( blocksStore );
 			return {
 				blockType: getBlockType( name ),
-				allVariations: getBlockVariations( name ),
-				hasPatterns: !! __experimentalGetPatternsByBlockTypes(
+				activeBlockVariation: getActiveBlockVariation(
 					name,
-					rootClientId
-				).length,
+					attributes
+				),
 			};
 		},
-		[ name, clientId ]
+		[ name, attributes ]
 	);
-
-	const matchingVariation = getMatchingVariation( attributes, allVariations );
+	const hasPatterns = !! useBlockPatterns( clientId, attributes ).length;
 	const icon =
-		matchingVariation?.icon?.src ||
-		matchingVariation?.icon ||
+		activeBlockVariation?.icon?.src ||
+		activeBlockVariation?.icon ||
 		blockType?.icon?.src;
-	const label = matchingVariation?.title || blockType?.title;
+	const label = activeBlockVariation?.title || blockType?.title;
 	if ( isStartingBlank ) {
 		return (
 			<QueryVariationPicker
 				clientId={ clientId }
-				name={ name }
 				attributes={ attributes }
-				setAttributes={ setAttributes }
 				icon={ icon }
 				label={ label }
 			/>
@@ -76,6 +70,7 @@ export default function QueryPlaceholder( {
 			>
 				{ !! hasPatterns && (
 					<Button
+						__next40pxDefaultSize
 						variant="primary"
 						onClick={ openPatternSelectionModal }
 					>
@@ -84,6 +79,7 @@ export default function QueryPlaceholder( {
 				) }
 
 				<Button
+					__next40pxDefaultSize
 					variant="secondary"
 					onClick={ () => {
 						setIsStartingBlank( true );
@@ -96,30 +92,8 @@ export default function QueryPlaceholder( {
 	);
 }
 
-function QueryVariationPicker( {
-	clientId,
-	name,
-	attributes,
-	setAttributes,
-	icon,
-	label,
-} ) {
-	const { defaultVariation, scopeVariations } = useSelect(
-		( select ) => {
-			const {
-				getBlockVariations,
-				getBlockType,
-				getDefaultBlockVariation,
-			} = select( blocksStore );
-
-			return {
-				blockType: getBlockType( name ),
-				defaultVariation: getDefaultBlockVariation( name, 'block' ),
-				scopeVariations: getBlockVariations( name, 'block' ),
-			};
-		},
-		[ name ]
-	);
+function QueryVariationPicker( { clientId, attributes, icon, label } ) {
+	const scopeVariations = useScopedBlockVariations( attributes );
 	const { replaceInnerBlocks } = useDispatch( blockEditorStore );
 	const blockProps = useBlockProps();
 	return (
@@ -128,23 +102,12 @@ function QueryVariationPicker( {
 				icon={ icon }
 				label={ label }
 				variations={ scopeVariations }
-				onSelect={ ( nextVariation = defaultVariation ) => {
-					if ( nextVariation.attributes ) {
-						setAttributes( {
-							...nextVariation.attributes,
-							query: {
-								...nextVariation.attributes.query,
-								postType:
-									attributes.query.postType ||
-									nextVariation.attributes.query.postType,
-							},
-						} );
-					}
-					if ( nextVariation.innerBlocks ) {
+				onSelect={ ( variation ) => {
+					if ( variation.innerBlocks ) {
 						replaceInnerBlocks(
 							clientId,
 							createBlocksFromInnerBlocksTemplate(
-								nextVariation.innerBlocks
+								variation.innerBlocks
 							),
 							false
 						);

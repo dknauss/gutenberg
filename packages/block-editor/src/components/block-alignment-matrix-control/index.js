@@ -6,7 +6,7 @@ import { DOWN } from '@wordpress/keycodes';
 import {
 	ToolbarButton,
 	Dropdown,
-	__experimentalAlignmentMatrixControl as AlignmentMatrixControl,
+	AlignmentMatrixControl,
 } from '@wordpress/components';
 
 const noop = () => {};
@@ -23,8 +23,7 @@ function BlockAlignmentMatrixControl( props ) {
 
 	return (
 		<Dropdown
-			position="bottom right"
-			popoverProps={ { variant: 'toolbar' } }
+			popoverProps={ { placement: 'bottom-start' } }
 			renderToggle={ ( { onToggle, isOpen } ) => {
 				const openOnArrowDown = ( event ) => {
 					if ( ! isOpen && event.keyCode === DOWN ) {

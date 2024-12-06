@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "core/query-no-results",
 	"title": "No results",
 	"category": "theme",
@@ -8,6 +8,16 @@
 	"parent": [ "core/query" ],
 	"textdomain": "default",
 	"usesContext": [ "queryId", "query" ],
+	"example": {
+		"innerBlocks": [
+			{
+				"name": "core/paragraph",
+				"attributes": {
+					"content": "No posts were found."
+				}
+			}
+		]
+	},
 	"supports": {
 		"align": true,
 		"reusable": false,
@@ -28,6 +38,9 @@
 			"__experimentalDefaultControls": {
 				"fontSize": true
 			}
+		},
+		"interactivity": {
+			"clientNavigation": true
 		}
 	}
 }

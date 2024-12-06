@@ -20,6 +20,11 @@ export const __EXPERIMENTAL_STYLE_PROPERTY = {
 		value: [ 'color', 'link' ],
 		support: [ 'color', 'link' ],
 	},
+	aspectRatio: {
+		value: [ 'dimensions', 'aspectRatio' ],
+		support: [ 'dimensions', 'aspectRatio' ],
+		useEngine: true,
+	},
 	background: {
 		value: [ 'color', 'gradient' ],
 		support: [ 'color', 'gradients' ],
@@ -31,14 +36,34 @@ export const __EXPERIMENTAL_STYLE_PROPERTY = {
 		requiresOptOut: true,
 		useEngine: true,
 	},
+	backgroundImage: {
+		value: [ 'background', 'backgroundImage' ],
+		support: [ 'background', 'backgroundImage' ],
+		useEngine: true,
+	},
+	backgroundRepeat: {
+		value: [ 'background', 'backgroundRepeat' ],
+		support: [ 'background', 'backgroundRepeat' ],
+		useEngine: true,
+	},
+	backgroundSize: {
+		value: [ 'background', 'backgroundSize' ],
+		support: [ 'background', 'backgroundSize' ],
+		useEngine: true,
+	},
+	backgroundPosition: {
+		value: [ 'background', 'backgroundPosition' ],
+		support: [ 'background', 'backgroundPosition' ],
+		useEngine: true,
+	},
 	borderColor: {
 		value: [ 'border', 'color' ],
-		support: [ '__experimentalBorder', 'color' ],
+		support: [ 'border', 'color' ],
 		useEngine: true,
 	},
 	borderRadius: {
 		value: [ 'border', 'radius' ],
-		support: [ '__experimentalBorder', 'radius' ],
+		support: [ 'border', 'radius' ],
 		properties: {
 			borderTopLeftRadius: 'topLeft',
 			borderTopRightRadius: 'topRight',
@@ -49,72 +74,72 @@ export const __EXPERIMENTAL_STYLE_PROPERTY = {
 	},
 	borderStyle: {
 		value: [ 'border', 'style' ],
-		support: [ '__experimentalBorder', 'style' ],
+		support: [ 'border', 'style' ],
 		useEngine: true,
 	},
 	borderWidth: {
 		value: [ 'border', 'width' ],
-		support: [ '__experimentalBorder', 'width' ],
+		support: [ 'border', 'width' ],
 		useEngine: true,
 	},
 	borderTopColor: {
 		value: [ 'border', 'top', 'color' ],
-		support: [ '__experimentalBorder', 'color' ],
+		support: [ 'border', 'color' ],
 		useEngine: true,
 	},
 	borderTopStyle: {
 		value: [ 'border', 'top', 'style' ],
-		support: [ '__experimentalBorder', 'style' ],
+		support: [ 'border', 'style' ],
 		useEngine: true,
 	},
 	borderTopWidth: {
 		value: [ 'border', 'top', 'width' ],
-		support: [ '__experimentalBorder', 'width' ],
+		support: [ 'border', 'width' ],
 		useEngine: true,
 	},
 	borderRightColor: {
 		value: [ 'border', 'right', 'color' ],
-		support: [ '__experimentalBorder', 'color' ],
+		support: [ 'border', 'color' ],
 		useEngine: true,
 	},
 	borderRightStyle: {
 		value: [ 'border', 'right', 'style' ],
-		support: [ '__experimentalBorder', 'style' ],
+		support: [ 'border', 'style' ],
 		useEngine: true,
 	},
 	borderRightWidth: {
 		value: [ 'border', 'right', 'width' ],
-		support: [ '__experimentalBorder', 'width' ],
+		support: [ 'border', 'width' ],
 		useEngine: true,
 	},
 	borderBottomColor: {
 		value: [ 'border', 'bottom', 'color' ],
-		support: [ '__experimentalBorder', 'color' ],
+		support: [ 'border', 'color' ],
 		useEngine: true,
 	},
 	borderBottomStyle: {
 		value: [ 'border', 'bottom', 'style' ],
-		support: [ '__experimentalBorder', 'style' ],
+		support: [ 'border', 'style' ],
 		useEngine: true,
 	},
 	borderBottomWidth: {
 		value: [ 'border', 'bottom', 'width' ],
-		support: [ '__experimentalBorder', 'width' ],
+		support: [ 'border', 'width' ],
 		useEngine: true,
 	},
 	borderLeftColor: {
 		value: [ 'border', 'left', 'color' ],
-		support: [ '__experimentalBorder', 'color' ],
+		support: [ 'border', 'color' ],
 		useEngine: true,
 	},
 	borderLeftStyle: {
 		value: [ 'border', 'left', 'style' ],
-		support: [ '__experimentalBorder', 'style' ],
+		support: [ 'border', 'style' ],
 		useEngine: true,
 	},
 	borderLeftWidth: {
 		value: [ 'border', 'left', 'width' ],
-		support: [ '__experimentalBorder', 'width' ],
+		support: [ 'border', 'width' ],
 		useEngine: true,
 	},
 	color: {
@@ -123,13 +148,22 @@ export const __EXPERIMENTAL_STYLE_PROPERTY = {
 		requiresOptOut: true,
 		useEngine: true,
 	},
+	columnCount: {
+		value: [ 'typography', 'textColumns' ],
+		support: [ 'typography', 'textColumns' ],
+		useEngine: true,
+	},
 	filter: {
 		value: [ 'filter', 'duotone' ],
-		support: [ 'color', '__experimentalDuotone' ],
+		support: [ 'filter', 'duotone' ],
 	},
 	linkColor: {
 		value: [ 'elements', 'link', 'color', 'text' ],
 		support: [ 'color', 'link' ],
+	},
+	captionColor: {
+		value: [ 'elements', 'caption', 'color', 'text' ],
+		support: [ 'color', 'caption' ],
 	},
 	buttonColor: {
 		value: [ 'elements', 'button', 'color', 'text' ],
@@ -139,9 +173,17 @@ export const __EXPERIMENTAL_STYLE_PROPERTY = {
 		value: [ 'elements', 'button', 'color', 'background' ],
 		support: [ 'color', 'button' ],
 	},
+	headingColor: {
+		value: [ 'elements', 'heading', 'color', 'text' ],
+		support: [ 'color', 'heading' ],
+	},
+	headingBackgroundColor: {
+		value: [ 'elements', 'heading', 'color', 'background' ],
+		support: [ 'color', 'heading' ],
+	},
 	fontFamily: {
 		value: [ 'typography', 'fontFamily' ],
-		support: [ 'typography', '__experimentalFontFamily' ],
+		support: [ 'typography', 'fontFamily' ],
 		useEngine: true,
 	},
 	fontSize: {
@@ -151,12 +193,12 @@ export const __EXPERIMENTAL_STYLE_PROPERTY = {
 	},
 	fontStyle: {
 		value: [ 'typography', 'fontStyle' ],
-		support: [ 'typography', '__experimentalFontStyle' ],
+		support: [ 'typography', 'fontStyle' ],
 		useEngine: true,
 	},
 	fontWeight: {
 		value: [ 'typography', 'fontWeight' ],
-		support: [ 'typography', '__experimentalFontWeight' ],
+		support: [ 'typography', 'fontWeight' ],
 		useEngine: true,
 	},
 	lineHeight: {
@@ -191,19 +233,29 @@ export const __EXPERIMENTAL_STYLE_PROPERTY = {
 		},
 		useEngine: true,
 	},
+	textAlign: {
+		value: [ 'typography', 'textAlign' ],
+		support: [ 'typography', 'textAlign' ],
+		useEngine: false,
+	},
 	textDecoration: {
 		value: [ 'typography', 'textDecoration' ],
-		support: [ 'typography', '__experimentalTextDecoration' ],
+		support: [ 'typography', 'textDecoration' ],
 		useEngine: true,
 	},
 	textTransform: {
 		value: [ 'typography', 'textTransform' ],
-		support: [ 'typography', '__experimentalTextTransform' ],
+		support: [ 'typography', 'textTransform' ],
 		useEngine: true,
 	},
 	letterSpacing: {
 		value: [ 'typography', 'letterSpacing' ],
-		support: [ 'typography', '__experimentalLetterSpacing' ],
+		support: [ 'typography', 'letterSpacing' ],
+		useEngine: true,
+	},
+	writingMode: {
+		value: [ 'typography', 'writingMode' ],
+		support: [ 'typography', '__experimentalWritingMode' ],
 		useEngine: true,
 	},
 	'--wp--style--root--padding': {
@@ -220,7 +272,7 @@ export const __EXPERIMENTAL_STYLE_PROPERTY = {
 };
 
 export const __EXPERIMENTAL_ELEMENTS = {
-	link: 'a',
+	link: 'a:where(:not(.wp-element-button))',
 	heading: 'h1, h2, h3, h4, h5, h6',
 	h1: 'h1',
 	h2: 'h2',
@@ -234,11 +286,34 @@ export const __EXPERIMENTAL_ELEMENTS = {
 	cite: 'cite',
 };
 
-export const __EXPERIMENTAL_PATHS_WITH_MERGE = {
+// These paths may have three origins, custom, theme, and default,
+// and are expected to override other origins with custom, theme,
+// and default priority.
+export const __EXPERIMENTAL_PATHS_WITH_OVERRIDE = {
 	'color.duotone': true,
 	'color.gradients': true,
 	'color.palette': true,
-	'typography.fontFamilies': true,
+	'dimensions.aspectRatios': true,
 	'typography.fontSizes': true,
 	'spacing.spacingSizes': true,
+};
+
+export const EXPERIMENTAL_SUPPORTS_MAP = {
+	__experimentalBorder: 'border',
+};
+
+export const COMMON_EXPERIMENTAL_PROPERTIES = {
+	__experimentalDefaultControls: 'defaultControls',
+	__experimentalSkipSerialization: 'skipSerialization',
+};
+
+export const EXPERIMENTAL_SUPPORT_PROPERTIES = {
+	typography: {
+		__experimentalFontFamily: 'fontFamily',
+		__experimentalFontStyle: 'fontStyle',
+		__experimentalFontWeight: 'fontWeight',
+		__experimentalLetterSpacing: 'letterSpacing',
+		__experimentalTextDecoration: 'textDecoration',
+		__experimentalTextTransform: 'textTransform',
+	},
 };

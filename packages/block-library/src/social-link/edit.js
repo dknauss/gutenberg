@@ -1,25 +1,35 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 /**
  * WordPress dependencies
  */
+import { DELETE, BACKSPACE, ENTER } from '@wordpress/keycodes';
+import { useDispatch } from '@wordpress/data';
+
 import {
+	BlockControls,
 	InspectorControls,
 	URLPopover,
 	URLInput,
+	useBlockEditingMode,
 	useBlockProps,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
-import { Fragment, useState } from '@wordpress/element';
+import { useState, useRef } from '@wordpress/element';
 import {
 	Button,
+	Dropdown,
 	PanelBody,
 	PanelRow,
 	TextControl,
+	ToolbarButton,
+	__experimentalInputControlSuffixWrapper as InputControlSuffixWrapper,
 } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { useMergeRefs } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
 import { keyboardReturn } from '@wordpress/icons';
 
 /**
@@ -32,119 +42,228 @@ const SocialLinkURLPopover = ( {
 	setAttributes,
 	setPopover,
 	popoverAnchor,
-} ) => (
-	<URLPopover anchor={ popoverAnchor } onClose={ () => setPopover( false ) }>
-		<form
-			className="block-editor-url-popover__link-editor"
-			onSubmit={ ( event ) => {
-				event.preventDefault();
+	clientId,
+} ) => {
+	const { removeBlock } = useDispatch( blockEditorStore );
+	return (
+		<URLPopover
+			anchor={ popoverAnchor }
+			aria-label={ __( 'Edit social link' ) }
+			onClose={ () => {
 				setPopover( false );
+				popoverAnchor?.focus();
 			} }
 		>
-			<div className="block-editor-url-input">
-				<URLInput
-					value={ url }
-					onChange={ ( nextURL ) =>
-						setAttributes( { url: nextURL } )
-					}
-					placeholder={ __( 'Enter address' ) }
-					disableSuggestions={ true }
-				/>
-			</div>
-			<Button
-				icon={ keyboardReturn }
-				label={ __( 'Apply' ) }
-				type="submit"
-			/>
-		</form>
-	</URLPopover>
-);
+			<form
+				className="block-editor-url-popover__link-editor"
+				onSubmit={ ( event ) => {
+					event.preventDefault();
+					setPopover( false );
+					popoverAnchor?.focus();
+				} }
+			>
+				<div className="block-editor-url-input">
+					<URLInput
+						value={ url }
+						onChange={ ( nextURL ) =>
+							setAttributes( { url: nextURL } )
+						}
+						placeholder={ __( 'Enter social link' ) }
+						label={ __( 'Enter social link' ) }
+						hideLabelFromVision
+						disableSuggestions
+						onKeyDown={ ( event ) => {
+							if (
+								!! url ||
+								event.defaultPrevented ||
+								! [ BACKSPACE, DELETE ].includes(
+									event.keyCode
+								)
+							) {
+								return;
+							}
+							removeBlock( clientId );
+						} }
+						suffix={
+							<InputControlSuffixWrapper variant="control">
+								<Button
+									icon={ keyboardReturn }
+									label={ __( 'Apply' ) }
+									type="submit"
+									size="small"
+								/>
+							</InputControlSuffixWrapper>
+						}
+					/>
+				</div>
+			</form>
+		</URLPopover>
+	);
+};
 
 const SocialLinkEdit = ( {
 	attributes,
 	context,
 	isSelected,
 	setAttributes,
+	clientId,
 } ) => {
-	const { url, service, label, rel } = attributes;
-	const { showLabels, iconColorValue, iconBackgroundColorValue } = context;
+	const { url, service, label = '', rel } = attributes;
+	const {
+		showLabels,
+		iconColor,
+		iconColorValue,
+		iconBackgroundColor,
+		iconBackgroundColorValue,
+	} = context;
 	const [ showURLPopover, setPopover ] = useState( false );
-	const classes = classNames( 'wp-social-link', 'wp-social-link-' + service, {
-		'wp-social-link__is-incomplete': ! url,
-	} );
+	const wrapperClasses = clsx(
+		'wp-social-link',
+		// Manually adding this class for backwards compatibility of CSS when moving the
+		// blockProps from the li to the button: https://github.com/WordPress/gutenberg/pull/64883
+		'wp-block-social-link',
+		'wp-social-link-' + service,
+		{
+			'wp-social-link__is-incomplete': ! url,
+			[ `has-${ iconColor }-color` ]: iconColor,
+			[ `has-${ iconBackgroundColor }-background-color` ]:
+				iconBackgroundColor,
+		}
+	);
 
 	// Use internal state instead of a ref to make sure that the component
 	// re-renders when the popover's anchor updates.
 	const [ popoverAnchor, setPopoverAnchor ] = useState( null );
+	const isContentOnlyMode = useBlockEditingMode() === 'contentOnly';
 
 	const IconComponent = getIconBySite( service );
 	const socialLinkName = getNameBySite( service );
-	const socialLinkLabel = label ?? socialLinkName;
+	// The initial label (ie. the link text) is an empty string.
+	// We want to prevent empty links so that the link text always fallbacks to
+	// the social name, even when users enter and save an empty string or only
+	// spaces. The PHP render callback fallbacks to the social name as well.
+	const socialLinkText = label.trim() === '' ? socialLinkName : label;
+
+	const ref = useRef();
 	const blockProps = useBlockProps( {
-		className: classes,
-		style: {
-			color: iconColorValue,
-			backgroundColor: iconBackgroundColorValue,
+		className: 'wp-block-social-link-anchor',
+		ref: useMergeRefs( [ setPopoverAnchor, ref ] ),
+		onClick: () => setPopover( true ),
+		onKeyDown: ( event ) => {
+			if ( event.keyCode === ENTER ) {
+				event.preventDefault();
+				setPopover( true );
+			}
 		},
 	} );
 
 	return (
-		<Fragment>
+		<>
+			{ isContentOnlyMode && showLabels && (
+				// Add an extra control to modify the label attribute when content only mode is active.
+				// With content only mode active, the inspector is hidden, so users need another way
+				// to edit this attribute.
+				<BlockControls group="other">
+					<Dropdown
+						popoverProps={ { position: 'bottom right' } }
+						renderToggle={ ( { isOpen, onToggle } ) => (
+							<ToolbarButton
+								onClick={ onToggle }
+								aria-haspopup="true"
+								aria-expanded={ isOpen }
+							>
+								{ __( 'Text' ) }
+							</ToolbarButton>
+						) }
+						renderContent={ () => (
+							<TextControl
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								className="wp-block-social-link__toolbar_content_text"
+								label={ __( 'Text' ) }
+								help={ __(
+									'Provide a text label or use the default.'
+								) }
+								value={ label }
+								onChange={ ( value ) =>
+									setAttributes( { label: value } )
+								}
+								placeholder={ socialLinkName }
+							/>
+						) }
+					/>
+				</BlockControls>
+			) }
 			<InspectorControls>
-				<PanelBody
-					title={ sprintf(
-						/* translators: %s: name of the social service. */
-						__( '%s label' ),
-						socialLinkName
-					) }
-					initialOpen={ false }
-				>
+				<PanelBody title={ __( 'Settings' ) }>
 					<PanelRow>
 						<TextControl
-							label={ __( 'Link label' ) }
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							label={ __( 'Text' ) }
 							help={ __(
-								'Briefly describe the link to help screen reader users.'
+								'The text is visible when enabled from the parent Social Icons block.'
 							) }
 							value={ label }
 							onChange={ ( value ) =>
 								setAttributes( { label: value } )
 							}
+							placeholder={ socialLinkName }
 						/>
 					</PanelRow>
 				</PanelBody>
 			</InspectorControls>
-			<InspectorControls __experimentalGroup="advanced">
+			<InspectorControls group="advanced">
 				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
 					label={ __( 'Link rel' ) }
 					value={ rel || '' }
 					onChange={ ( value ) => setAttributes( { rel: value } ) }
 				/>
 			</InspectorControls>
-			<li { ...blockProps }>
-				<Button
-					className="wp-block-social-link-anchor"
-					ref={ setPopoverAnchor }
-					onClick={ () => setPopover( true ) }
-				>
+			{ /*
+			 * Because the `<ul>` element has a role=document, the `<li>` is
+			 * not semantically correct, so adding role=presentation is cleaner.
+			 * https://github.com/WordPress/gutenberg/pull/64883#issuecomment-2472874551
+			 */ }
+			<li
+				role="presentation"
+				className={ wrapperClasses }
+				style={ {
+					color: iconColorValue,
+					backgroundColor: iconBackgroundColorValue,
+				} }
+			>
+				{ /*
+				 * Disable reason: The `button` ARIA role is redundant but
+				 * blockProps has a role of `document` automatically applied
+				 * which breaks the semantics of this button since it removes
+				 * the information about the popover.
+				 */
+				/* eslint-disable jsx-a11y/no-redundant-roles */ }
+				<button aria-haspopup="dialog" { ...blockProps } role="button">
 					<IconComponent />
 					<span
-						className={ classNames( 'wp-block-social-link-label', {
+						className={ clsx( 'wp-block-social-link-label', {
 							'screen-reader-text': ! showLabels,
 						} ) }
 					>
-						{ socialLinkLabel }
+						{ socialLinkText }
 					</span>
-					{ isSelected && showURLPopover && (
-						<SocialLinkURLPopover
-							url={ url }
-							setAttributes={ setAttributes }
-							setPopover={ setPopover }
-							popoverAnchor={ popoverAnchor }
-						/>
-					) }
-				</Button>
+				</button>
+				{ /* eslint-enable jsx-a11y/no-redundant-roles */ }
+				{ isSelected && showURLPopover && (
+					<SocialLinkURLPopover
+						url={ url }
+						setAttributes={ setAttributes }
+						setPopover={ setPopover }
+						popoverAnchor={ popoverAnchor }
+						clientId={ clientId }
+					/>
+				) }
 			</li>
-		</Fragment>
+		</>
 	);
 };
 

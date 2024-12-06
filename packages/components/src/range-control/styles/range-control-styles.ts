@@ -8,8 +8,8 @@ import styled from '@emotion/styled';
  * Internal dependencies
  */
 import NumberControl from '../../number-control';
-import { COLORS, reduceMotion, rtl } from '../../utils';
-import { space } from '../../ui/utils/space';
+import { COLORS, rtl, CONFIG } from '../../utils';
+import { space } from '../../utils/space';
 
 import type {
 	RangeMarkProps,
@@ -18,6 +18,7 @@ import type {
 	TooltipProps,
 	TrackProps,
 	WrapperProps,
+	RangeControlProps,
 } from '../types';
 
 const rangeHeightValue = 30;
@@ -26,15 +27,24 @@ const rangeHeight = () =>
 	css( { height: rangeHeightValue, minHeight: rangeHeightValue } );
 const thumbSize = 12;
 
-export const Root = styled.div`
+const deprecatedHeight = ( {
+	__next40pxDefaultSize,
+}: Pick< RangeControlProps, '__next40pxDefaultSize' > ) =>
+	! __next40pxDefaultSize && css( { minHeight: rangeHeightValue } );
+
+type RootProps = Pick< RangeControlProps, '__next40pxDefaultSize' >;
+export const Root = styled.div< RootProps >`
 	-webkit-tap-highlight-color: transparent;
-	align-items: flex-start;
+	align-items: center;
 	display: flex;
 	justify-content: flex-start;
 	padding: 0;
 	position: relative;
 	touch-action: none;
 	width: 100%;
+	min-height: 40px;
+	/* TODO: remove after removing the __next40pxDefaultSize prop */
+	${ deprecatedHeight };
 `;
 
 const wrapperColor = ( { color = COLORS.ui.borderFocus }: WrapperProps ) =>
@@ -47,7 +57,10 @@ const wrapperMargin = ( { marks, __nextHasNoMarginBottom }: WrapperProps ) => {
 	return '';
 };
 
-export const Wrapper = styled.div< WrapperProps >`
+export const Wrapper = styled( 'div', {
+	shouldForwardProp: ( prop: string ) =>
+		! [ 'color', '__nextHasNoMarginBottom', 'marks' ].includes( prop ),
+} )< WrapperProps >`
 	display: block;
 	flex: 1;
 	position: relative;
@@ -92,7 +105,7 @@ export const Rail = styled.span`
 	position: absolute;
 	margin-top: ${ ( rangeHeightValue - railHeight ) / 2 }px;
 	top: 0;
-	border-radius: ${ railHeight }px;
+	border-radius: ${ CONFIG.radiusFull };
 
 	${ railBackgroundColor };
 `;
@@ -109,7 +122,7 @@ const trackBackgroundColor = ( { disabled, trackColor }: TrackProps ) => {
 
 export const Track = styled.span`
 	background-color: currentColor;
-	border-radius: ${ railHeight }px;
+	border-radius: ${ CONFIG.radiusFull };
 	height: ${ railHeight }px;
 	pointer-events: none;
 	display: block;
@@ -144,7 +157,7 @@ export const Mark = styled.span`
 	height: ${ thumbSize }px;
 	left: 0;
 	position: absolute;
-	top: -4px;
+	top: 9px;
 	width: 1px;
 
 	${ markFill };
@@ -158,12 +171,16 @@ const markLabelFill = ( { isFilled }: RangeMarkProps ) => {
 
 export const MarkLabel = styled.span`
 	color: ${ COLORS.gray[ 300 ] };
-	left: 0;
 	font-size: 11px;
 	position: absolute;
-	top: 12px;
-	transform: translateX( -50% );
+	top: 22px;
 	white-space: nowrap;
+
+	${ rtl( { left: 0 } ) };
+	${ rtl(
+		{ transform: 'translateX( -50% )' },
+		{ transform: 'translateX( 50% )' }
+	) };
 
 	${ markLabelFill };
 `;
@@ -174,7 +191,7 @@ const thumbColor = ( { disabled }: ThumbProps ) =>
 				background-color: ${ COLORS.gray[ 400 ] };
 		  `
 		: css`
-				background-color: ${ COLORS.ui.theme };
+				background-color: ${ COLORS.theme.accent };
 		  `;
 
 export const ThumbWrapper = styled.span`
@@ -189,7 +206,7 @@ export const ThumbWrapper = styled.span`
 	top: 0;
 	user-select: none;
 	width: ${ thumbSize }px;
-	border-radius: 50%;
+	border-radius: ${ CONFIG.radiusRound };
 
 	${ thumbColor };
 	${ rtl( { marginLeft: -10 } ) };
@@ -205,9 +222,9 @@ const thumbFocus = ( { isFocused }: ThumbProps ) => {
 				&::before {
 					content: ' ';
 					position: absolute;
-					background-color: ${ COLORS.ui.theme };
+					background-color: ${ COLORS.theme.accent };
 					opacity: 0.4;
-					border-radius: 50%;
+					border-radius: ${ CONFIG.radiusRound };
 					height: ${ thumbSize + 8 }px;
 					width: ${ thumbSize + 8 }px;
 					top: -4px;
@@ -219,12 +236,13 @@ const thumbFocus = ( { isFocused }: ThumbProps ) => {
 
 export const Thumb = styled.span< ThumbProps >`
 	align-items: center;
-	border-radius: 50%;
+	border-radius: ${ CONFIG.radiusRound };
 	height: 100%;
 	outline: 0;
 	position: absolute;
 	user-select: none;
 	width: 100%;
+	box-shadow: ${ CONFIG.elevationXSmall };
 
 	${ thumbColor };
 	${ thumbFocus };
@@ -246,9 +264,20 @@ export const InputRange = styled.input`
 `;
 
 const tooltipShow = ( { show }: TooltipProps ) => {
-	return css( {
-		opacity: show ? 1 : 0,
-	} );
+	return css`
+		display: ${ show ? 'inline-block' : 'none' };
+		opacity: ${ show ? 1 : 0 };
+
+		@media not ( prefers-reduced-motion ) {
+			transition:
+				opacity 120ms ease,
+				display 120ms ease allow-discrete;
+		}
+
+		@starting-style {
+			opacity: 0;
+		}
+	`;
 };
 
 const tooltipPosition = ( { position }: TooltipProps ) => {
@@ -267,36 +296,32 @@ const tooltipPosition = ( { position }: TooltipProps ) => {
 
 export const Tooltip = styled.span< TooltipProps >`
 	background: rgba( 0, 0, 0, 0.8 );
-	border-radius: 2px;
+	border-radius: ${ CONFIG.radiusSmall };
 	color: white;
-	display: inline-block;
 	font-size: 12px;
 	min-width: 32px;
-	opacity: 0;
 	padding: 4px 8px;
 	pointer-events: none;
 	position: absolute;
 	text-align: center;
-	transition: opacity 120ms ease;
 	user-select: none;
 	line-height: 1.4;
 
 	${ tooltipShow };
+
 	${ tooltipPosition };
-	${ reduceMotion( 'transition' ) };
 	${ rtl(
 		{ transform: 'translateX(-50%)' },
 		{ transform: 'translateX(50%)' }
 	) }
 `;
 
-// @todo: Refactor RangeControl with latest HStack configuration
-// @wordpress/components/ui/hstack.
+// @todo Refactor RangeControl with latest HStack configuration
+// @see: packages/components/src/h-stack
 export const InputNumber = styled( NumberControl )`
 	display: inline-block;
 	font-size: 13px;
 	margin-top: 0;
-	width: ${ space( 16 ) } !important;
 
 	input[type='number']& {
 		${ rangeHeight };

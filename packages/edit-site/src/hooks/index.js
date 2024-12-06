@@ -1,5 +1,4 @@
 /**
  * Internal dependencies
  */
-import './components';
-import './template-part-edit';
+import './push-changes-to-global-styles';

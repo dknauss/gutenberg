@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 /**
  * WordPress dependencies
  */
-import { getBlockSupport } from '@wordpress/blocks';
 import { useEffect, useRef } from '@wordpress/element';
 import {
 	BlockControls,
@@ -15,8 +14,10 @@ import {
 	InspectorControls,
 	ContrastChecker,
 	withColors,
+	InnerBlocks,
 	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown,
 	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import {
 	MenuGroup,
@@ -27,8 +28,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
-
-const ALLOWED_BLOCKS = [ 'core/social-link' ];
+import { useSelect } from '@wordpress/data';
 
 const sizeOptions = [
 	{ name: __( 'Small' ), value: 'has-small-icon-size' },
@@ -37,18 +37,9 @@ const sizeOptions = [
 	{ name: __( 'Huge' ), value: 'has-huge-icon-size' },
 ];
 
-const getDefaultBlockLayout = ( blockTypeOrName ) => {
-	const layoutBlockSupportConfig = getBlockSupport(
-		blockTypeOrName,
-		'__experimentalLayout'
-	);
-	return layoutBlockSupportConfig?.default;
-};
-
 export function SocialLinksEdit( props ) {
 	const {
 		clientId,
-		name,
 		attributes,
 		iconBackgroundColor,
 		iconColor,
@@ -65,18 +56,24 @@ export function SocialLinksEdit( props ) {
 		openInNewTab,
 		showLabels,
 		size,
-		layout,
 	} = attributes;
-	const usedLayout = layout || getDefaultBlockLayout( name );
+
+	const hasSelectedChild = useSelect(
+		( select ) =>
+			select( blockEditorStore ).hasSelectedInnerBlock( clientId ),
+		[ clientId ]
+	);
+
+	const hasAnySelected = isSelected || hasSelectedChild;
 
 	const logosOnly = attributes.className?.includes( 'is-style-logos-only' );
 
 	// Remove icon background color when logos only style is selected or
 	// restore it when any other style is selected.
-	const backgroundBackup = useRef( {} );
+	const backgroundBackupRef = useRef( {} );
 	useEffect( () => {
 		if ( logosOnly ) {
-			backgroundBackup.current = {
+			backgroundBackupRef.current = {
 				iconBackgroundColor,
 				iconBackgroundColorValue,
 				customIconBackgroundColor,
@@ -87,7 +84,7 @@ export function SocialLinksEdit( props ) {
 				iconBackgroundColorValue: undefined,
 			} );
 		} else {
-			setAttributes( { ...backgroundBackup.current } );
+			setAttributes( { ...backgroundBackupRef.current } );
 		}
 	}, [ logosOnly ] );
 
@@ -101,15 +98,9 @@ export function SocialLinksEdit( props ) {
 		</li>
 	);
 
-	const SelectedSocialPlaceholder = (
-		<li className="wp-block-social-links__social-prompt">
-			{ __( 'Click plus to add' ) }
-		</li>
-	);
-
 	// Fallback color values are used maintain selections in case switching
 	// themes and named colors in palette do not match.
-	const className = classNames( size, {
+	const className = clsx( size, {
 		'has-visible-labels': showLabels,
 		'has-icon-color': iconColor.color || iconColorValue,
 		'has-icon-background-color':
@@ -118,11 +109,11 @@ export function SocialLinksEdit( props ) {
 
 	const blockProps = useBlockProps( { className } );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: ALLOWED_BLOCKS,
-		placeholder: isSelected ? SelectedSocialPlaceholder : SocialPlaceholder,
+		placeholder: ! isSelected && SocialPlaceholder,
 		templateLock: false,
+		orientation: attributes.layout?.orientation ?? 'horizontal',
 		__experimentalAppenderTagName: 'li',
-		__experimentalLayout: usedLayout,
+		renderAppender: hasAnySelected && InnerBlocks.ButtonBlockAppender,
 	} );
 
 	const POPOVER_PROPS = {
@@ -207,8 +198,9 @@ export function SocialLinksEdit( props ) {
 				</ToolbarDropdownMenu>
 			</BlockControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Link settings' ) }>
+				<PanelBody title={ __( 'Settings' ) }>
 					<ToggleControl
+						__nextHasNoMarginBottom
 						label={ __( 'Open links in new tab' ) }
 						checked={ openInNewTab }
 						onChange={ () =>
@@ -216,7 +208,8 @@ export function SocialLinksEdit( props ) {
 						}
 					/>
 					<ToggleControl
-						label={ __( 'Show labels' ) }
+						__nextHasNoMarginBottom
+						label={ __( 'Show text' ) }
 						checked={ showLabels }
 						onChange={ () =>
 							setAttributes( { showLabels: ! showLabels } )
@@ -224,38 +217,39 @@ export function SocialLinksEdit( props ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<InspectorControls __experimentalGroup="color">
-				{ colorSettings.map(
-					( { onChange, label, value, resetAllFilter } ) => (
-						<ColorGradientSettingsDropdown
-							key={ `social-links-color-${ label }` }
-							__experimentalHasMultipleOrigins
-							__experimentalIsRenderedInSidebar
-							settings={ [
-								{
-									colorValue: value,
-									label,
-									onColorChange: onChange,
-									isShownByDefault: true,
-									resetAllFilter,
-									enableAlpha: true,
-								},
-							] }
-							panelId={ clientId }
-							{ ...colorGradientSettings }
+			{ colorGradientSettings.hasColorsOrGradients && (
+				<InspectorControls group="color">
+					{ colorSettings.map(
+						( { onChange, label, value, resetAllFilter } ) => (
+							<ColorGradientSettingsDropdown
+								key={ `social-links-color-${ label }` }
+								__experimentalIsRenderedInSidebar
+								settings={ [
+									{
+										colorValue: value,
+										label,
+										onColorChange: onChange,
+										isShownByDefault: true,
+										resetAllFilter,
+										enableAlpha: true,
+									},
+								] }
+								panelId={ clientId }
+								{ ...colorGradientSettings }
+							/>
+						)
+					) }
+					{ ! logosOnly && (
+						<ContrastChecker
+							{ ...{
+								textColor: iconColorValue,
+								backgroundColor: iconBackgroundColorValue,
+							} }
+							isLargeText={ false }
 						/>
-					)
-				) }
-				{ ! logosOnly && (
-					<ContrastChecker
-						{ ...{
-							textColor: iconColorValue,
-							backgroundColor: iconBackgroundColorValue,
-						} }
-						isLargeText={ false }
-					/>
-				) }
-			</InspectorControls>
+					) }
+				</InspectorControls>
+			) }
 			<ul { ...innerBlocksProps } />
 		</>
 	);

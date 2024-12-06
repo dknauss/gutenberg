@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 /**
  * WordPress dependencies
@@ -18,12 +18,15 @@ import Inserter from '../inserter';
 import { store as blockEditorStore } from '../../store';
 import BlockPopoverInbetween from '../block-popover/inbetween';
 import BlockDropZonePopover from '../block-popover/drop-zone';
+import { unlock } from '../../lock-unlock';
 
 export const InsertionPointOpenRef = createContext();
 
 function InbetweenInsertionPointPopover( {
 	__unstablePopoverSlot,
 	__unstableContentRef,
+	operation = 'insert',
+	nearestSide = 'right',
 } ) {
 	const { selectBlock, hideInsertionPoint } = useDispatch( blockEditorStore );
 	const openRef = useContext( InsertionPointOpenRef );
@@ -35,7 +38,7 @@ function InbetweenInsertionPointPopover( {
 		rootClientId,
 		isInserterShown,
 		isDistractionFree,
-		isNavigationMode,
+		isZoomOutMode,
 	} = useSelect( ( select ) => {
 		const {
 			getBlockOrder,
@@ -45,8 +48,8 @@ function InbetweenInsertionPointPopover( {
 			getPreviousBlockClientId,
 			getNextBlockClientId,
 			getSettings,
-			isNavigationMode: _isNavigationMode,
-		} = select( blockEditorStore );
+			isZoomOut,
+		} = unlock( select( blockEditorStore ) );
 		const insertionPoint = getBlockInsertionPoint();
 		const order = getBlockOrder( insertionPoint.rootClientId );
 
@@ -74,17 +77,21 @@ function InbetweenInsertionPointPopover( {
 				getBlockListSettings( insertionPoint.rootClientId )
 					?.orientation || 'vertical',
 			rootClientId: insertionPoint.rootClientId,
-			isNavigationMode: _isNavigationMode(),
 			isDistractionFree: settings.isDistractionFree,
 			isInserterShown: insertionPoint?.__unstableWithInserter,
+			isZoomOutMode: isZoomOut(),
 		};
 	}, [] );
-	const isVertical = orientation === 'vertical';
+	const { getBlockEditingMode } = useSelect( blockEditorStore );
 
 	const disableMotion = useReducedMotion();
 
 	function onClick( event ) {
-		if ( event.target === ref.current && nextClientId ) {
+		if (
+			event.target === ref.current &&
+			nextClientId &&
+			getBlockEditingMode( nextClientId ) !== 'disabled'
+		) {
 			selectBlock( nextClientId, -1 );
 		}
 	}
@@ -105,65 +112,22 @@ function InbetweenInsertionPointPopover( {
 		}
 	}
 
-	// Define animation variants for the line element.
-	const horizontalLine = {
-		start: {
-			width: 0,
-			top: '50%',
-			bottom: '50%',
-			x: 0,
-		},
-		rest: {
-			width: 4,
-			top: 0,
-			bottom: 0,
-			x: -2,
-		},
-		hover: {
-			width: 4,
-			top: 0,
-			bottom: 0,
-			x: -2,
-		},
-	};
-	const verticalLine = {
-		start: {
-			height: 0,
-			left: '50%',
-			right: '50%',
-			y: 0,
-		},
-		rest: {
-			height: 4,
-			left: 0,
-			right: 0,
-			y: -2,
-		},
-		hover: {
-			height: 4,
-			left: 0,
-			right: 0,
-			y: -2,
-		},
-	};
 	const lineVariants = {
 		// Initial position starts from the center and invisible.
 		start: {
-			...( ! isVertical ? horizontalLine.start : verticalLine.start ),
 			opacity: 0,
+			scale: 0,
 		},
 		// The line expands to fill the container. If the inserter is visible it
 		// is delayed so it appears orchestrated.
 		rest: {
-			...( ! isVertical ? horizontalLine.rest : verticalLine.rest ),
 			opacity: 1,
-			borderRadius: '2px',
+			scale: 1,
 			transition: { delay: isInserterShown ? 0.5 : 0, type: 'tween' },
 		},
 		hover: {
-			...( ! isVertical ? horizontalLine.hover : verticalLine.hover ),
 			opacity: 1,
-			borderRadius: '2px',
+			scale: 1,
 			transition: { delay: 0.5, type: 'tween' },
 		},
 	};
@@ -178,13 +142,26 @@ function InbetweenInsertionPointPopover( {
 		},
 	};
 
-	if ( isDistractionFree && ! isNavigationMode ) {
+	if ( isDistractionFree ) {
 		return null;
 	}
 
-	const className = classnames(
+	// Zoom out mode should only show the insertion point for the insert operation.
+	// Other operations such as "group" are when the editor tries to create a row
+	// block by grouping the block being dragged with the block it's being dropped
+	// onto.
+	if ( isZoomOutMode && operation !== 'insert' ) {
+		return null;
+	}
+
+	const orientationClassname =
+		orientation === 'horizontal' || operation === 'group'
+			? 'is-horizontal'
+			: 'is-vertical';
+
+	const className = clsx(
 		'block-editor-block-list__insertion-point',
-		'is-' + orientation
+		orientationClassname
 	);
 
 	return (
@@ -193,6 +170,8 @@ function InbetweenInsertionPointPopover( {
 			nextClientId={ nextClientId }
 			__unstablePopoverSlot={ __unstablePopoverSlot }
 			__unstableContentRef={ __unstableContentRef }
+			operation={ operation }
+			nearestSide={ nearestSide }
 		>
 			<motion.div
 				layout={ ! disableMotion }
@@ -205,7 +184,7 @@ function InbetweenInsertionPointPopover( {
 				tabIndex={ -1 }
 				onClick={ onClick }
 				onFocus={ onFocus }
-				className={ classnames( className, {
+				className={ clsx( className, {
 					'is-with-inserter': isInserterShown,
 				} ) }
 				onHoverEnd={ maybeHideInserterPoint }
@@ -218,7 +197,7 @@ function InbetweenInsertionPointPopover( {
 				{ isInserterShown && (
 					<motion.div
 						variants={ inserterVariants }
-						className={ classnames(
+						className={ clsx(
 							'block-editor-block-list__insertion-point-inserter'
 						) }
 					>
@@ -242,16 +221,30 @@ function InbetweenInsertionPointPopover( {
 }
 
 export default function InsertionPoint( props ) {
-	const { insertionPoint, isVisible } = useSelect( ( select ) => {
-		const { getBlockInsertionPoint, isBlockInsertionPointVisible } =
-			select( blockEditorStore );
-		return {
-			insertionPoint: getBlockInsertionPoint(),
-			isVisible: isBlockInsertionPointVisible(),
-		};
-	}, [] );
+	const { insertionPoint, isVisible, isBlockListEmpty } = useSelect(
+		( select ) => {
+			const {
+				getBlockInsertionPoint,
+				isBlockInsertionPointVisible,
+				getBlockCount,
+			} = select( blockEditorStore );
+			const blockInsertionPoint = getBlockInsertionPoint();
+			return {
+				insertionPoint: blockInsertionPoint,
+				isVisible: isBlockInsertionPointVisible(),
+				isBlockListEmpty:
+					getBlockCount( blockInsertionPoint?.rootClientId ) === 0,
+			};
+		},
+		[]
+	);
 
-	if ( ! isVisible ) {
+	if (
+		! isVisible ||
+		// Don't render the insertion point if the block list is empty.
+		// The insertion point will be represented by the appender instead.
+		isBlockListEmpty
+	) {
 		return null;
 	}
 
@@ -266,6 +259,10 @@ export default function InsertionPoint( props ) {
 			{ ...props }
 		/>
 	) : (
-		<InbetweenInsertionPointPopover { ...props } />
+		<InbetweenInsertionPointPopover
+			operation={ insertionPoint.operation }
+			nearestSide={ insertionPoint.nearestSide }
+			{ ...props }
+		/>
 	);
 }

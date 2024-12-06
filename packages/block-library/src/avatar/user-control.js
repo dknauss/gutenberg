@@ -33,6 +33,8 @@ function UserControl( { value, onChange } ) {
 
 	return (
 		<ComboboxControl
+			__next40pxDefaultSize
+			__nextHasNoMarginBottom
 			label={ __( 'User' ) }
 			help={ __(
 				'Select the avatar user to display, if it is blank it will use the post/page author.'

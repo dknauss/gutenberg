@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { RichText } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 
 const transforms = {
@@ -8,10 +9,18 @@ const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'core/pullquote' ],
-			transform: ( { value, citation, anchor, fontSize, style } ) => {
+			transform: ( {
+				value,
+				align,
+				citation,
+				anchor,
+				fontSize,
+				style,
+			} ) => {
 				return createBlock(
 					'core/quote',
 					{
+						align,
 						citation,
 						anchor,
 						fontSize,
@@ -20,12 +29,6 @@ const transforms = {
 					[ createBlock( 'core/paragraph', { content: value } ) ]
 				);
 			},
-		},
-		{
-			type: 'block',
-			blocks: [ 'core/group' ],
-			transform: ( { anchor }, innerBlocks ) =>
-				createBlock( 'core/quote', { anchor }, innerBlocks ),
 		},
 		{
 			type: 'prefix',
@@ -100,7 +103,7 @@ const transforms = {
 				);
 			},
 			transform: (
-				{ citation, anchor, fontSize, style },
+				{ align, citation, anchor, fontSize, style },
 				innerBlocks
 			) => {
 				const value = innerBlocks
@@ -108,6 +111,7 @@ const transforms = {
 					.join( '<br>' );
 				return createBlock( 'core/pullquote', {
 					value,
+					align,
 					citation,
 					anchor,
 					fontSize,
@@ -117,35 +121,44 @@ const transforms = {
 		},
 		{
 			type: 'block',
+			blocks: [ 'core/paragraph' ],
+			transform: ( { citation }, innerBlocks ) =>
+				RichText.isEmpty( citation )
+					? innerBlocks
+					: [
+							...innerBlocks,
+							createBlock( 'core/paragraph', {
+								content: citation,
+							} ),
+					  ],
+		},
+		{
+			type: 'block',
 			blocks: [ 'core/group' ],
 			transform: ( { citation, anchor }, innerBlocks ) =>
 				createBlock(
 					'core/group',
 					{ anchor },
-					citation
-						? [
+					RichText.isEmpty( citation )
+						? innerBlocks
+						: [
 								...innerBlocks,
 								createBlock( 'core/paragraph', {
 									content: citation,
 								} ),
 						  ]
-						: innerBlocks
 				),
 		},
-		{
-			type: 'block',
-			blocks: [ '*' ],
-			transform: ( { citation }, innerBlocks ) =>
-				citation
-					? [
-							...innerBlocks,
-							createBlock( 'core/paragraph', {
-								content: citation,
-							} ),
-					  ]
-					: innerBlocks,
-		},
 	],
+	ungroup: ( { citation }, innerBlocks ) =>
+		RichText.isEmpty( citation )
+			? innerBlocks
+			: [
+					...innerBlocks,
+					createBlock( 'core/paragraph', {
+						content: citation,
+					} ),
+			  ],
 };
 
 export default transforms;

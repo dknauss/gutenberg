@@ -1,12 +1,7 @@
 /**
- * WordPress dependencies
- */
-import { applyFilters } from '@wordpress/hooks';
-
-/**
  * Internal dependencies
  */
-import { getInlineStyles, omitStyle } from '../style';
+import _style, { getInlineStyles, omitStyle } from '../style';
 
 describe( 'getInlineStyles', () => {
 	it( 'should return an empty object when called with undefined', () => {
@@ -21,7 +16,7 @@ describe( 'getInlineStyles', () => {
 		expect(
 			getInlineStyles( {
 				color: { text: 'red', background: 'black' },
-				typography: { lineHeight: 1.5, fontSize: 10 },
+				typography: { lineHeight: 1.5, fontSize: 10, textColumns: 2 },
 				border: {
 					radius: '10px',
 					width: '1em',
@@ -44,6 +39,7 @@ describe( 'getInlineStyles', () => {
 			borderStyle: 'dotted',
 			borderWidth: '1em',
 			color: 'red',
+			columnCount: 2,
 			lineHeight: 1.5,
 			fontSize: 10,
 			marginBottom: '15px',
@@ -119,11 +115,6 @@ describe( 'getInlineStyles', () => {
 } );
 
 describe( 'addSaveProps', () => {
-	const addSaveProps = applyFilters.bind(
-		null,
-		'blocks.getSaveContent.extraProps'
-	);
-
 	const blockSettings = {
 		save: () => <div className="default" />,
 		category: 'text',
@@ -142,8 +133,7 @@ describe( 'addSaveProps', () => {
 	const applySkipSerialization = ( features ) => {
 		const updatedSettings = { ...blockSettings };
 		Object.keys( features ).forEach( ( key ) => {
-			updatedSettings.supports[ key ].__experimentalSkipSerialization =
-				features[ key ];
+			updatedSettings.supports[ key ].skipSerialization = features[ key ];
 		} );
 		return updatedSettings;
 	};
@@ -165,7 +155,7 @@ describe( 'addSaveProps', () => {
 	};
 
 	it( 'should serialize all styles by default', () => {
-		const extraProps = addSaveProps( {}, blockSettings, attributes );
+		const extraProps = _style.addSaveProps( {}, blockSettings, attributes );
 
 		expect( extraProps.style ).toEqual( {
 			background:
@@ -182,7 +172,7 @@ describe( 'addSaveProps', () => {
 		const settings = applySkipSerialization( {
 			typography: true,
 		} );
-		const extraProps = addSaveProps( {}, settings, attributes );
+		const extraProps = _style.addSaveProps( {}, settings, attributes );
 
 		expect( extraProps.style ).toEqual( {
 			background:
@@ -197,7 +187,7 @@ describe( 'addSaveProps', () => {
 			color: [ 'gradient' ],
 			typography: [ 'textDecoration', 'textTransform' ],
 		} );
-		const extraProps = addSaveProps( {}, settings, attributes );
+		const extraProps = _style.addSaveProps( {}, settings, attributes );
 
 		expect( extraProps.style ).toEqual( {
 			color: '#d92828',

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 /**
  * WordPress dependencies
@@ -18,6 +18,7 @@ import {
 	PanelBody,
 	SelectControl,
 	ToggleControl,
+	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -62,7 +63,7 @@ function PostAuthorEdit( {
 		attributes;
 	const avatarSizes = [];
 	const authorName = authorDetails?.name || __( 'Post Author' );
-	if ( authorDetails ) {
+	if ( authorDetails?.avatar_urls ) {
 		Object.keys( authorDetails.avatar_urls ).forEach( ( size ) => {
 			avatarSizes.push( {
 				value: size,
@@ -72,7 +73,7 @@ function PostAuthorEdit( {
 	}
 
 	const blockProps = useBlockProps( {
-		className: classnames( {
+		className: clsx( {
 			[ `has-text-align-${ textAlign }` ]: textAlign,
 		} ),
 	} );
@@ -93,72 +94,89 @@ function PostAuthorEdit( {
 	};
 
 	const showCombobox = authorOptions.length >= minimumUsersForCombobox;
+	const showAuthorControl =
+		!! postId && ! isDescendentOfQueryLoop && authorOptions.length > 0;
 
 	return (
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Settings' ) }>
-					{ !! postId &&
-						! isDescendentOfQueryLoop &&
-						authorOptions.length &&
-						( ( showCombobox && (
-							<ComboboxControl
-								label={ __( 'Author' ) }
-								options={ authorOptions }
-								value={ authorId }
-								onChange={ handleSelect }
-								allowReset={ false }
-							/>
-						) ) || (
-							<SelectControl
-								label={ __( 'Author' ) }
-								value={ authorId }
-								options={ authorOptions }
-								onChange={ handleSelect }
-							/>
-						) ) }
-					<ToggleControl
-						label={ __( 'Show avatar' ) }
-						checked={ showAvatar }
-						onChange={ () =>
-							setAttributes( { showAvatar: ! showAvatar } )
-						}
-					/>
-					{ showAvatar && (
-						<SelectControl
-							label={ __( 'Avatar size' ) }
-							value={ attributes.avatarSize }
-							options={ avatarSizes }
-							onChange={ ( size ) => {
-								setAttributes( {
-									avatarSize: Number( size ),
-								} );
-							} }
-						/>
-					) }
-					<ToggleControl
-						label={ __( 'Show bio' ) }
-						checked={ showBio }
-						onChange={ () =>
-							setAttributes( { showBio: ! showBio } )
-						}
-					/>
-					<ToggleControl
-						label={ __( 'Link author name to author page' ) }
-						checked={ isLink }
-						onChange={ () => setAttributes( { isLink: ! isLink } ) }
-					/>
-					{ isLink && (
+					<VStack
+						spacing={ 4 }
+						className="wp-block-post-author__inspector-settings"
+					>
+						{ showAuthorControl &&
+							( ( showCombobox && (
+								<ComboboxControl
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+									label={ __( 'Author' ) }
+									options={ authorOptions }
+									value={ authorId }
+									onChange={ handleSelect }
+									allowReset={ false }
+								/>
+							) ) || (
+								<SelectControl
+									__next40pxDefaultSize
+									__nextHasNoMarginBottom
+									label={ __( 'Author' ) }
+									value={ authorId }
+									options={ authorOptions }
+									onChange={ handleSelect }
+								/>
+							) ) }
 						<ToggleControl
-							label={ __( 'Open in new tab' ) }
-							onChange={ ( value ) =>
-								setAttributes( {
-									linkTarget: value ? '_blank' : '_self',
-								} )
+							__nextHasNoMarginBottom
+							label={ __( 'Show avatar' ) }
+							checked={ showAvatar }
+							onChange={ () =>
+								setAttributes( { showAvatar: ! showAvatar } )
 							}
-							checked={ linkTarget === '_blank' }
 						/>
-					) }
+						{ showAvatar && (
+							<SelectControl
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								label={ __( 'Avatar size' ) }
+								value={ attributes.avatarSize }
+								options={ avatarSizes }
+								onChange={ ( size ) => {
+									setAttributes( {
+										avatarSize: Number( size ),
+									} );
+								} }
+							/>
+						) }
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __( 'Show bio' ) }
+							checked={ showBio }
+							onChange={ () =>
+								setAttributes( { showBio: ! showBio } )
+							}
+						/>
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __( 'Link author name to author page' ) }
+							checked={ isLink }
+							onChange={ () =>
+								setAttributes( { isLink: ! isLink } )
+							}
+						/>
+						{ isLink && (
+							<ToggleControl
+								__nextHasNoMarginBottom
+								label={ __( 'Open in new tab' ) }
+								onChange={ ( value ) =>
+									setAttributes( {
+										linkTarget: value ? '_blank' : '_self',
+									} )
+								}
+								checked={ linkTarget === '_blank' }
+							/>
+						) }
+					</VStack>
 				</PanelBody>
 			</InspectorControls>
 
@@ -172,7 +190,7 @@ function PostAuthorEdit( {
 			</BlockControls>
 
 			<div { ...blockProps }>
-				{ showAvatar && authorDetails && (
+				{ showAvatar && authorDetails?.avatar_urls && (
 					<div className="wp-block-post-author__avatar">
 						<img
 							width={ attributes.avatarSize }
@@ -188,8 +206,8 @@ function PostAuthorEdit( {
 				<div className="wp-block-post-author__content">
 					{ ( ! RichText.isEmpty( byline ) || isSelected ) && (
 						<RichText
+							identifier="byline"
 							className="wp-block-post-author__byline"
-							multiline={ false }
 							aria-label={ __( 'Post author byline text' ) }
 							placeholder={ __( 'Write byline…' ) }
 							value={ byline }

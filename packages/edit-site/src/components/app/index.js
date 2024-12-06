@@ -1,75 +1,62 @@
 /**
  * WordPress dependencies
  */
-import { SlotFillProvider } from '@wordpress/components';
-import { UnsavedChangesWarning } from '@wordpress/editor';
-import { store as noticesStore } from '@wordpress/notices';
-import { useDispatch } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
-import { PluginArea } from '@wordpress/plugins';
+import { useSelect } from '@wordpress/data';
+import { privateApis as routerPrivateApis } from '@wordpress/router';
+import { useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { Routes } from '../routes';
-import Editor from '../editor';
-import List from '../list';
-import NavigationSidebar from '../navigation-sidebar';
-import getIsListPage from '../../utils/get-is-list-page';
+import Layout from '../layout';
+import { unlock } from '../../lock-unlock';
+import { store as editSiteStore } from '../../store';
+import { useCommonCommands } from '../../hooks/commands/use-common-commands';
+import useSetCommandContext from '../../hooks/commands/use-set-command-context';
+import { useRegisterSiteEditorRoutes } from '../site-editor-routes';
+import {
+	currentlyPreviewingTheme,
+	isPreviewingTheme,
+} from '../../utils/is-previewing-theme';
 
-export default function EditSiteApp( { reboot, homeTemplate } ) {
-	const { createErrorNotice } = useDispatch( noticesStore );
+const { RouterProvider } = unlock( routerPrivateApis );
 
-	function onPluginAreaError( name ) {
-		createErrorNotice(
-			sprintf(
-				/* translators: %s: plugin name */
-				__(
-					'The "%s" plugin has encountered an error and cannot be rendered.'
-				),
-				name
-			)
-		);
-	}
+function AppLayout() {
+	useCommonCommands();
+	useSetCommandContext();
+
+	return <Layout />;
+}
+
+export default function App() {
+	useRegisterSiteEditorRoutes();
+	const routes = useSelect( ( select ) => {
+		return unlock( select( editSiteStore ) ).getRoutes();
+	}, [] );
+	const beforeNavigate = useCallback( ( { path, query } ) => {
+		if ( ! isPreviewingTheme() ) {
+			return { path, query };
+		}
+
+		return {
+			path,
+			query: {
+				...query,
+				wp_theme_preview:
+					'wp_theme_preview' in query
+						? query.wp_theme_preview
+						: currentlyPreviewingTheme(),
+			},
+		};
+	}, [] );
 
 	return (
-		<SlotFillProvider>
-			<UnsavedChangesWarning />
-
-			<Routes>
-				{ ( { params } ) => {
-					const isListPage = getIsListPage( params );
-
-					// The existence of a 'front-page' supersedes every other setting.
-					const homeTemplateType =
-						params.postId?.includes( 'front-page' ) ||
-						params.postId === homeTemplate?.postId
-							? 'site-editor'
-							: undefined;
-
-					return (
-						<>
-							{ isListPage ? (
-								<List />
-							) : (
-								<Editor onError={ reboot } />
-							) }
-							<PluginArea onError={ onPluginAreaError } />
-							{ /* Keep the instance of the sidebar to ensure focus will not be lost
-							 * when navigating to other pages. */ }
-							<NavigationSidebar
-								// Open the navigation sidebar by default when in the list page.
-								isDefaultOpen={ !! isListPage }
-								activeTemplateType={
-									isListPage
-										? params.postType
-										: homeTemplateType
-								}
-							/>
-						</>
-					);
-				} }
-			</Routes>
-		</SlotFillProvider>
+		<RouterProvider
+			routes={ routes }
+			pathArg="p"
+			beforeNavigate={ beforeNavigate }
+		>
+			<AppLayout />
+		</RouterProvider>
 	);
 }

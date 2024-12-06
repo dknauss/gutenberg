@@ -48,37 +48,48 @@ const VideoSettings = ( { setAttributes, attributes } ) => {
 	return (
 		<>
 			<ToggleControl
+				__nextHasNoMarginBottom
 				label={ __( 'Autoplay' ) }
 				onChange={ toggleFactory.autoplay }
-				checked={ autoplay }
+				checked={ !! autoplay }
 				help={ getAutoplayHelp }
 			/>
 			<ToggleControl
+				__nextHasNoMarginBottom
 				label={ __( 'Loop' ) }
 				onChange={ toggleFactory.loop }
-				checked={ loop }
+				checked={ !! loop }
 			/>
 			<ToggleControl
+				__nextHasNoMarginBottom
 				label={ __( 'Muted' ) }
 				onChange={ toggleFactory.muted }
-				checked={ muted }
+				checked={ !! muted }
 			/>
 			<ToggleControl
+				__nextHasNoMarginBottom
 				label={ __( 'Playback controls' ) }
 				onChange={ toggleFactory.controls }
-				checked={ controls }
+				checked={ !! controls }
 			/>
 			<ToggleControl
+				__nextHasNoMarginBottom
+				/* translators: Setting to play videos within the webpage on mobile browsers rather than opening in a fullscreen player. */
 				label={ __( 'Play inline' ) }
 				onChange={ toggleFactory.playsInline }
-				checked={ playsInline }
+				checked={ !! playsInline }
+				help={ __(
+					'When enabled, videos will play directly within the webpage on mobile browsers, instead of opening in a fullscreen player.'
+				) }
 			/>
 			<SelectControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
 				label={ __( 'Preload' ) }
 				value={ preload }
 				onChange={ onChangePreload }
 				options={ options }
-				hideCancelButton={ true }
+				hideCancelButton
 			/>
 		</>
 	);

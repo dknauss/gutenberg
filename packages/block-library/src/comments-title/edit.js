@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 /**
  * WordPress dependencies
@@ -12,6 +12,7 @@ import {
 	useBlockProps,
 	InspectorControls,
 	store as blockEditorStore,
+	HeadingLevelDropdown,
 } from '@wordpress/block-editor';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useEntityProp } from '@wordpress/core-data';
@@ -21,13 +22,14 @@ import { useSelect } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 
-/**
- * Internal dependencies
- */
-import HeadingLevelDropdown from '../heading/heading-level-dropdown';
-
 export default function Edit( {
-	attributes: { textAlign, showPostTitle, showCommentsCount, level },
+	attributes: {
+		textAlign,
+		showPostTitle,
+		showCommentsCount,
+		level,
+		levelOptions,
+	},
 	setAttributes,
 	context: { postType, postId },
 } ) {
@@ -36,7 +38,7 @@ export default function Edit( {
 	const [ rawTitle ] = useEntityProp( 'postType', postType, 'title', postId );
 	const isSiteEditor = typeof postId === 'undefined';
 	const blockProps = useBlockProps( {
-		className: classnames( {
+		className: clsx( {
 			[ `has-text-align-${ textAlign }` ]: textAlign,
 		} ),
 	} );
@@ -98,7 +100,8 @@ export default function Edit( {
 				}
 			/>
 			<HeadingLevelDropdown
-				selectedLevel={ level }
+				value={ level }
+				options={ levelOptions }
 				onChange={ ( newLevel ) =>
 					setAttributes( { level: newLevel } )
 				}
@@ -110,6 +113,7 @@ export default function Edit( {
 		<InspectorControls>
 			<PanelBody title={ __( 'Settings' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					label={ __( 'Show post title' ) }
 					checked={ showPostTitle }
 					onChange={ ( value ) =>
@@ -117,6 +121,7 @@ export default function Edit( {
 					}
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					label={ __( 'Show comments count' ) }
 					checked={ showCommentsCount }
 					onChange={ ( value ) =>

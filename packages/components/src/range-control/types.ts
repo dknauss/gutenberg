@@ -74,7 +74,7 @@ export type RangeMarkProps = {
 
 export type ControlledRangeValue = number | '' | null;
 
-export type RangeControlProps< IconProps = unknown > = Pick<
+export type RangeControlProps = Pick<
 	BaseControlProps,
 	'hideLabelFromVision' | 'help' | '__nextHasNoMarginBottom'
 > &
@@ -86,7 +86,7 @@ export type RangeControlProps< IconProps = unknown > = Pick<
 		 * For more information on `IconType` see the Icon component:
 		 * /packages/components/src/icon/index.tsx
 		 */
-		afterIcon?: IconType< IconProps >;
+		afterIcon?: IconType;
 		/**
 		 * If this property is true, a button to reset the slider is
 		 * rendered.
@@ -101,11 +101,11 @@ export type RangeControlProps< IconProps = unknown > = Pick<
 		 * For more information on `IconType` see the Icon component:
 		 * /packages/components/src/icon/index.tsx
 		 */
-		beforeIcon?: IconType< IconProps >;
+		beforeIcon?: IconType;
 		/**
 		 * CSS color string for the `RangeControl` wrapper.
 		 *
-		 * @default COLORS.ui.theme
+		 * @default COLORS.theme.accent
 		 * @see /packages/components/src/utils/colors-values.js
 		 */
 		color?: CSSProperties[ 'color' ];
@@ -204,6 +204,12 @@ export type RangeControlProps< IconProps = unknown > = Pick<
 		 */
 		shiftStep?: number;
 		/**
+		 * Start opting into the larger default height that will become the default size in a future version.
+		 *
+		 * @default false
+		 */
+		__next40pxDefaultSize?: boolean;
+		/**
 		 * Forcing the Tooltip UI to show or hide. This is overridden to `false`
 		 * when `step` is set to the special string value `any`.
 		 */
@@ -227,6 +233,13 @@ export type RangeControlProps< IconProps = unknown > = Pick<
 		 * @default true
 		 */
 		withInputField?: boolean;
+		/**
+		 * Do not throw a warning for the deprecated 36px default size.
+		 * For internal components of other components that already throw the warning.
+		 *
+		 * @ignore
+		 */
+		__shouldNotWarnDeprecated36pxSize?: boolean;
 	};
 
 export type RailProps = MarksProps & {

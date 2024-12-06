@@ -177,7 +177,7 @@ describe( 'Blocks raw handling', () => {
 			.join( '' );
 
 		expect( filtered ).toMatchInlineSnapshot( `
-		"<ul><!-- wp:list-item -->
+		"<ul class="wp-block-list"><!-- wp:list-item -->
 		<li>one</li>
 		<!-- /wp:list-item -->
 
@@ -202,7 +202,7 @@ describe( 'Blocks raw handling', () => {
 			.join( '' );
 
 		expect( filtered ).toMatchInlineSnapshot( `
-		"<ul><!-- wp:list-item -->
+		"<ul class="wp-block-list"><!-- wp:list-item -->
 		<li>one</li>
 		<!-- /wp:list-item -->
 
@@ -249,7 +249,7 @@ describe( 'Blocks raw handling', () => {
 			.join( '' );
 
 		expect( filtered ).toBe(
-			'<h1>Some <em>heading</em></h1><p>A paragraph.</p>'
+			'<h1 class="wp-block-heading">Some <em>heading</em></h1><p>A paragraph.</p>'
 		);
 		expect( console ).toHaveLogged();
 	} );
@@ -318,7 +318,7 @@ describe( 'Blocks raw handling', () => {
 			.join( '' );
 
 		expect( filtered ).toMatchInlineSnapshot( `
-		"<ul><!-- wp:list-item -->
+		"<ul class="wp-block-list"><!-- wp:list-item -->
 		<li>One</li>
 		<!-- /wp:list-item -->
 
@@ -336,7 +336,7 @@ describe( 'Blocks raw handling', () => {
 	it( 'should correctly handle quotes with mixed content', () => {
 		const filtered = serialize(
 			pasteHandler( {
-				HTML: '<blockquote><h1>chicken</h1><p>ribs</p></blockquote>',
+				HTML: '<blockquote><h1 class="wp-block-heading">chicken</h1><p>ribs</p></blockquote>',
 				mode: 'AUTO',
 			} )
 		);
@@ -369,6 +369,34 @@ describe( 'Blocks raw handling', () => {
 		expect( console ).toHaveLogged();
 	} );
 
+	it( 'should convert pre', () => {
+		const transformed = pasteHandler( {
+			HTML: '<pre>1\n2</pre>',
+			plainText: '1\n2',
+		} )
+			.map( getBlockContent )
+			.join( '' );
+
+		expect( transformed ).toBe(
+			'<pre class="wp-block-preformatted">1\n2</pre>'
+		);
+		expect( console ).toHaveLogged();
+	} );
+
+	it( 'should convert code', () => {
+		const transformed = pasteHandler( {
+			HTML: '<pre><code>1\n2</code></pre>',
+			plainText: '1\n2',
+		} )
+			.map( getBlockContent )
+			.join( '' );
+
+		expect( transformed ).toBe(
+			'<pre class="wp-block-code"><code>1\n2</code></pre>'
+		);
+		expect( console ).toHaveLogged();
+	} );
+
 	describe( 'pasteHandler', () => {
 		[
 			'plain',
@@ -378,9 +406,12 @@ describe( 'Blocks raw handling', () => {
 			'google-docs',
 			'google-docs-list-only',
 			'google-docs-table',
+			'google-docs-table-with-colspan',
+			'google-docs-table-with-rowspan',
 			'google-docs-table-with-comments',
 			'google-docs-with-comments',
 			'ms-word',
+			'ms-word-list',
 			'ms-word-styled',
 			'ms-word-online',
 			'evernote',
@@ -393,6 +424,7 @@ describe( 'Blocks raw handling', () => {
 			'shortcode-matching',
 			'slack-quote',
 			'slack-paragraphs',
+			'mixed-content',
 		].forEach( ( type ) => {
 			// eslint-disable-next-line jest/valid-title
 			it( type, () => {
@@ -427,10 +459,14 @@ describe( 'Blocks raw handling', () => {
 
 				expect( serialized ).toBe( output );
 
-				if ( type !== 'gutenberg' ) {
-					// eslint-disable-next-line jest/no-conditional-expect
-					expect( console ).toHaveLogged();
-				}
+				const convertedInline = pasteHandler( {
+					HTML,
+					plainText,
+					mode: 'INLINE',
+				} );
+
+				expect( convertedInline ).toMatchSnapshot();
+				expect( console ).toHaveLogged();
 			} );
 		} );
 
@@ -523,6 +559,14 @@ describe( 'rawHandler', () => {
 
 	it( 'should preserve alignment', () => {
 		const HTML = '<p style="text-align:center">center</p>';
+		expect( serialize( rawHandler( { HTML } ) ) ).toMatchSnapshot();
+	} );
+
+	it( 'should preserve all paragraphs', () => {
+		const HTML = `<p></p>
+<p>&nbsp;&nbsp;</p>
+<p class="p"></p>
+<p style="border: 1px solid tomato;"></p>`;
 		expect( serialize( rawHandler( { HTML } ) ) ).toMatchSnapshot();
 	} );
 } );

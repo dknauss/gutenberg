@@ -1,14 +1,12 @@
 /**
  * External dependencies
  */
-import { get, pickBy } from 'lodash';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 /**
  * WordPress dependencies
  */
 import {
-	BaseControl,
 	PanelBody,
 	Placeholder,
 	QueryControls,
@@ -17,22 +15,32 @@ import {
 	Spinner,
 	ToggleControl,
 	ToolbarGroup,
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
 } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { dateI18n, format, getSettings } from '@wordpress/date';
 import {
 	InspectorControls,
-	BlockAlignmentToolbar,
 	BlockControls,
 	__experimentalImageSizeControl as ImageSizeControl,
 	useBlockProps,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { pin, list, grid } from '@wordpress/icons';
+import {
+	pin,
+	list,
+	grid,
+	alignNone,
+	positionLeft,
+	positionCenter,
+	positionRight,
+} from '@wordpress/icons';
 import { store as coreStore } from '@wordpress/core-data';
 import { store as noticeStore } from '@wordpress/notices';
 import { useInstanceId } from '@wordpress/compose';
+import { createInterpolateElement } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -57,7 +65,7 @@ const USERS_LIST_QUERY = {
 };
 
 function getFeaturedImageDetails( post, size ) {
-	const image = get( post, [ '_embedded', 'wp:featuredmedia', '0' ] );
+	const image = post._embedded?.[ 'wp:featuredmedia' ]?.[ '0' ];
 
 	return {
 		url:
@@ -104,29 +112,24 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 				categories && categories.length > 0
 					? categories.map( ( cat ) => cat.id )
 					: [];
-			const latestPostsQuery = pickBy(
-				{
+			const latestPostsQuery = Object.fromEntries(
+				Object.entries( {
 					categories: catIds,
 					author: selectedAuthor,
 					order,
 					orderby: orderBy,
 					per_page: postsToShow,
 					_embed: 'wp:featuredmedia',
-				},
-				( value ) => typeof value !== 'undefined'
+				} ).filter( ( [ , value ] ) => typeof value !== 'undefined' )
 			);
 
 			return {
-				defaultImageWidth: get(
-					settings.imageDimensions,
-					[ featuredImageSizeSlug, 'width' ],
-					0
-				),
-				defaultImageHeight: get(
-					settings.imageDimensions,
-					[ featuredImageSizeSlug, 'height' ],
-					0
-				),
+				defaultImageWidth:
+					settings.imageDimensions?.[ featuredImageSizeSlug ]
+						?.width ?? 0,
+				defaultImageHeight:
+					settings.imageDimensions?.[ featuredImageSizeSlug ]
+						?.height ?? 0,
 				imageSizes: settings.imageSizes,
 				latestPosts: getEntityRecords(
 					'postType',
@@ -152,15 +155,11 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 	);
 
 	// If a user clicks to a link prevent redirection and show a warning.
-	const { createWarningNotice, removeNotice } = useDispatch( noticeStore );
-	let noticeId;
+	const { createWarningNotice } = useDispatch( noticeStore );
 	const showRedirectionPreventedNotice = ( event ) => {
 		event.preventDefault();
-		// Remove previous warning if any, to show one at a time per block.
-		removeNotice( noticeId );
-		noticeId = `block-library/core/latest-posts/redirection-prevented/${ instanceId }`;
 		createWarningNotice( __( 'Links are disabled in the editor.' ), {
-			id: noticeId,
+			id: `block-library/core/latest-posts/redirection-prevented/${ instanceId }`,
 			type: 'snackbar',
 		} );
 	};
@@ -202,11 +201,35 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 		setAttributes( { categories: allCategories } );
 	};
 
+	const imageAlignmentOptions = [
+		{
+			value: 'none',
+			icon: alignNone,
+			label: __( 'None' ),
+		},
+		{
+			value: 'left',
+			icon: positionLeft,
+			label: __( 'Left' ),
+		},
+		{
+			value: 'center',
+			icon: positionCenter,
+			label: __( 'Center' ),
+		},
+		{
+			value: 'right',
+			icon: positionRight,
+			label: __( 'Right' ),
+		},
+	];
+
 	const hasPosts = !! latestPosts?.length;
 	const inspectorControls = (
 		<InspectorControls>
-			<PanelBody title={ __( 'Post content settings' ) }>
+			<PanelBody title={ __( 'Post content' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					label={ __( 'Post content' ) }
 					checked={ displayPostContent }
 					onChange={ ( value ) =>
@@ -215,7 +238,7 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 				/>
 				{ displayPostContent && (
 					<RadioControl
-						label={ __( 'Show:' ) }
+						label={ __( 'Show' ) }
 						selected={ displayPostContentRadio }
 						options={ [
 							{ label: __( 'Excerpt' ), value: 'excerpt' },
@@ -234,7 +257,9 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 				{ displayPostContent &&
 					displayPostContentRadio === 'excerpt' && (
 						<RangeControl
-							label={ __( 'Max number of words in excerpt' ) }
+							__nextHasNoMarginBottom
+							__next40pxDefaultSize
+							label={ __( 'Max number of words' ) }
 							value={ excerptLength }
 							onChange={ ( value ) =>
 								setAttributes( { excerptLength: value } )
@@ -245,8 +270,9 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 					) }
 			</PanelBody>
 
-			<PanelBody title={ __( 'Post meta settings' ) }>
+			<PanelBody title={ __( 'Post meta' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					label={ __( 'Display author name' ) }
 					checked={ displayAuthor }
 					onChange={ ( value ) =>
@@ -254,6 +280,7 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 					}
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					label={ __( 'Display post date' ) }
 					checked={ displayPostDate }
 					onChange={ ( value ) =>
@@ -262,8 +289,9 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 				/>
 			</PanelBody>
 
-			<PanelBody title={ __( 'Featured image settings' ) }>
+			<PanelBody title={ __( 'Featured image' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom
 					label={ __( 'Display featured image' ) }
 					checked={ displayFeaturedImage }
 					onChange={ ( value ) =>
@@ -291,6 +319,9 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 							imageWidth={ defaultImageWidth }
 							imageHeight={ defaultImageHeight }
 							imageSizeOptions={ imageSizeOptions }
+							imageSizeHelp={ __(
+								'Select the size of the source image.'
+							) }
 							onChangeImage={ ( value ) =>
 								setAttributes( {
 									featuredImageSizeSlug: value,
@@ -299,22 +330,34 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 								} )
 							}
 						/>
-						<BaseControl className="editor-latest-posts-image-alignment-control">
-							<BaseControl.VisualLabel>
-								{ __( 'Image alignment' ) }
-							</BaseControl.VisualLabel>
-							<BlockAlignmentToolbar
-								value={ featuredImageAlign }
-								onChange={ ( value ) =>
-									setAttributes( {
-										featuredImageAlign: value,
-									} )
+						<ToggleGroupControl
+							className="editor-latest-posts-image-alignment-control"
+							__nextHasNoMarginBottom
+							__next40pxDefaultSize
+							label={ __( 'Image alignment' ) }
+							value={ featuredImageAlign || 'none' }
+							onChange={ ( value ) =>
+								setAttributes( {
+									featuredImageAlign:
+										value !== 'none' ? value : undefined,
+								} )
+							}
+						>
+							{ imageAlignmentOptions.map(
+								( { value, icon, label } ) => {
+									return (
+										<ToggleGroupControlOptionIcon
+											key={ value }
+											value={ value }
+											icon={ icon }
+											label={ label }
+										/>
+									);
 								}
-								controls={ [ 'left', 'center', 'right' ] }
-								isCollapsed={ false }
-							/>
-						</BaseControl>
+							) }
+						</ToggleGroupControl>
 						<ToggleControl
+							__nextHasNoMarginBottom
 							label={ __( 'Add link to featured image' ) }
 							checked={ addLinkToFeaturedImage }
 							onChange={ ( value ) =>
@@ -355,6 +398,8 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 
 				{ postLayout === 'grid' && (
 					<RangeControl
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
 						label={ __( 'Columns' ) }
 						value={ columns }
 						onChange={ ( value ) =>
@@ -377,7 +422,7 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 	);
 
 	const blockProps = useBlockProps( {
-		className: classnames( {
+		className: clsx( {
 			'wp-block-latest-posts__list': true,
 			'is-grid': postLayout === 'grid',
 			'has-dates': displayPostDate,
@@ -410,13 +455,13 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 	const layoutControls = [
 		{
 			icon: list,
-			title: __( 'List view' ),
+			title: _x( 'List view', 'Latest posts block display setting' ),
 			onClick: () => setAttributes( { postLayout: 'list' } ),
 			isActive: postLayout === 'list',
 		},
 		{
 			icon: grid,
-			title: __( 'Grid view' ),
+			title: _x( 'Grid view', 'Latest posts block display setting' ),
 			onClick: () => setAttributes( { postLayout: 'grid' } ),
 			isActive: postLayout === 'grid',
 		},
@@ -425,13 +470,13 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 	const dateFormat = getSettings().formats.date;
 
 	return (
-		<div>
+		<>
 			{ inspectorControls }
 			<BlockControls>
 				<ToolbarGroup controls={ layoutControls } />
 			</BlockControls>
 			<ul { ...blockProps }>
-				{ displayPosts.map( ( post, i ) => {
+				{ displayPosts.map( ( post ) => {
 					const titleTrimmed = post.title.rendered.trim();
 					let excerpt = post.excerpt.rendered;
 					const currentAuthor = authorList?.find(
@@ -448,7 +493,7 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 
 					const { url: imageSourceUrl, alt: featuredImageAlt } =
 						getFeaturedImageDetails( post, featuredImageSizeSlug );
-					const imageClasses = classnames( {
+					const imageClasses = clsx( {
 						'wp-block-latest-posts__featured-image': true,
 						[ `align${ featuredImageAlign }` ]:
 							!! featuredImageAlign,
@@ -476,27 +521,42 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 								.trim()
 								.split( ' ', excerptLength )
 								.join( ' ' ) }
-							{ /* translators: excerpt truncation character, default …  */ }
-							{ __( ' … ' ) }
-							<a
-								href={ post.link }
-								rel="noopener noreferrer"
-								onClick={ showRedirectionPreventedNotice }
-							>
-								{ __( 'Read more' ) }
-							</a>
+							{ createInterpolateElement(
+								sprintf(
+									/* translators: 1: Hidden accessibility text: Post title */
+									__(
+										'… <a>Read more<span>: %1$s</span></a>'
+									),
+									titleTrimmed || __( '(no title)' )
+								),
+								{
+									a: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											className="wp-block-latest-posts__read-more"
+											href={ post.link }
+											rel="noopener noreferrer"
+											onClick={
+												showRedirectionPreventedNotice
+											}
+										/>
+									),
+									span: (
+										<span className="screen-reader-text" />
+									),
+								}
+							) }
 						</>
 					) : (
 						excerpt
 					);
 
 					return (
-						<li key={ i }>
+						<li key={ post.id }>
 							{ renderFeaturedImage && (
 								<div className={ imageClasses }>
 									{ addLinkToFeaturedImage ? (
 										<a
-											className="wp-block-latest-posts__post-title"
 											href={ post.link }
 											rel="noreferrer noopener"
 											onClick={
@@ -511,6 +571,7 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 								</div>
 							) }
 							<a
+								className="wp-block-latest-posts__post-title"
 								href={ post.link }
 								rel="noreferrer noopener"
 								dangerouslySetInnerHTML={
@@ -527,7 +588,7 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 							{ displayAuthor && currentAuthor && (
 								<div className="wp-block-latest-posts__post-author">
 									{ sprintf(
-										/* translators: byline. %s: current author. */
+										/* translators: byline. %s: author. */
 										__( 'by %s' ),
 										currentAuthor.name
 									) }
@@ -560,6 +621,6 @@ export default function LatestPostsEdit( { attributes, setAttributes } ) {
 					);
 				} ) }
 			</ul>
-		</div>
+		</>
 	);
 }

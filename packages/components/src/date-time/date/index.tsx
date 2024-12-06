@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { useLilius } from 'use-lilius';
 import {
 	format,
 	isSameDay,
@@ -16,6 +15,7 @@ import {
 	startOfWeek,
 	endOfWeek,
 } from 'date-fns';
+import type { KeyboardEventHandler } from 'react';
 
 /**
  * WordPress dependencies
@@ -28,6 +28,7 @@ import { useState, useRef, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { useLilius } from './use-lilius';
 import type { DatePickerProps } from '../types';
 import {
 	Wrapper,
@@ -124,6 +125,7 @@ export function DatePicker( {
 							)
 						);
 					} }
+					size="compact"
 				/>
 				<NavigatorHeading level={ 3 }>
 					<strong>
@@ -149,6 +151,7 @@ export function DatePicker( {
 							)
 						);
 					} }
+					size="compact"
 				/>
 			</Navigator>
 			<Calendar
@@ -273,7 +276,7 @@ type DayProps = {
 	numEvents: number;
 	isInvalid: boolean;
 	onClick: () => void;
-	onKeyDown: ( event: KeyboardEvent ) => void;
+	onKeyDown: KeyboardEventHandler;
 };
 
 function Day( {
@@ -299,7 +302,6 @@ function Day( {
 		}
 		// isFocusAllowed is not a dep as there is no point calling focus() on
 		// an already focused element.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ isFocusable ] );
 
 	return (

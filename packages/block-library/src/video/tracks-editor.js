@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import {
 	NavigableMenu,
 	MenuItem,
@@ -13,6 +13,9 @@ import {
 	Button,
 	TextControl,
 	SelectControl,
+	__experimentalGrid as Grid,
+	__experimentalHStack as HStack,
+	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import {
 	MediaUpload,
@@ -21,7 +24,7 @@ import {
 } from '@wordpress/block-editor';
 import { upload, media } from '@wordpress/icons';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useState, useRef, useEffect } from '@wordpress/element';
 import { getFilename } from '@wordpress/url';
 
 const ALLOWED_TYPES = [ 'text/vtt' ];
@@ -37,38 +40,29 @@ const KIND_OPTIONS = [
 ];
 
 function TrackList( { tracks, onEditPress } ) {
-	let content;
-	if ( tracks.length === 0 ) {
-		content = (
-			<p className="block-library-video-tracks-editor__tracks-informative-message">
-				{ __(
-					'Tracks can be subtitles, captions, chapters, or descriptions. They help make your content more accessible to a wider range of users.'
-				) }
-			</p>
-		);
-	} else {
-		content = tracks.map( ( track, index ) => {
-			return (
-				<div
-					key={ index }
-					className="block-library-video-tracks-editor__track-list-track"
+	const content = tracks.map( ( track, index ) => {
+		return (
+			<HStack
+				key={ index }
+				className="block-library-video-tracks-editor__track-list-track"
+			>
+				<span>{ track.label }</span>
+				<Button
+					__next40pxDefaultSize
+					variant="tertiary"
+					onClick={ () => onEditPress( index ) }
+					aria-label={ sprintf(
+						/* translators: %s: Label of the video text track e.g: "French subtitles". */
+						_x( 'Edit %s', 'text tracks' ),
+						track.label
+					) }
 				>
-					<span>{ track.label } </span>
-					<Button
-						variant="tertiary"
-						onClick={ () => onEditPress( index ) }
-						aria-label={ sprintf(
-							/* translators: %s: Label of the video text track e.g: "French subtitles" */
-							__( 'Edit %s' ),
-							track.label
-						) }
-					>
-						{ __( 'Edit' ) }
-					</Button>
-				</div>
-			);
-		} );
-	}
+					{ __( 'Edit' ) }
+				</Button>
+			</HStack>
+		);
+	} );
+
 	return (
 		<MenuGroup
 			label={ __( 'Text tracks' ) }
@@ -83,42 +77,48 @@ function SingleTrackEditor( { track, onChange, onClose, onRemove } ) {
 	const { src = '', label = '', srcLang = '', kind = DEFAULT_KIND } = track;
 	const fileName = src.startsWith( 'blob:' ) ? '' : getFilename( src ) || '';
 	return (
-		<NavigableMenu>
-			<div className="block-library-video-tracks-editor__single-track-editor">
-				<span className="block-library-video-tracks-editor__single-track-editor-edit-track-label">
-					{ __( 'Edit track' ) }
-				</span>
-				<span>
-					{ __( 'File' ) }: <b>{ fileName }</b>
-				</span>
-				<div className="block-library-video-tracks-editor__single-track-editor-label-language">
-					<TextControl
-						/* eslint-disable jsx-a11y/no-autofocus */
-						autoFocus
-						/* eslint-enable jsx-a11y/no-autofocus */
-						onChange={ ( newLabel ) =>
-							onChange( {
-								...track,
-								label: newLabel,
-							} )
-						}
-						label={ __( 'Label' ) }
-						value={ label }
-						help={ __( 'Title of track' ) }
-					/>
-					<TextControl
-						onChange={ ( newSrcLang ) =>
-							onChange( {
-								...track,
-								srcLang: newSrcLang,
-							} )
-						}
-						label={ __( 'Source language' ) }
-						value={ srcLang }
-						help={ __( 'Language tag (en, fr, etc.)' ) }
-					/>
-				</div>
+		<VStack
+			className="block-library-video-tracks-editor__single-track-editor"
+			spacing="4"
+		>
+			<span className="block-library-video-tracks-editor__single-track-editor-edit-track-label">
+				{ __( 'Edit track' ) }
+			</span>
+			<span>
+				{ __( 'File' ) }: <b>{ fileName }</b>
+			</span>
+			<Grid columns={ 2 } gap={ 4 }>
+				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					onChange={ ( newLabel ) =>
+						onChange( {
+							...track,
+							label: newLabel,
+						} )
+					}
+					label={ __( 'Label' ) }
+					value={ label }
+					help={ __( 'Title of track' ) }
+				/>
+				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					onChange={ ( newSrcLang ) =>
+						onChange( {
+							...track,
+							srcLang: newSrcLang,
+						} )
+					}
+					label={ __( 'Source language' ) }
+					value={ srcLang }
+					help={ __( 'Language tag (en, fr, etc.)' ) }
+				/>
+			</Grid>
+			<VStack spacing="8">
 				<SelectControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
 					className="block-library-video-tracks-editor__single-track-editor-kind-select"
 					options={ KIND_OPTIONS }
 					value={ kind }
@@ -130,9 +130,18 @@ function SingleTrackEditor( { track, onChange, onClose, onRemove } ) {
 						} );
 					} }
 				/>
-				<div className="block-library-video-tracks-editor__single-track-editor-buttons-container">
+				<HStack className="block-library-video-tracks-editor__single-track-editor-buttons-container">
 					<Button
-						variant="secondary"
+						__next40pxDefaultSize
+						isDestructive
+						variant="link"
+						onClick={ onRemove }
+					>
+						{ __( 'Remove track' ) }
+					</Button>
+					<Button
+						__next40pxDefaultSize
+						variant="primary"
 						onClick={ () => {
 							const changes = {};
 							let hasChanges = false;
@@ -157,14 +166,11 @@ function SingleTrackEditor( { track, onChange, onClose, onRemove } ) {
 							onClose();
 						} }
 					>
-						{ __( 'Close' ) }
+						{ __( 'Apply' ) }
 					</Button>
-					<Button isDestructive variant="link" onClick={ onRemove }>
-						{ __( 'Remove track' ) }
-					</Button>
-				</div>
-			</div>
-		</NavigableMenu>
+				</HStack>
+			</VStack>
+		</VStack>
 	);
 }
 
@@ -173,6 +179,11 @@ export default function TracksEditor( { tracks = [], onChange } ) {
 		return select( blockEditorStore ).getSettings().mediaUpload;
 	}, [] );
 	const [ trackBeingEdited, setTrackBeingEdited ] = useState( null );
+	const dropdownPopoverRef = useRef();
+
+	useEffect( () => {
+		dropdownPopoverRef.current?.focus();
+	}, [ trackBeingEdited ] );
 
 	if ( ! mediaUpload ) {
 		return null;
@@ -180,19 +191,32 @@ export default function TracksEditor( { tracks = [], onChange } ) {
 	return (
 		<Dropdown
 			contentClassName="block-library-video-tracks-editor"
-			renderToggle={ ( { isOpen, onToggle } ) => (
-				<ToolbarGroup>
-					<ToolbarButton
-						label={ __( 'Text tracks' ) }
-						showTooltip
-						aria-expanded={ isOpen }
-						aria-haspopup="true"
-						onClick={ onToggle }
-					>
-						{ __( 'Text tracks' ) }
-					</ToolbarButton>
-				</ToolbarGroup>
-			) }
+			focusOnMount
+			popoverProps={ {
+				ref: dropdownPopoverRef,
+			} }
+			renderToggle={ ( { isOpen, onToggle } ) => {
+				const handleOnToggle = () => {
+					if ( ! isOpen ) {
+						// When the Popover opens make sure the initial view is
+						// always the track list rather than the edit track UI.
+						setTrackBeingEdited( null );
+					}
+					onToggle();
+				};
+
+				return (
+					<ToolbarGroup>
+						<ToolbarButton
+							aria-expanded={ isOpen }
+							aria-haspopup="true"
+							onClick={ handleOnToggle }
+						>
+							{ __( 'Text tracks' ) }
+						</ToolbarButton>
+					</ToolbarGroup>
+				);
+			} }
 			renderContent={ () => {
 				if ( trackBeingEdited !== null ) {
 					return (
@@ -216,8 +240,21 @@ export default function TracksEditor( { tracks = [], onChange } ) {
 						/>
 					);
 				}
+
 				return (
 					<>
+						{ tracks.length === 0 && (
+							<div className="block-library-video-tracks-editor__tracks-informative-message">
+								<h2 className="block-library-video-tracks-editor__tracks-informative-message-title">
+									{ __( 'Text tracks' ) }
+								</h2>
+								<p className="block-library-video-tracks-editor__tracks-informative-message-description">
+									{ __(
+										'Tracks can be subtitles, captions, chapters, or descriptions. They help make your content more accessible to a wider range of users.'
+									) }
+								</p>
+							</div>
+						) }
 						<NavigableMenu>
 							<TrackList
 								tracks={ tracks }

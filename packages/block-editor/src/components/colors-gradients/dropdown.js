@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 /**
  * WordPress dependencies
@@ -80,7 +80,7 @@ const renderToggle =
 
 		const toggleProps = {
 			onClick: onToggle,
-			className: classnames(
+			className: clsx(
 				'block-editor-panel-color-gradient-settings__dropdown',
 				{ 'is-open': isOpen }
 			),
@@ -88,7 +88,7 @@ const renderToggle =
 		};
 
 		return (
-			<Button { ...toggleProps }>
+			<Button __next40pxDefaultSize { ...toggleProps }>
 				<LabeledColorIndicator
 					colorValue={ colorValue }
 					label={ label }
@@ -111,7 +111,6 @@ export default function ColorGradientSettingsDropdown( {
 	enableAlpha,
 	gradients,
 	settings,
-	__experimentalHasMultipleOrigins,
 	__experimentalIsRenderedInSidebar,
 	...props
 } ) {
@@ -140,7 +139,6 @@ export default function ColorGradientSettingsDropdown( {
 					onColorChange: setting.onColorChange,
 					onGradientChange: setting.onGradientChange,
 					showTitle: false,
-					__experimentalHasMultipleOrigins,
 					__experimentalIsRenderedInSidebar,
 					...setting,
 				};

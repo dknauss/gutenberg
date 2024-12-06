@@ -15,6 +15,12 @@ const variations = [
 		icon: next,
 		attributes: { type: 'next' },
 		scope: [ 'inserter', 'transform' ],
+		example: {
+			attributes: {
+				label: 'Next post',
+				arrow: 'arrow',
+			},
+		},
 	},
 	{
 		name: 'post-previous',
@@ -25,6 +31,12 @@ const variations = [
 		icon: previous,
 		attributes: { type: 'previous' },
 		scope: [ 'inserter', 'transform' ],
+		example: {
+			attributes: {
+				label: 'Previous post',
+				arrow: 'arrow',
+			},
+		},
 	},
 ];
 
@@ -34,7 +46,9 @@ const variations = [
  *  Block by providing its attributes.
  */
 variations.forEach( ( variation ) => {
-	if ( variation.isActive ) return;
+	if ( variation.isActive ) {
+		return;
+	}
 	variation.isActive = ( blockAttributes, variationAttributes ) =>
 		blockAttributes.type === variationAttributes.type;
 } );

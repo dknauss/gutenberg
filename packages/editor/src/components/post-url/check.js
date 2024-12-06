@@ -9,6 +9,14 @@ import { store as coreStore } from '@wordpress/core-data';
  */
 import { store as editorStore } from '../../store';
 
+/**
+ * Check if the post URL is valid and visible.
+ *
+ * @param {Object}             props          The component props.
+ * @param {React.ReactElement} props.children The child components.
+ *
+ * @return {React.ReactElement} The child components if the post URL is valid and visible, otherwise null.
+ */
 export default function PostURLCheck( { children } ) {
 	const isVisible = useSelect( ( select ) => {
 		const postTypeSlug = select( editorStore ).getCurrentPostType();

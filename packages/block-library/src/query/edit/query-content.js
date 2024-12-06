@@ -3,61 +3,76 @@
  */
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useInstanceId } from '@wordpress/compose';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useCallback } from '@wordpress/element';
 import {
 	BlockControls,
 	InspectorControls,
 	useBlockProps,
-	useSetting,
 	store as blockEditorStore,
 	useInnerBlocksProps,
 } from '@wordpress/block-editor';
 import { SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { store as coreStore } from '@wordpress/core-data';
 
 /**
  * Internal dependencies
  */
-import QueryToolbar from './query-toolbar';
+import EnhancedPaginationControl from './inspector-controls/enhanced-pagination-control';
 import QueryInspectorControls from './inspector-controls';
-import { DEFAULTS_POSTS_PER_PAGE } from '../constants';
+import EnhancedPaginationModal from './enhanced-pagination-modal';
+import { getQueryContextFromTemplate } from '../utils';
+import QueryToolbar from './query-toolbar';
+
+const DEFAULTS_POSTS_PER_PAGE = 3;
 
 const TEMPLATE = [ [ 'core/post-template' ] ];
 export default function QueryContent( {
 	attributes,
 	setAttributes,
-	openPatternSelectionModal,
-	name,
 	clientId,
+	context,
+	name,
 } ) {
 	const {
 		queryId,
 		query,
 		displayLayout,
+		enhancedPagination,
 		tagName: TagName = 'div',
-		layout = {},
+		query: { inherit } = {},
 	} = attributes;
+	const { templateSlug } = context;
+	const { isSingular } = getQueryContextFromTemplate( templateSlug );
 	const { __unstableMarkNextChangeAsNotPersistent } =
 		useDispatch( blockEditorStore );
 	const instanceId = useInstanceId( QueryContent );
-	const { themeSupportsLayout } = useSelect( ( select ) => {
-		const { getSettings } = select( blockEditorStore );
-		return { themeSupportsLayout: getSettings()?.supportsLayout };
-	}, [] );
-	const defaultLayout = useSetting( 'layout' ) || {};
-	const usedLayout = ! layout?.type
-		? { ...defaultLayout, ...layout, type: 'default' }
-		: { ...defaultLayout, ...layout };
 	const blockProps = useBlockProps();
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		template: TEMPLATE,
-		__experimentalLayout: themeSupportsLayout ? usedLayout : undefined,
 	} );
 	const { postsPerPage } = useSelect( ( select ) => {
 		const { getSettings } = select( blockEditorStore );
+		const { getEntityRecord, getEntityRecordEdits, canUser } =
+			select( coreStore );
+		const settingPerPage = canUser( 'read', {
+			kind: 'root',
+			name: 'site',
+		} )
+			? +getEntityRecord( 'root', 'site' )?.posts_per_page
+			: +getSettings().postsPerPage;
+
+		// Gets changes made via the template area posts per page setting. These won't be saved
+		// until the page is saved, but we should reflect this setting within the query loops
+		// that inherit it.
+		const editedSettingPerPage = +getEntityRecordEdits( 'root', 'site' )
+			?.posts_per_page;
+
 		return {
 			postsPerPage:
-				+getSettings().postsPerPage || DEFAULTS_POSTS_PER_PAGE,
+				editedSettingPerPage ||
+				settingPerPage ||
+				DEFAULTS_POSTS_PER_PAGE,
 		};
 	}, [] );
 	// There are some effects running where some initialization logic is
@@ -69,16 +84,37 @@ export default function QueryContent( {
 	// Changes in query property (which is an object) need to be in the same callback,
 	// because updates are batched after the render and changes in different query properties
 	// would cause to override previous wanted changes.
+	const updateQuery = useCallback(
+		( newQuery ) => setAttributes( { query: { ...query, ...newQuery } } ),
+		[ query, setAttributes ]
+	);
 	useEffect( () => {
 		const newQuery = {};
-		if ( ! query.perPage && postsPerPage ) {
+		// When we inherit from global query always need to set the `perPage`
+		// based on the reading settings.
+		if ( inherit && query.perPage !== postsPerPage ) {
 			newQuery.perPage = postsPerPage;
+		} else if ( ! query.perPage && postsPerPage ) {
+			newQuery.perPage = postsPerPage;
+		}
+		// We need to reset the `inherit` value if in a singular template, as queries
+		// are not inherited when in singular content (e.g. post, page, 404, blank).
+		if ( isSingular && query.inherit ) {
+			newQuery.inherit = false;
 		}
 		if ( !! Object.keys( newQuery ).length ) {
 			__unstableMarkNextChangeAsNotPersistent();
 			updateQuery( newQuery );
 		}
-	}, [ query.perPage ] );
+	}, [
+		query.perPage,
+		query.inherit,
+		postsPerPage,
+		inherit,
+		isSingular,
+		__unstableMarkNextChangeAsNotPersistent,
+		updateQuery,
+	] );
 	// We need this for multi-query block pagination.
 	// Query parameters for each block are scoped to their ID.
 	useEffect( () => {
@@ -86,32 +122,53 @@ export default function QueryContent( {
 			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( { queryId: instanceId } );
 		}
-	}, [ queryId, instanceId ] );
-	const updateQuery = ( newQuery ) =>
-		setAttributes( { query: { ...query, ...newQuery } } );
+	}, [
+		queryId,
+		instanceId,
+		__unstableMarkNextChangeAsNotPersistent,
+		setAttributes,
+	] );
 	const updateDisplayLayout = ( newDisplayLayout ) =>
 		setAttributes( {
 			displayLayout: { ...displayLayout, ...newDisplayLayout },
 		} );
+	const htmlElementMessages = {
+		main: __(
+			'The <main> element should be used for the primary content of your document only.'
+		),
+		section: __(
+			"The <section> element should represent a standalone portion of the document that can't be better represented by another element."
+		),
+		aside: __(
+			"The <aside> element should represent a portion of a document whose content is only indirectly related to the document's main content."
+		),
+	};
+
 	return (
 		<>
-			<QueryInspectorControls
+			<EnhancedPaginationModal
 				attributes={ attributes }
-				setQuery={ updateQuery }
-				setDisplayLayout={ updateDisplayLayout }
+				setAttributes={ setAttributes }
+				clientId={ clientId }
 			/>
-			<BlockControls>
-				<QueryToolbar
+			<InspectorControls>
+				<QueryInspectorControls
 					name={ name }
-					clientId={ clientId }
 					attributes={ attributes }
 					setQuery={ updateQuery }
 					setDisplayLayout={ updateDisplayLayout }
-					openPatternSelectionModal={ openPatternSelectionModal }
+					setAttributes={ setAttributes }
+					clientId={ clientId }
+					isSingular={ isSingular }
 				/>
+			</InspectorControls>
+			<BlockControls>
+				<QueryToolbar attributes={ attributes } clientId={ clientId } />
 			</BlockControls>
-			<InspectorControls __experimentalGroup="advanced">
+			<InspectorControls group="advanced">
 				<SelectControl
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
 					label={ __( 'HTML element' ) }
 					options={ [
 						{ label: __( 'Default (<div>)' ), value: 'div' },
@@ -123,6 +180,12 @@ export default function QueryContent( {
 					onChange={ ( value ) =>
 						setAttributes( { tagName: value } )
 					}
+					help={ htmlElementMessages[ TagName ] }
+				/>
+				<EnhancedPaginationControl
+					enhancedPagination={ enhancedPagination }
+					setAttributes={ setAttributes }
+					clientId={ clientId }
 				/>
 			</InspectorControls>
 			<TagName { ...innerBlocksProps } />

@@ -1,11 +1,6 @@
 /**
- * External dependencies
- */
-import classnames from 'classnames';
-/**
  * WordPress dependencies
  */
-import { useInstanceId } from '@wordpress/compose';
 import { forwardRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -46,7 +41,8 @@ const LinkControlSearchInput = forwardRef(
 			suggestionsQuery = {},
 			withURLSuggestion = true,
 			createSuggestionButtonText,
-			useLabel = false,
+			hideLabelFromVision = false,
+			suffix,
 		},
 		ref
 	) => {
@@ -61,7 +57,6 @@ const LinkControlSearchInput = forwardRef(
 			? fetchSuggestions || genericSearchHandler
 			: noopSearchHandler;
 
-		const instanceId = useInstanceId( LinkControlSearchInput );
 		const [ focusedSuggestion, setFocusedSuggestion ] = useState();
 
 		/**
@@ -79,9 +74,7 @@ const LinkControlSearchInput = forwardRef(
 		const handleRenderSuggestions = ( props ) =>
 			renderSuggestions( {
 				...props,
-				instanceId,
 				withCreateSuggestion,
-				currentInputValue: value,
 				createSuggestionButtonText,
 				suggestionsQuery,
 				handleSuggestionClick: ( suggestion ) => {
@@ -120,23 +113,23 @@ const LinkControlSearchInput = forwardRef(
 			}
 		};
 
-		const inputClasses = classnames( className, {
-			'has-no-label': ! useLabel,
-		} );
+		const inputLabel = placeholder ?? __( 'Search or type URL' );
 
 		return (
 			<div className="block-editor-link-control__search-input-container">
 				<URLInput
-					label={ useLabel ? 'URL' : undefined }
-					className={ inputClasses }
+					disableSuggestions={ currentLink?.url === value }
+					label={ inputLabel }
+					hideLabelFromVision={ hideLabelFromVision }
+					className={ className }
 					value={ value }
 					onChange={ onInputChange }
-					placeholder={ placeholder ?? __( 'Search or type url' ) }
+					placeholder={ inputLabel }
 					__experimentalRenderSuggestions={
 						showSuggestions ? handleRenderSuggestions : null
 					}
 					__experimentalFetchLinkSuggestions={ searchHandler }
-					__experimentalHandleURLSuggestions={ true }
+					__experimentalHandleURLSuggestions
 					__experimentalShowInitialSuggestions={
 						showInitialSuggestions
 					}
@@ -154,6 +147,7 @@ const LinkControlSearchInput = forwardRef(
 						}
 					} }
 					ref={ ref }
+					suffix={ suffix }
 				/>
 				{ children }
 			</div>

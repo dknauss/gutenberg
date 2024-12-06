@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { parseQuantityAndUnitFromRawValue } from '../unit-control/utils';
 import type {
+	BoxControlInputControlProps,
 	BoxControlProps,
 	BoxControlValue,
 	CustomValueUnits,
@@ -274,4 +275,30 @@ export function applyValueToSides(
 	}
 
 	return newValues;
+}
+
+/**
+ * Return the allowed sides based on the sides configuration.
+ *
+ * @param sides Sides configuration.
+ * @return Allowed sides.
+ */
+export function getAllowedSides(
+	sides: BoxControlInputControlProps[ 'sides' ]
+) {
+	const allowedSides: Set< keyof BoxControlValue > = new Set(
+		! sides ? ALL_SIDES : []
+	);
+	sides?.forEach( ( allowedSide ) => {
+		if ( allowedSide === 'vertical' ) {
+			allowedSides.add( 'top' );
+			allowedSides.add( 'bottom' );
+		} else if ( allowedSide === 'horizontal' ) {
+			allowedSides.add( 'right' );
+			allowedSides.add( 'left' );
+		} else {
+			allowedSides.add( allowedSide );
+		}
+	} );
+	return allowedSides;
 }

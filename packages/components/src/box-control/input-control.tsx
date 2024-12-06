@@ -10,8 +10,8 @@ import { __ } from '@wordpress/i18n';
 import Tooltip from '../tooltip';
 import { parseQuantityAndUnitFromRawValue } from '../unit-control/utils';
 import {
-	ALL_SIDES,
 	CUSTOM_VALUE_SETTINGS,
+	getAllowedSides,
 	getAllValue,
 	isValuesDefined,
 	isValuesMixed,
@@ -26,24 +26,6 @@ import {
 import type { BoxControlInputControlProps, BoxControlValue } from './types';
 
 const noop = () => {};
-
-function getAllowedSides( sides: BoxControlInputControlProps[ 'sides' ] ) {
-	const allowedSides: Set< keyof BoxControlValue > = new Set(
-		! sides ? ALL_SIDES : []
-	);
-	sides?.forEach( ( allowedSide ) => {
-		if ( allowedSide === 'vertical' ) {
-			allowedSides.add( 'top' );
-			allowedSides.add( 'bottom' );
-		} else if ( allowedSide === 'horizontal' ) {
-			allowedSides.add( 'right' );
-			allowedSides.add( 'left' );
-		} else {
-			allowedSides.add( allowedSide );
-		}
-	} );
-	return allowedSides;
-}
 
 function getSidesToModify(
 	side: BoxControlInputControlProps[ 'side' ],

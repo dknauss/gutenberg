@@ -23,7 +23,7 @@ import {
 	getInitialSide,
 	isValuesMixed,
 	isValuesDefined,
-	ALL_SIDES,
+	getAllowedSides,
 } from './utils';
 import { useControlledState } from '../utils/hooks';
 import type {
@@ -160,6 +160,7 @@ function BoxControl( {
 		__next40pxDefaultSize,
 		size: undefined,
 	} );
+	const sidesToRender = getAllowedSides( sides );
 
 	return (
 		<Grid
@@ -188,7 +189,7 @@ function BoxControl( {
 
 			{ ! isLinked &&
 				splitOnAxis &&
-				[ 'horizontal', 'vertical' ].map( ( axis ) => (
+				[ 'vertical', 'horizontal' ].map( ( axis ) => (
 					<InputControl
 						key={ axis }
 						side={ axis as 'horizontal' | 'vertical' }
@@ -197,7 +198,7 @@ function BoxControl( {
 				) ) }
 			{ ! isLinked &&
 				! splitOnAxis &&
-				ALL_SIDES.map( ( axis ) => (
+				Array.from( sidesToRender ).map( ( axis ) => (
 					<InputControl
 						key={ axis }
 						side={ axis }

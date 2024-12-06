@@ -90,10 +90,7 @@ const setupDriver = async () => {
 		} catch ( err ) {
 			// Ignore error here, Appium is probably already running (Appium Inspector has its own server for instance)
 			// eslint-disable-next-line no-console
-			await console.log(
-				'Could not start Appium server',
-				err.toString()
-			);
+			console.log( 'Could not start Appium server', err.toString() );
 		}
 	}
 

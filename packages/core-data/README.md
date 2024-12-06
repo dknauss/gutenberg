@@ -988,6 +988,7 @@ _Parameters_
 -   _name_ `string`: The entity name.
 -   _options_ `Object`:
 -   _options.id_ `[string]`: An entity ID to use instead of the context-provided one.
+-   _options.onEditEntityRecord_ `[Function]`: A callback to run before the entity record gets edited.
 
 _Returns_
 

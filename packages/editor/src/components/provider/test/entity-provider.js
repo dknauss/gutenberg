@@ -13,6 +13,10 @@ import {
 	getBlockTypes,
 } from '@wordpress/blocks';
 import { RichText, useBlockProps } from '@wordpress/block-editor';
+import {
+	store as coreDataStore,
+	useEntityBlockEditor,
+} from '@wordpress/core-data';
 import { createRegistry, RegistryProvider } from '@wordpress/data';
 import { registerCoreBlocks } from '@wordpress/block-library';
 import { unregisterFormatType } from '@wordpress/rich-text';
@@ -20,8 +24,7 @@ import { unregisterFormatType } from '@wordpress/rich-text';
 /**
  * Internal dependencies
  */
-import { store as coreDataStore } from '../index';
-import useEntityBlockEditor from '../hooks/use-entity-block-editor';
+import { updateFootnotesFromMeta } from '../footnotes';
 
 const postTypeConfig = {
 	kind: 'postType',
@@ -154,6 +157,7 @@ describe( 'useEntityBlockEditor', () => {
 		const TestComponent = () => {
 			[ blocks, , onChange ] = useEntityBlockEditor( 'postType', 'post', {
 				id: 1,
+				onEditEntityRecord: updateFootnotesFromMeta,
 			} );
 
 			return <div />;
@@ -229,6 +233,7 @@ describe( 'useEntityBlockEditor', () => {
 		const TestComponent = () => {
 			[ blocks, , onChange ] = useEntityBlockEditor( 'postType', 'post', {
 				id: 1,
+				onEditEntityRecord: updateFootnotesFromMeta,
 			} );
 
 			return <div />;

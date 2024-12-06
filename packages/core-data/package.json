@@ -34,7 +34,6 @@
 	"dependencies": {
 		"@babel/runtime": "7.25.7",
 		"@wordpress/api-fetch": "*",
-		"@wordpress/block-editor": "*",
 		"@wordpress/blocks": "*",
 		"@wordpress/compose": "*",
 		"@wordpress/data": "*",

@@ -10,7 +10,6 @@ import { parse, __unstableSerializeAndClean } from '@wordpress/blocks';
  */
 import { STORE_NAME } from '../name';
 import useEntityId from './use-entity-id';
-import { updateFootnotesFromMeta } from '../footnotes';
 
 const EMPTY_ARRAY = [];
 const parsedBlocksCache = new WeakMap();
@@ -26,14 +25,22 @@ const parsedBlocksCache = new WeakMap();
  * `BlockEditorProvider` and are intended to be used with it,
  * or similar components or hooks.
  *
- * @param {string} kind         The entity kind.
- * @param {string} name         The entity name.
- * @param {Object} options
- * @param {string} [options.id] An entity ID to use instead of the context-provided one.
+ * @param {string}   kind                         The entity kind.
+ * @param {string}   name                         The entity name.
+ * @param {Object}   options
+ * @param {string}   [options.id]                 An entity ID to use instead of the context-provided one.
+ * @param {Function} [options.onEditEntityRecord] A callback to run before the entity record gets edited.
  *
  * @return {[unknown[], Function, Function]} The block array and setters.
  */
-export default function useEntityBlockEditor( kind, name, { id: _id } = {} ) {
+export default function useEntityBlockEditor(
+	kind,
+	name,
+	{
+		id: _id,
+		onEditEntityRecord = ( blocks, meta ) => ( { blocks, meta } ),
+	} = {}
+) {
 	const providerId = useEntityId( kind, name );
 	const id = _id ?? providerId;
 	const { getEntityRecord, getEntityRecordEdits } = useSelect( STORE_NAME );
@@ -106,7 +113,7 @@ export default function useEntityBlockEditor( kind, name, { id: _id } = {} ) {
 				selection,
 				content: ( { blocks: blocksForSerialization = [] } ) =>
 					__unstableSerializeAndClean( blocksForSerialization ),
-				...updateFootnotesFromMeta( newBlocks, meta ),
+				...onEditEntityRecord( newBlocks, meta ),
 			};
 
 			editEntityRecord( kind, name, id, edits, {
@@ -122,21 +129,24 @@ export default function useEntityBlockEditor( kind, name, { id: _id } = {} ) {
 			meta,
 			__unstableCreateUndoLevel,
 			editEntityRecord,
+			onEditEntityRecord,
 		]
 	);
 
 	const onInput = useCallback(
 		( newBlocks, options ) => {
 			const { selection, ...rest } = options;
-			const footnotesChanges = updateFootnotesFromMeta( newBlocks, meta );
-			const edits = { selection, ...footnotesChanges };
+			const edits = {
+				selection,
+				...onEditEntityRecord( newBlocks, meta ),
+			};
 
 			editEntityRecord( kind, name, id, edits, {
 				isCached: true,
 				...rest,
 			} );
 		},
-		[ kind, name, id, meta, editEntityRecord ]
+		[ kind, name, id, meta, editEntityRecord, onEditEntityRecord ]
 	);
 
 	return [ blocks, onInput, onChange ];

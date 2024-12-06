@@ -39,6 +39,7 @@ import EditorKeyboardShortcuts from '../global-keyboard-shortcuts';
 import PatternRenameModal from '../pattern-rename-modal';
 import PatternDuplicateModal from '../pattern-duplicate-modal';
 import TemplatePartMenuItems from '../template-part-menu-items';
+import { updateFootnotesFromMeta } from './footnotes';
 
 const { ExperimentalBlockEditorProvider } = unlock( blockEditorPrivateApis );
 const { PatternsMenuItems } = unlock( editPatternsPrivateApis );
@@ -77,7 +78,7 @@ function useBlockEditorProps( post, template, mode ) {
 	const [ postBlocks, onInput, onChange ] = useEntityBlockEditor(
 		'postType',
 		post.type,
-		{ id: post.id }
+		{ id: post.id, onEditEntityRecord: updateFootnotesFromMeta }
 	);
 	const [ templateBlocks, onInputTemplate, onChangeTemplate ] =
 		useEntityBlockEditor( 'postType', template?.type, {

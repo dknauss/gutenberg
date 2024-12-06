@@ -114,7 +114,7 @@ test.describe( 'Block Switcher', () => {
 		await expect( button ).toBeDisabled();
 	} );
 
-	test( 'Should show a message if there are no transforms or styles available', async ( {
+	test( 'Should be disabled when there are no transforms or styles available', async ( {
 		editor,
 		page,
 		pageUtils,
@@ -126,11 +126,11 @@ test.describe( 'Block Switcher', () => {
 		await page.keyboard.type( '- List content' );
 		await pageUtils.pressKeys( 'alt+F10' );
 
-		await page
+		const button = page
 			.getByRole( 'toolbar', { name: 'Block tools' } )
-			.getByRole( 'button', { name: 'List item' } )
-			.click();
-		await expect( page.getByText( 'No transforms.' ) ).toBeVisible();
+			.getByRole( 'button', { name: 'List item' } );
+		// Verify the block switcher isn't enabled.
+		await expect( button ).toBeDisabled();
 	} );
 
 	test( 'Should show Columns block only if selected blocks are between limits (1-6)', async ( {

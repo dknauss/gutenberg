@@ -17,7 +17,9 @@ export const stylebookRoute = {
 			<SidebarNavigationScreen
 				title={ __( 'Styles' ) }
 				backPath="/"
-				description={ __( 'Theme style book.' ) }
+				description={ __(
+					`Preview your website's visual identity: colors, typography, and blocks.`
+				) }
 			/>
 		),
 		preview: <StyleBookPreview />,

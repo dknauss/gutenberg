@@ -17,11 +17,7 @@ import { SidebarNavigationItemGlobalStyles } from '../sidebar-navigation-screen-
 import { unlock } from '../../lock-unlock';
 import { store as editSiteStore } from '../../store';
 
-export function MainSidebarNavigationContent() {
-	const isBlockBasedTheme = useSelect(
-		( select ) => select( coreStore ).getCurrentTheme()?.is_block_theme,
-		[]
-	);
+export function MainSidebarNavigationContent( { isBlockBasedTheme } ) {
 	return (
 		<ItemGroup>
 			{ isBlockBasedTheme && (
@@ -82,6 +78,10 @@ export function MainSidebarNavigationContent() {
 }
 
 export default function SidebarNavigationScreenMain() {
+	const isBlockBasedTheme = useSelect(
+		( select ) => select( coreStore ).getCurrentTheme()?.is_block_theme,
+		[]
+	);
 	const { setEditorCanvasContainerView } = unlock(
 		useDispatch( editSiteStore )
 	);
@@ -95,10 +95,20 @@ export default function SidebarNavigationScreenMain() {
 		<SidebarNavigationScreen
 			isRoot
 			title={ __( 'Design' ) }
-			description={ __(
-				'Customize the appearance of your website using the block editor.'
-			) }
-			content={ <MainSidebarNavigationContent /> }
+			description={
+				isBlockBasedTheme
+					? __(
+							'Customize the appearance of your website using the block editor.'
+					  )
+					: __(
+							'Explore block styles and patterns to refine your site'
+					  )
+			}
+			content={
+				<MainSidebarNavigationContent
+					isBlockBasedTheme={ isBlockBasedTheme }
+				/>
+			}
 		/>
 	);
 }

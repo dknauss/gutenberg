@@ -22,12 +22,14 @@ type Props = {
 	colors: Color[] | Gradient[];
 	type: 'colors' | 'gradients';
 	templateColumns?: string | number;
+	itemHeight?: string;
 };
 
 const ColorExamples = ( {
 	colors,
 	type,
-	templateColumns = '1fr 1fr',
+	templateColumns = 'repeat(auto-fill, minmax(400px, 1fr))',
+	itemHeight = '52px',
 }: Props ): JSX.Element | null => {
 	if ( ! colors ) {
 		return null;
@@ -42,11 +44,16 @@ const ColorExamples = ( {
 						: getColorClassName( 'background-color', color.slug );
 				const classes = clsx(
 					'edit-site-style-book__color-example',
-					`edit-site-style-book__color-example__${ columns }-col`,
 					className
 				);
 
-				return <View key={ color.slug } className={ classes } />;
+				return (
+					<View
+						key={ color.slug }
+						className={ classes }
+						style={ { height: itemHeight } }
+					/>
+				);
 			} ) }
 		</Grid>
 	);

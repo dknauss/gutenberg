@@ -442,6 +442,10 @@ const fields = [
 - `type`: either `regular` or `panel`.
 - `fields`: a list of fields ids that should be rendered.
 
+#### `isLoading`: `boolean`
+
+Whether the data is loading. `false` by default.
+
 #### `onChange`: `function`
 
 Callback function that receives an object with the edits done by the user.
@@ -520,7 +524,7 @@ The unique identifier of the action.
 - Required
 - Example: `move-to-trash`
 
-### `label` 
+### `label`
 
 The user facing description of the action.
 

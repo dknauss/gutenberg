@@ -21,6 +21,7 @@
 		border: 1px solid $gray-300;
 		background-color: $gray-100;
 		margin-bottom: $grid-unit-20;
+		width: calc(100% - 32px);
 	}
 
 	&__active-thread {

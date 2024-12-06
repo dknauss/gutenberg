@@ -389,6 +389,7 @@ const ThreadWrapper = ( { children, clientId, classNames } ) => {
 	useBlockElementRef( clientId, blockRef );
 
 	const { y, refs } = useFloating( {
+		placement: 'right-start',
 		whileElementsMounted: autoUpdate,
 	} );
 

@@ -2,25 +2,18 @@
  * External dependencies
  */
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
-const { join, sep } = require( 'path' );
-const fastGlob = require( 'fast-glob' );
+const { join, sep, basename } = require( 'path' );
+const { realpathSync } = require( 'fs' );
 
 /**
  * WordPress dependencies
  */
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
+const { PhpFilePathsPlugin } = require( '@wordpress/scripts/utils' );
 
 /**
  * Internal dependencies
  */
 const { baseConfig, plugins, stylesTransform } = require( './shared' );
-
-/*
- * Matches a block's filepaths in the form build-module/<filename>.js
- */
-const blockViewRegex = new RegExp(
-	/build-module\/(?<filename>.*\/view.*).js$/
-);
 
 /**
  * We need to automatically rename some functions when they are called inside block files,
@@ -48,48 +41,20 @@ function escapeRegExp( string ) {
 	return string.replace( /[\\^$.*+?()[\]{}|]/g, '\\$&' );
 }
 
-const createEntrypoints = () => {
-	/*
-	 * Returns an array of paths to block view files within the `@wordpress/block-library` package.
-	 * These paths can be matched by the regex `blockViewRegex` in order to extract
-	 * the block's filename.
-	 *
-	 * Returns an empty array if no files were found.
-	 */
-	const blockViewScriptPaths = fastGlob.sync(
-		'./packages/block-library/build-module/**/view*.js'
-	);
-
-	/*
-	 * Go through the paths found above, in order to define webpack entry points for
-	 * each block's view.js file.
-	 */
-	return blockViewScriptPaths.reduce( ( entries, scriptPath ) => {
-		const result = scriptPath.match( blockViewRegex );
-		if ( ! result?.groups?.filename ) {
-			return entries;
-		}
-
-		return {
-			...entries,
-			[ result.groups.filename ]: scriptPath,
-		};
-	}, {} );
-};
-
 module.exports = [
 	{
 		...baseConfig,
 		name: 'blocks',
-		entry: createEntrypoints(),
+		entry: {},
 		output: {
-			devtoolNamespace: 'wp',
-			filename: './build/block-library/blocks/[name].min.js',
 			path: join( __dirname, '..', '..' ),
 		},
 		plugins: [
 			...plugins,
-			new DependencyExtractionWebpackPlugin( { injectPolyfill: false } ),
+			new PhpFilePathsPlugin( {
+				context: './packages/block-library/src/',
+				props: [ 'render', 'variations' ],
+			} ),
 			new CopyWebpackPlugin( {
 				patterns: [].concat(
 					[
@@ -127,17 +92,35 @@ module.exports = [
 							'build/widgets/blocks/',
 					} ).flatMap( ( [ from, to ] ) => [
 						{
-							from: `${ from }/**/index.php`,
+							from: `${ from }/**/*.php`,
 							to( { absoluteFilename } ) {
-								const [ , dirname ] = absoluteFilename.match(
-									new RegExp(
-										`([\\w-]+)${ escapeRegExp(
-											sep
-										) }index\\.php$`
+								const [ , dirname, fileBasename ] =
+									absoluteFilename.match(
+										new RegExp(
+											`([\\w-]+)${ escapeRegExp(
+												sep
+											) }([\\w-]+)\\.php$`
+										)
+									);
+								if ( fileBasename === 'index' ) {
+									return join( to, `${ dirname }.php` );
+								}
+								return join(
+									to,
+									dirname,
+									`${ fileBasename }.php`
+								);
+							},
+							filter: ( filepath ) => {
+								return (
+									basename( filepath ) === 'index.php' ||
+									PhpFilePathsPlugin.paths.includes(
+										realpathSync( filepath ).replace(
+											/\\/g,
+											'/'
+										)
 									)
 								);
-
-								return join( to, `${ dirname }.php` );
 							},
 							transform: ( content ) => {
 								const prefix = 'gutenberg_';

@@ -25,13 +25,12 @@ import {
 } from '../../block-edit/context';
 import { useFocusHandler } from './use-focus-handler';
 import { useEventHandlers } from './use-selected-block-event-handlers';
-import { useNavModeExit } from './use-nav-mode-exit';
-import { useZoomOutModeExit } from './use-zoom-out-mode-exit';
 import { useBlockRefProvider } from './use-block-refs';
 import { useIntersectionObserver } from './use-intersection-observer';
 import { useScrollIntoView } from './use-scroll-into-view';
 import { useFlashEditableBlocks } from '../../use-flash-editable-blocks';
 import { canBindBlock } from '../../../hooks/use-bindings-attributes';
+import { useFirefoxDraggableCompatibility } from './use-firefox-draggable-compatibility';
 
 /**
  * This hook is used to lightly mark an element as a block element. The element
@@ -86,7 +85,6 @@ export function useBlockProps( props = {}, { __unstableIsHtml } = {} ) {
 		name,
 		blockApiVersion,
 		blockTitle,
-		editorMode,
 		isSelected,
 		isSubtreeDisabled,
 		hasOverlay,
@@ -98,35 +96,34 @@ export function useBlockProps( props = {}, { __unstableIsHtml } = {} ) {
 		isReusable,
 		isDragging,
 		hasChildSelected,
-		isBlockMovingMode,
-		canInsertMovingBlock,
 		isEditingDisabled,
 		hasEditableOutline,
 		isTemporarilyEditingAsBlocks,
 		defaultClassName,
-		templateLock,
+		isSectionBlock,
+		canMove,
 	} = useContext( PrivateBlockContext );
 
 	// translators: %s: Type of block (i.e. Text, Image etc)
 	const blockLabel = sprintf( __( 'Block: %s' ), blockTitle );
 	const htmlSuffix = mode === 'html' && ! __unstableIsHtml ? '-visual' : '';
+	const ffDragRef = useFirefoxDraggableCompatibility();
 	const mergedRefs = useMergeRefs( [
 		props.ref,
 		useFocusFirstElement( { clientId, initialPosition } ),
 		useBlockRefProvider( clientId ),
 		useFocusHandler( clientId ),
 		useEventHandlers( { clientId, isSelected } ),
-		useNavModeExit( clientId ),
-		useZoomOutModeExit( { editorMode } ),
 		useIsHovered( { clientId } ),
 		useIntersectionObserver(),
 		useMovingAnimation( { triggerAnimationOnChange: index, clientId } ),
 		useDisabled( { isDisabled: ! hasOverlay } ),
 		useFlashEditableBlocks( {
 			clientId,
-			isEnabled: name === 'core/block' || templateLock === 'contentOnly',
+			isEnabled: isSectionBlock,
 		} ),
 		useScrollIntoView( { isSelected } ),
+		canMove ? ffDragRef : undefined,
 	] );
 
 	const blockEditContext = useBlockEditContext();
@@ -159,6 +156,7 @@ export function useBlockProps( props = {}, { __unstableIsHtml } = {} ) {
 
 	return {
 		tabIndex: blockEditingMode === 'disabled' ? -1 : 0,
+		draggable: canMove && ! hasChildSelected ? true : undefined,
 		...wrapperProps,
 		...props,
 		ref: mergedRefs,
@@ -182,8 +180,6 @@ export function useBlockProps( props = {}, { __unstableIsHtml } = {} ) {
 				'is-reusable': isReusable,
 				'is-dragging': isDragging,
 				'has-child-selected': hasChildSelected,
-				'is-block-moving-mode': isBlockMovingMode,
-				'can-insert-moving-block': canInsertMovingBlock,
 				'is-editing-disabled': isEditingDisabled,
 				'has-editable-outline': hasEditableOutline,
 				'has-negative-margin': hasNegativeMargin,

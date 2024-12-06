@@ -15,7 +15,7 @@ interface DataViewsSelectionCheckboxProps< Item > {
 	onChangeSelection: SetSelection;
 	item: Item;
 	getItemId: ( item: Item ) => string;
-	primaryField?: Field< Item >;
+	titleField?: Field< Item >;
 	disabled: boolean;
 }
 
@@ -24,18 +24,19 @@ export default function DataViewsSelectionCheckbox< Item >( {
 	onChangeSelection,
 	item,
 	getItemId,
-	primaryField,
+	titleField,
 	disabled,
 }: DataViewsSelectionCheckboxProps< Item > ) {
 	const id = getItemId( item );
 	const checked = ! disabled && selection.includes( id );
 	let selectionLabel;
-	if ( primaryField?.getValue && item ) {
+	if ( titleField?.getValue && item ) {
 		// eslint-disable-next-line @wordpress/valid-sprintf
 		selectionLabel = sprintf(
-			/* translators: %s: item title. */
-			checked ? __( 'Deselect item: %s' ) : __( 'Select item: %s' ),
-			primaryField.getValue( { item } )
+			checked
+				? /* translators: %s: item title. */ __( 'Deselect item: %s' )
+				: /* translators: %s: item title. */ __( 'Select item: %s' ),
+			titleField.getValue( { item } )
 		);
 	} else {
 		selectionLabel = checked

@@ -28,7 +28,7 @@ function usePostLastRevisionInfo() {
 /**
  * Renders the component for displaying the last revision of a post.
  *
- * @return {Component} The component to be rendered.
+ * @return {React.ReactNode} The rendered component.
  */
 function PostLastRevision() {
 	const { lastRevisionId, revisionsCount } = usePostLastRevisionInfo();
@@ -36,8 +36,7 @@ function PostLastRevision() {
 	return (
 		<PostLastRevisionCheck>
 			<Button
-				// TODO: Switch to `true` (40px size) if possible
-				__next40pxDefaultSize={ false }
+				__next40pxDefaultSize
 				href={ addQueryArgs( 'revision.php', {
 					revision: lastRevisionId,
 				} ) }
@@ -45,7 +44,7 @@ function PostLastRevision() {
 				icon={ backup }
 				iconPosition="right"
 				text={ sprintf(
-					/* translators: %s: number of revisions */
+					/* translators: %s: number of revisions. */
 					__( 'Revisions (%s)' ),
 					revisionsCount
 				) }

@@ -7,3 +7,20 @@
 		justify-content: center;
 	}
 }
+
+.dataforms-layouts-panel__field-dropdown {
+	.fields-controls__password {
+		border-top: $border-width solid $gray-200;
+		padding-top: $grid-unit-20;
+	}
+}
+
+.edit-site-post-edit-header {
+	.edit-site-post-edit-header__description {
+		color: $gray-700;
+	}
+
+	.edit-site-post-edit-header__title {
+		@include heading-medium();
+	}
+}

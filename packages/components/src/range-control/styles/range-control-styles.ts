@@ -57,7 +57,10 @@ const wrapperMargin = ( { marks, __nextHasNoMarginBottom }: WrapperProps ) => {
 	return '';
 };
 
-export const Wrapper = styled.div< WrapperProps >`
+export const Wrapper = styled( 'div', {
+	shouldForwardProp: ( prop: string ) =>
+		! [ 'color', '__nextHasNoMarginBottom', 'marks' ].includes( prop ),
+} )< WrapperProps >`
 	display: block;
 	flex: 1;
 	position: relative;
@@ -127,6 +130,10 @@ export const Track = styled.span`
 	margin-top: ${ ( rangeHeightValue - railHeight ) / 2 }px;
 	top: 0;
 
+	@media not ( prefers-reduced-motion ) {
+		transition: width ease 0.1s;
+	}
+
 	${ trackBackgroundColor };
 `;
 
@@ -136,28 +143,18 @@ export const MarksWrapper = styled.span`
 	position: relative;
 	width: 100%;
 	user-select: none;
+	margin-top: 17px;
 `;
 
-const markFill = ( { disabled, isFilled }: RangeMarkProps ) => {
-	let backgroundColor = isFilled ? 'currentColor' : COLORS.gray[ 300 ];
-
-	if ( disabled ) {
-		backgroundColor = COLORS.gray[ 400 ];
-	}
-
-	return css( {
-		backgroundColor,
-	} );
-};
-
 export const Mark = styled.span`
-	height: ${ thumbSize }px;
-	left: 0;
 	position: absolute;
-	top: 9px;
-	width: 1px;
-
-	${ markFill };
+	left: 0;
+	top: -4px;
+	height: 4px;
+	width: 2px;
+	transform: translateX( -50% );
+	background-color: ${ COLORS.ui.background };
+	z-index: 1;
 `;
 
 const markLabelFill = ( { isFilled }: RangeMarkProps ) => {
@@ -170,7 +167,7 @@ export const MarkLabel = styled.span`
 	color: ${ COLORS.gray[ 300 ] };
 	font-size: 11px;
 	position: absolute;
-	top: 22px;
+	top: 8px;
 	white-space: nowrap;
 
 	${ rtl( { left: 0 } ) };
@@ -204,6 +201,11 @@ export const ThumbWrapper = styled.span`
 	user-select: none;
 	width: ${ thumbSize }px;
 	border-radius: ${ CONFIG.radiusRound };
+	z-index: 3;
+
+	@media not ( prefers-reduced-motion ) {
+		transition: left ease 0.1s;
+	}
 
 	${ thumbColor };
 	${ rtl( { marginLeft: -10 } ) };
@@ -239,6 +241,7 @@ export const Thumb = styled.span< ThumbProps >`
 	position: absolute;
 	user-select: none;
 	width: 100%;
+	box-shadow: ${ CONFIG.elevationXSmall };
 
 	${ thumbColor };
 	${ thumbFocus };
@@ -260,9 +263,20 @@ export const InputRange = styled.input`
 `;
 
 const tooltipShow = ( { show }: TooltipProps ) => {
-	return css( {
-		opacity: show ? 1 : 0,
-	} );
+	return css`
+		display: ${ show ? 'inline-block' : 'none' };
+		opacity: ${ show ? 1 : 0 };
+
+		@media not ( prefers-reduced-motion ) {
+			transition:
+				opacity 120ms ease,
+				display 120ms ease allow-discrete;
+		}
+
+		@starting-style {
+			opacity: 0;
+		}
+	`;
 };
 
 const tooltipPosition = ( { position }: TooltipProps ) => {
@@ -283,10 +297,8 @@ export const Tooltip = styled.span< TooltipProps >`
 	background: rgba( 0, 0, 0, 0.8 );
 	border-radius: ${ CONFIG.radiusSmall };
 	color: white;
-	display: inline-block;
 	font-size: 12px;
 	min-width: 32px;
-	opacity: 0;
 	padding: 4px 8px;
 	pointer-events: none;
 	position: absolute;
@@ -294,11 +306,8 @@ export const Tooltip = styled.span< TooltipProps >`
 	user-select: none;
 	line-height: 1.4;
 
-	@media not ( prefers-reduced-motion ) {
-		transition: opacity 120ms ease;
-	}
-
 	${ tooltipShow };
+
 	${ tooltipPosition };
 	${ rtl(
 		{ transform: 'translateX(-50%)' },

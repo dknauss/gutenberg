@@ -10,7 +10,6 @@ import {
 	FlexedRangeControl,
 	StyledUnitControl,
 } from './styles/box-control-styles';
-import { HStack } from '../h-stack';
 import type { BoxControlInputControlProps } from './types';
 import { parseQuantityAndUnitFromRawValue } from '../unit-control';
 import {
@@ -72,9 +71,10 @@ export default function AllInputControl( {
 	};
 
 	return (
-		<HStack>
+		<>
 			<StyledUnitControl
 				{ ...props }
+				__shouldNotWarnDeprecated36pxSize
 				__next40pxDefaultSize={ __next40pxDefaultSize }
 				className="component-box-control__unit-control"
 				disableUnits={ isMixed }
@@ -92,6 +92,7 @@ export default function AllInputControl( {
 			<FlexedRangeControl
 				__nextHasNoMarginBottom
 				__next40pxDefaultSize={ __next40pxDefaultSize }
+				__shouldNotWarnDeprecated36pxSize
 				aria-controls={ inputId }
 				label={ LABELS.all }
 				hideLabelFromVision
@@ -104,6 +105,6 @@ export default function AllInputControl( {
 				value={ parsedQuantity ?? 0 }
 				withInputField={ false }
 			/>
-		</HStack>
+		</>
 	);
 }

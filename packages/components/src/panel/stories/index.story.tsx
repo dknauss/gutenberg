@@ -17,12 +17,13 @@ import InputControl from '../../input-control';
 import { wordpress } from '@wordpress/icons';
 
 const meta: Meta< typeof Panel > = {
-	title: 'Components/Panel',
+	title: 'Components/Containers/Panel',
+	id: 'components-panel',
 	component: Panel,
 	// @ts-expect-error - See https://github.com/storybookjs/storybook/issues/23170
 	subcomponents: { PanelRow, PanelBody },
 	argTypes: {
-		children: { control: { type: null } },
+		children: { control: false },
 	},
 	parameters: {
 		controls: { expanded: true },

@@ -37,10 +37,10 @@ export function getCompatibilityStyles() {
 				return accumulator;
 			}
 
-			// Don't try to add the reset styles, which were removed as a dependency
-			// from `edit-blocks` for the iframe since we don't need to reset admin
-			// styles.
-			if ( ownerNode.id === 'wp-reset-editor-styles-css' ) {
+			// Don't try to add core WP styles. We are responsible for adding
+			// them. This compatibility layer is only meant to add styles added
+			// by plugins or themes.
+			if ( ownerNode.id.startsWith( 'wp-' ) ) {
 				return accumulator;
 			}
 

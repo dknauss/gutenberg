@@ -7,7 +7,7 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { _x, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -15,7 +15,7 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import AxialInputControls from './input-controls/axial';
 import SeparatedInputControls from './input-controls/separated';
 import SingleInputControl from './input-controls/single';
-import SidesDropdown from './sides-dropdown';
+import LinkedButton from './linked-button';
 import useSpacingSizes from './hooks/use-spacing-sizes';
 import {
 	ALL_SIDES,
@@ -46,6 +46,10 @@ export default function SpacingSizesControl( {
 		sides?.length === 2;
 
 	const [ view, setView ] = useState( getInitialView( inputValues, sides ) );
+
+	const toggleLinked = () => {
+		setView( view === VIEWS.axial ? VIEWS.custom : VIEWS.axial );
+	};
 
 	const handleOnChange = ( nextValue ) => {
 		const newValues = { ...values, ...nextValue };
@@ -85,17 +89,11 @@ export default function SpacingSizesControl( {
 		ALL_SIDES.includes( view ) && showSideInLabel ? LABELS[ view ] : '';
 
 	const label = sprintf(
-		// translators: 2. Type of spacing being modified (Padding, margin, etc). 1: The side of the block being modified (top, bottom, left etc.).
-		__( '%1$s %2$s' ),
+		// translators: 1: The side of the block being modified (top, bottom, left etc.). 2. Type of spacing being modified (padding, margin, etc).
+		_x( '%1$s %2$s', 'spacing' ),
 		labelProp,
 		sideLabel
 	).trim();
-
-	const dropdownLabelText = sprintf(
-		// translators: %s: The current spacing property e.g. "Padding", "Margin".
-		_x( '%s options', 'Button label to reveal side configuration options' ),
-		labelProp
-	);
 
 	return (
 		<fieldset className="spacing-sizes-control">
@@ -107,11 +105,10 @@ export default function SpacingSizesControl( {
 					{ label }
 				</BaseControl.VisualLabel>
 				{ ! hasOneSide && ! hasOnlyAxialSides && (
-					<SidesDropdown
-						label={ dropdownLabelText }
-						onChange={ setView }
-						sides={ sides }
-						value={ view }
+					<LinkedButton
+						label={ labelProp }
+						onClick={ toggleLinked }
+						isLinked={ view === VIEWS.axial }
 					/>
 				) }
 			</HStack>

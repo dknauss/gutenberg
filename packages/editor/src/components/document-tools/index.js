@@ -9,11 +9,7 @@ import clsx from 'clsx';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
-import {
-	NavigableToolbar,
-	ToolSelector,
-	store as blockEditorStore,
-} from '@wordpress/block-editor';
+import { NavigableToolbar, ToolSelector } from '@wordpress/block-editor';
 import { Button, ToolbarItem } from '@wordpress/components';
 import { listView, plus } from '@wordpress/icons';
 import { useCallback } from '@wordpress/element';
@@ -38,19 +34,19 @@ function DocumentTools( { className, disableBlockTools = false } ) {
 		listViewShortcut,
 		inserterSidebarToggleRef,
 		listViewToggleRef,
-		hasFixedToolbar,
 		showIconLabels,
+		showTools,
 	} = useSelect( ( select ) => {
-		const { getSettings } = select( blockEditorStore );
 		const { get } = select( preferencesStore );
 		const {
 			isListViewOpened,
 			getEditorMode,
 			getInserterSidebarToggleRef,
 			getListViewToggleRef,
+			getRenderingMode,
+			getCurrentPostType,
 		} = unlock( select( editorStore ) );
 		const { getShortcutRepresentation } = select( keyboardShortcutsStore );
-		const { __unstableGetEditorMode } = select( blockEditorStore );
 
 		return {
 			isInserterOpened: select( editorStore ).isInserterOpened(),
@@ -60,11 +56,13 @@ function DocumentTools( { className, disableBlockTools = false } ) {
 			),
 			inserterSidebarToggleRef: getInserterSidebarToggleRef(),
 			listViewToggleRef: getListViewToggleRef(),
-			hasFixedToolbar: getSettings().hasFixedToolbar,
 			showIconLabels: get( 'core', 'showIconLabels' ),
 			isDistractionFree: get( 'core', 'distractionFree' ),
 			isVisualMode: getEditorMode() === 'visual',
-			isZoomedOutView: __unstableGetEditorMode() === 'zoom-out',
+			showTools:
+				!! window?.__experimentalEditorWriteMode &&
+				( getRenderingMode() !== 'post-only' ||
+					getCurrentPostType() === 'wp_template' ),
 		};
 	}, [] );
 
@@ -99,7 +97,7 @@ function DocumentTools( { className, disableBlockTools = false } ) {
 
 	/* translators: button label text should, if possible, be under 16 characters. */
 	const longLabel = _x(
-		'Toggle block inserter',
+		'Block Inserter',
 		'Generic label for block inserter button'
 	);
 	const shortLabel = ! isInserterOpened ? __( 'Add' ) : __( 'Close' );
@@ -137,7 +135,7 @@ function DocumentTools( { className, disableBlockTools = false } ) {
 				) }
 				{ ( isWideViewport || ! showIconLabels ) && (
 					<>
-						{ isLargeViewport && ! hasFixedToolbar && (
+						{ showTools && isLargeViewport && (
 							<ToolbarItem
 								as={ ToolSelector }
 								showTooltip={ ! showIconLabels }

@@ -10,11 +10,14 @@ import {
 	TextControl,
 	ToolbarButton,
 	ToolbarGroup,
-	Dropdown,
 	__experimentalToolsPanel as ToolsPanel,
 	__experimentalToolsPanelItem as ToolsPanelItem,
 	__experimentalUseCustomUnits as useCustomUnits,
 	Placeholder,
+	MenuItem,
+	ToolbarItem,
+	DropdownMenu,
+	Popover,
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -29,15 +32,15 @@ import {
 	__experimentalUseBorderProps as useBorderProps,
 	__experimentalGetShadowClassesAndStyles as getShadowClassesAndStyles,
 	privateApis as blockEditorPrivateApis,
+	BlockSettingsMenuControls,
 } from '@wordpress/block-editor';
 import { useEffect, useMemo, useState, useRef } from '@wordpress/element';
 import { __, _x, sprintf, isRTL } from '@wordpress/i18n';
-import { DOWN } from '@wordpress/keycodes';
 import { getFilename } from '@wordpress/url';
-import { switchToBlockType, store as blocksStore } from '@wordpress/blocks';
-import { crop, overlayText, upload } from '@wordpress/icons';
+import { getBlockBindingsSource, switchToBlockType } from '@wordpress/blocks';
+import { crop, overlayText, upload, chevronDown } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { store as coreStore } from '@wordpress/core-data';
+import { store as coreStore, useEntityProp } from '@wordpress/core-data';
 
 /**
  * Internal dependencies
@@ -69,6 +72,10 @@ const scaleOptions = [
 	},
 ];
 
+const WRITEMODE_POPOVER_PROPS = {
+	placement: 'bottom-start',
+};
+
 // If the image has a href, wrap in an <a /> tag to trigger any inherited link element styles.
 const ImageWrapper = ( { href, children } ) => {
 	if ( ! href ) {
@@ -94,6 +101,150 @@ const ImageWrapper = ( { href, children } ) => {
 	);
 };
 
+function ContentOnlyControls( {
+	attributes,
+	setAttributes,
+	lockAltControls,
+	lockAltControlsMessage,
+	lockTitleControls,
+	lockTitleControlsMessage,
+} ) {
+	// Use internal state instead of a ref to make sure that the component
+	// re-renders when the popover's anchor updates.
+	const [ popoverAnchor, setPopoverAnchor ] = useState( null );
+	const [ isAltDialogOpen, setIsAltDialogOpen ] = useState( false );
+	const [ isTitleDialogOpen, setIsTitleDialogOpen ] = useState( false );
+	return (
+		<>
+			<ToolbarItem ref={ setPopoverAnchor }>
+				{ ( toggleProps ) => (
+					<DropdownMenu
+						icon={ chevronDown }
+						/* translators: button label text should, if possible, be under 16 characters. */
+						label={ __( 'More' ) }
+						toggleProps={ {
+							...toggleProps,
+							description: __( 'Displays more controls.' ),
+						} }
+						popoverProps={ WRITEMODE_POPOVER_PROPS }
+					>
+						{ ( { onClose } ) => (
+							<>
+								<MenuItem
+									onClick={ () => {
+										setIsAltDialogOpen( true );
+										onClose();
+									} }
+									aria-haspopup="dialog"
+								>
+									{ _x(
+										'Alternative text',
+										'Alternative text for an image. Block toolbar label, a low character count is preferred.'
+									) }
+								</MenuItem>
+								<MenuItem
+									onClick={ () => {
+										setIsTitleDialogOpen( true );
+										onClose();
+									} }
+									aria-haspopup="dialog"
+								>
+									{ __( 'Title text' ) }
+								</MenuItem>
+							</>
+						) }
+					</DropdownMenu>
+				) }
+			</ToolbarItem>
+			{ isAltDialogOpen && (
+				<Popover
+					placement="bottom-start"
+					anchor={ popoverAnchor }
+					onClose={ () => setIsAltDialogOpen( false ) }
+					offset={ 13 }
+					variant="toolbar"
+				>
+					<div className="wp-block-image__toolbar_content_textarea__container">
+						<TextareaControl
+							className="wp-block-image__toolbar_content_textarea"
+							label={ __( 'Alternative text' ) }
+							value={ attributes.alt || '' }
+							onChange={ ( value ) =>
+								setAttributes( { alt: value } )
+							}
+							disabled={ lockAltControls }
+							help={
+								lockAltControls ? (
+									<>{ lockAltControlsMessage }</>
+								) : (
+									<>
+										<ExternalLink
+											href={
+												// translators: Localized tutorial, if one exists. W3C Web Accessibility Initiative link has list of existing translations.
+												__(
+													'https://www.w3.org/WAI/tutorials/images/decision-tree/'
+												)
+											}
+										>
+											{ __(
+												'Describe the purpose of the image.'
+											) }
+										</ExternalLink>
+										<br />
+										{ __( 'Leave empty if decorative.' ) }
+									</>
+								)
+							}
+							__nextHasNoMarginBottom
+						/>
+					</div>
+				</Popover>
+			) }
+			{ isTitleDialogOpen && (
+				<Popover
+					placement="bottom-start"
+					anchor={ popoverAnchor }
+					onClose={ () => setIsTitleDialogOpen( false ) }
+					offset={ 13 }
+					variant="toolbar"
+				>
+					<div className="wp-block-image__toolbar_content_textarea__container">
+						<TextControl
+							__next40pxDefaultSize
+							className="wp-block-image__toolbar_content_textarea"
+							__nextHasNoMarginBottom
+							label={ __( 'Title attribute' ) }
+							value={ attributes.title || '' }
+							onChange={ ( value ) =>
+								setAttributes( {
+									title: value,
+								} )
+							}
+							disabled={ lockTitleControls }
+							help={
+								lockTitleControls ? (
+									<>{ lockTitleControlsMessage }</>
+								) : (
+									<>
+										{ __(
+											'Describe the role of this image on the page.'
+										) }
+										<ExternalLink href="https://www.w3.org/TR/html52/dom.html#the-title-attribute">
+											{ __(
+												'(Note: many devices and browsers do not display this text.)'
+											) }
+										</ExternalLink>
+									</>
+								)
+							}
+						/>
+					</div>
+				</Popover>
+			) }
+		</>
+	);
+}
+
 export default function Image( {
 	temporaryURL,
 	attributes,
@@ -108,7 +259,7 @@ export default function Image( {
 	clientId,
 	blockEditingMode,
 	parentLayoutType,
-	containerWidth,
+	maxContentWidth,
 } ) {
 	const {
 		url = '',
@@ -476,7 +627,6 @@ export default function Image( {
 			if ( ! isSingleSelected ) {
 				return {};
 			}
-			const { getBlockBindingsSource } = unlock( select( blocksStore ) );
 			const {
 				url: urlBinding,
 				alt: altBinding,
@@ -556,6 +706,25 @@ export default function Image( {
 
 	const showBlockControls = showUrlInput || allowCrop || showCoverControls;
 
+	const mediaReplaceFlow = isSingleSelected &&
+		! isEditingImage &&
+		! lockUrlControls && (
+			// For contentOnly mode, put this button in its own area so it has borders around it.
+			<BlockControls group={ isContentOnlyMode ? 'inline' : 'other' }>
+				<MediaReplaceFlow
+					mediaId={ id }
+					mediaURL={ url }
+					allowedTypes={ ALLOWED_MEDIA_TYPES }
+					accept="image/*"
+					onSelect={ onSelectImage }
+					onSelectURL={ onSelectURL }
+					onError={ onUploadError }
+					name={ ! url ? __( 'Add image' ) : __( 'Replace' ) }
+					onReset={ () => onSelectImage( undefined ) }
+				/>
+			</BlockControls>
+		);
+
 	const controls = (
 		<>
 			{ showBlockControls && (
@@ -592,20 +761,6 @@ export default function Image( {
 					) }
 				</BlockControls>
 			) }
-			{ isSingleSelected && ! isEditingImage && ! lockUrlControls && (
-				<BlockControls group="other">
-					<MediaReplaceFlow
-						mediaId={ id }
-						mediaURL={ url }
-						allowedTypes={ ALLOWED_MEDIA_TYPES }
-						accept="image/*"
-						onSelect={ onSelectImage }
-						onSelectURL={ onSelectURL }
-						onError={ onUploadError }
-						onReset={ () => onSelectImage( undefined ) }
-					/>
-				</BlockControls>
-			) }
 			{ isSingleSelected && externalBlob && (
 				<BlockControls>
 					<ToolbarGroup>
@@ -621,112 +776,15 @@ export default function Image( {
 				// Add some extra controls for content attributes when content only mode is active.
 				// With content only mode active, the inspector is hidden, so users need another way
 				// to edit these attributes.
-				<BlockControls group="other">
-					<Dropdown
-						popoverProps={ { position: 'bottom right' } }
-						renderToggle={ ( { isOpen, onToggle } ) => (
-							<ToolbarButton
-								onClick={ onToggle }
-								aria-haspopup="true"
-								aria-expanded={ isOpen }
-								onKeyDown={ ( event ) => {
-									if ( ! isOpen && event.keyCode === DOWN ) {
-										event.preventDefault();
-										onToggle();
-									}
-								} }
-							>
-								{ _x(
-									'Alternative text',
-									'Alternative text for an image. Block toolbar label, a low character count is preferred.'
-								) }
-							</ToolbarButton>
-						) }
-						renderContent={ () => (
-							<TextareaControl
-								className="wp-block-image__toolbar_content_textarea"
-								label={ __( 'Alternative text' ) }
-								value={ alt || '' }
-								onChange={ updateAlt }
-								disabled={ lockAltControls }
-								help={
-									lockAltControls ? (
-										<>{ lockAltControlsMessage }</>
-									) : (
-										<>
-											<ExternalLink
-												href={
-													// translators: Localized tutorial, if one exists. W3C Web Accessibility Initiative link has list of existing translations.
-													__(
-														'https://www.w3.org/WAI/tutorials/images/decision-tree/'
-													)
-												}
-											>
-												{ __(
-													'Describe the purpose of the image.'
-												) }
-											</ExternalLink>
-											<br />
-											{ __(
-												'Leave empty if decorative.'
-											) }
-										</>
-									)
-								}
-								__nextHasNoMarginBottom
-							/>
-						) }
+				<BlockControls group="block">
+					<ContentOnlyControls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						lockAltControls={ lockAltControls }
+						lockAltControlsMessage={ lockAltControlsMessage }
+						lockTitleControls={ lockTitleControls }
+						lockTitleControlsMessage={ lockTitleControlsMessage }
 					/>
-					{ title && (
-						<Dropdown
-							popoverProps={ { position: 'bottom right' } }
-							renderToggle={ ( { isOpen, onToggle } ) => (
-								<ToolbarButton
-									onClick={ onToggle }
-									aria-haspopup="true"
-									aria-expanded={ isOpen }
-									onKeyDown={ ( event ) => {
-										if (
-											! isOpen &&
-											event.keyCode === DOWN
-										) {
-											event.preventDefault();
-											onToggle();
-										}
-									} }
-								>
-									{ __( 'Title' ) }
-								</ToolbarButton>
-							) }
-							renderContent={ () => (
-								<TextControl
-									__next40pxDefaultSize
-									className="wp-block-image__toolbar_content_textarea"
-									__nextHasNoMarginBottom
-									label={ __( 'Title attribute' ) }
-									value={ title || '' }
-									onChange={ onSetTitle }
-									disabled={ lockTitleControls }
-									help={
-										lockTitleControls ? (
-											<>{ lockTitleControlsMessage }</>
-										) : (
-											<>
-												{ __(
-													'Describe the role of this image on the page.'
-												) }
-												<ExternalLink href="https://www.w3.org/TR/html52/dom.html#the-title-attribute">
-													{ __(
-														'(Note: many devices and browsers do not display this text.)'
-													) }
-												</ExternalLink>
-											</>
-										)
-									}
-								/>
-							) }
-						/>
-					) }
 				</BlockControls>
 			) }
 			<InspectorControls>
@@ -838,6 +896,16 @@ export default function Image( {
 	const shadowProps = getShadowClassesAndStyles( attributes );
 	const isRounded = attributes.className?.includes( 'is-style-rounded' );
 
+	const { postType, postId, queryId } = context;
+	const isDescendentOfQueryLoop = Number.isFinite( queryId );
+
+	const [ , setFeaturedImage ] = useEntityProp(
+		'postType',
+		postType,
+		'featured_media',
+		postId
+	);
+
 	let img =
 		temporaryURL && hasImageErrored ? (
 			// Show a placeholder during upload when the blob URL can't be loaded. This can
@@ -934,7 +1002,7 @@ export default function Image( {
 		// @todo It would be good to revisit this once a content-width variable
 		// becomes available.
 		const maxWidthBuffer = maxWidth * 2.5;
-		const maxContentWidth = containerWidth || maxWidthBuffer;
+		const maxResizeWidth = maxContentWidth || maxWidthBuffer;
 
 		let showRightHandle = false;
 		let showLeftHandle = false;
@@ -980,9 +1048,9 @@ export default function Image( {
 				} }
 				showHandle={ isSingleSelected }
 				minWidth={ minWidth }
-				maxWidth={ maxContentWidth }
+				maxWidth={ maxResizeWidth }
 				minHeight={ minHeight }
-				maxHeight={ maxContentWidth / ratio }
+				maxHeight={ maxResizeWidth / ratio }
 				lockAspectRatio={ ratio }
 				enable={ {
 					top: false,
@@ -996,6 +1064,7 @@ export default function Image( {
 
 					// Clear hardcoded width if the resized width is close to the max-content width.
 					if (
+						maxContentWidth &&
 						// Only do this if the image is bigger than the container to prevent it from being squished.
 						// TODO: Remove this check if the image support setting 100% width.
 						naturalWidth >= maxContentWidth &&
@@ -1029,13 +1098,46 @@ export default function Image( {
 	}
 
 	if ( ! url && ! temporaryURL ) {
-		// Add all controls if the image attributes are connected.
-		return metadata?.bindings ? controls : sizeControls;
+		return (
+			<>
+				{ mediaReplaceFlow }
+				{ /* Add all controls if the image attributes are connected. */ }
+				{ metadata?.bindings ? controls : sizeControls }
+			</>
+		);
 	}
+
+	/**
+	 * Set the post's featured image with the current image.
+	 */
+	const setPostFeatureImage = () => {
+		setFeaturedImage( id );
+		createSuccessNotice( __( 'Post featured image updated.' ), {
+			type: 'snackbar',
+		} );
+	};
+
+	const featuredImageControl = (
+		<BlockSettingsMenuControls>
+			{ ( { selectedClientIds } ) =>
+				selectedClientIds.length === 1 &&
+				! isDescendentOfQueryLoop &&
+				postId &&
+				id &&
+				clientId === selectedClientIds[ 0 ] && (
+					<MenuItem onClick={ setPostFeatureImage }>
+						{ __( 'Set featured image' ) }
+					</MenuItem>
+				)
+			}
+		</BlockSettingsMenuControls>
+	);
 
 	return (
 		<>
+			{ mediaReplaceFlow }
 			{ controls }
+			{ featuredImageControl }
 			{ img }
 
 			<Caption

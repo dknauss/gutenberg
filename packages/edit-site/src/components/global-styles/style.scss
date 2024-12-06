@@ -211,6 +211,10 @@
 	flex-direction: column;
 }
 
+.edit-site-global-styles-sidebar__navigator-screen .single-column {
+	grid-column: span 1;
+}
+
 .edit-site-global-styles-screen-root.edit-site-global-styles-screen-root,
 .edit-site-global-styles-screen-style-variations.edit-site-global-styles-screen-style-variations {
 	background: unset;
@@ -221,3 +225,15 @@
 	fill: currentColor;
 }
 
+.edit-site-global-styles-screen-root__active-style-tile {
+	// Todo: revisit use of Card component and/or remove override
+	// The &#{&} is a workaround for the specificity of the Card component.
+	&#{&},
+	&#{&} .edit-site-global-styles-screen-root__active-style-tile-preview {
+		box-shadow: none;
+		border-radius: $radius-small;
+		.block-editor-iframe__container {
+			border: 1px solid $gray-200;
+		}
+	}
+}

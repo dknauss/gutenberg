@@ -7,17 +7,10 @@ import { useState, useMemo } from '@wordpress/element';
  * Internal dependencies
  */
 import DataViews from '../index';
-import {
-	DEFAULT_VIEW,
-	actions,
-	data,
-	fields,
-	themeData,
-	themeFields,
-} from './fixtures';
+import { DEFAULT_VIEW, actions, data, fields } from './fixtures';
 import { LAYOUT_GRID, LAYOUT_LIST, LAYOUT_TABLE } from '../../../constants';
 import { filterSortAndPaginate } from '../../../filter-and-sort-data-view';
-import type { CombinedField, View } from '../../../types';
+import type { View } from '../../../types';
 
 import './style.css';
 
@@ -28,43 +21,18 @@ const meta = {
 export default meta;
 
 const defaultLayouts = {
-	[ LAYOUT_TABLE ]: {
-		layout: {
-			primaryField: 'title',
-			styles: {
-				image: {
-					width: 50,
-				},
-				title: {
-					maxWidth: 400,
-				},
-				type: {
-					maxWidth: 400,
-				},
-				description: {
-					maxWidth: 200,
-				},
-			},
-		},
-	},
-	[ LAYOUT_GRID ]: {
-		layout: {
-			mediaField: 'image',
-			primaryField: 'title',
-		},
-	},
-	[ LAYOUT_LIST ]: {
-		layout: {
-			mediaField: 'image',
-			primaryField: 'title',
-		},
-	},
+	[ LAYOUT_TABLE ]: {},
+	[ LAYOUT_GRID ]: {},
+	[ LAYOUT_LIST ]: {},
 };
 
 export const Default = () => {
 	const [ view, setView ] = useState< View >( {
 		...DEFAULT_VIEW,
-		fields: [ 'title', 'description', 'categories' ],
+		fields: [ 'categories' ],
+		titleField: 'title',
+		descriptionField: 'description',
+		mediaField: 'image',
 	} );
 	const { data: shownData, paginationInfo } = useMemo( () => {
 		return filterSortAndPaginate( data, view, fields );
@@ -78,6 +46,11 @@ export const Default = () => {
 			fields={ fields }
 			onChangeView={ setView }
 			actions={ actions }
+			onClickItem={ ( item ) => {
+				// eslint-disable-next-line no-alert
+				alert( 'Clicked: ' + item.title );
+			} }
+			isItemClickable={ () => true }
 			defaultLayouts={ defaultLayouts }
 		/>
 	);
@@ -129,58 +102,6 @@ export const FieldsNoSortableNoHidable = () => {
 			defaultLayouts={ {
 				table: {},
 			} }
-		/>
-	);
-};
-
-export const CombinedFields = () => {
-	const defaultLayoutsThemes = {
-		table: {
-			fields: [ 'theme', 'requires', 'tested' ],
-			layout: {
-				primaryField: 'name',
-				combinedFields: [
-					{
-						id: 'theme',
-						label: 'Theme',
-						children: [ 'name', 'description' ],
-						direction: 'vertical',
-					},
-				] as CombinedField[],
-				styles: {
-					theme: {
-						maxWidth: 300,
-					},
-				},
-			},
-		},
-		grid: {
-			fields: [ 'description', 'requires', 'tested' ],
-			layout: { primaryField: 'name', columnFields: [ 'description' ] },
-		},
-		list: {
-			fields: [ 'requires', 'tested' ],
-			layout: { primaryField: 'name' },
-		},
-	};
-	const [ view, setView ] = useState< View >( {
-		...DEFAULT_VIEW,
-		fields: defaultLayoutsThemes.table.fields,
-		layout: defaultLayoutsThemes.table.layout,
-	} );
-	const { data: shownData, paginationInfo } = useMemo( () => {
-		return filterSortAndPaginate( themeData, view, themeFields );
-	}, [ view ] );
-
-	return (
-		<DataViews
-			getItemId={ ( item ) => item.name }
-			paginationInfo={ paginationInfo }
-			data={ shownData }
-			view={ view }
-			fields={ themeFields }
-			onChangeView={ setView }
-			defaultLayouts={ defaultLayoutsThemes }
 		/>
 	);
 };

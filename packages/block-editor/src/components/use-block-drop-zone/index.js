@@ -275,6 +275,23 @@ export function isDropTargetValid(
 }
 
 /**
+ * Checks if the given element is an insertion point.
+ *
+ * @param {EventTarget|null} targetToCheck - The element to check.
+ * @param {Document}         ownerDocument - The owner document of the element.
+ * @return {boolean} True if the element is a insertion point, false otherwise.
+ */
+function isInsertionPoint( targetToCheck, ownerDocument ) {
+	const { defaultView } = ownerDocument;
+
+	return !! (
+		defaultView &&
+		targetToCheck instanceof defaultView.HTMLElement &&
+		targetToCheck.closest( '[data-is-insertion-point]' )
+	);
+}
+
+/**
  * @typedef  {Object} WPBlockDropZoneConfig
  * @property {?HTMLElement} dropZoneElement Optional element to be used as the drop zone.
  * @property {string}       rootClientId    The root client id for the block list.
@@ -313,8 +330,9 @@ export default function useBlockDropZone( {
 		getAllowedBlocks,
 		isDragging,
 		isGroupable,
-		isZoomOutMode,
+		isZoomOut,
 		getSectionRootClientId,
+		getBlockParents,
 	} = unlock( useSelect( blockEditorStore ) );
 	const {
 		showInsertionPoint,
@@ -341,13 +359,29 @@ export default function useBlockDropZone( {
 					// So, ensure that the drag state is set when the user drags over a drop zone.
 					startDragging();
 				}
+
+				const draggedBlockClientIds = getDraggedBlockClientIds();
+				const targetParents = [
+					targetRootClientId,
+					...getBlockParents( targetRootClientId, true ),
+				];
+
+				// Check if the target is within any of the dragged blocks.
+				const isTargetWithinDraggedBlocks = draggedBlockClientIds.some(
+					( clientId ) => targetParents.includes( clientId )
+				);
+
+				if ( isTargetWithinDraggedBlocks ) {
+					return;
+				}
+
 				const allowedBlocks = getAllowedBlocks( targetRootClientId );
 				const targetBlockName = getBlockNamesByClientId( [
 					targetRootClientId,
 				] )[ 0 ];
 
 				const draggedBlockNames = getBlockNamesByClientId(
-					getDraggedBlockClientIds()
+					draggedBlockClientIds
 				);
 				const isBlockDroppingAllowed = isDropTargetValid(
 					getBlockType,
@@ -366,7 +400,7 @@ export default function useBlockDropZone( {
 				// do not allow dropping as the drop target is not within the root (that which is
 				// treated as "the content" by Zoom Out Mode).
 				if (
-					isZoomOutMode() &&
+					isZoomOut() &&
 					sectionRootClientId !== targetRootClientId
 				) {
 					return;
@@ -421,6 +455,10 @@ export default function useBlockDropZone( {
 
 				const [ targetIndex, operation, nearestSide ] =
 					dropTargetPosition;
+
+				if ( isZoomOut() && operation !== 'insert' ) {
+					return;
+				}
 
 				if ( operation === 'group' ) {
 					const targetBlock = blocks[ targetIndex ];
@@ -493,7 +531,7 @@ export default function useBlockDropZone( {
 				getDraggedBlockClientIds,
 				getBlockType,
 				getSectionRootClientId,
-				isZoomOutMode,
+				isZoomOut,
 				getBlocks,
 				getBlockListSettings,
 				dropZoneElement,
@@ -521,7 +559,18 @@ export default function useBlockDropZone( {
 			// https://developer.mozilla.org/en-US/docs/Web/API/Event/currentTarget
 			throttled( event, event.currentTarget.ownerDocument );
 		},
-		onDragLeave() {
+		onDragLeave( event ) {
+			const { ownerDocument } = event.currentTarget;
+
+			// If the drag event is leaving the drop zone and entering an insertion point,
+			// do not hide the insertion point as it is conceptually within the dropzone.
+			if (
+				isInsertionPoint( event.relatedTarget, ownerDocument ) ||
+				isInsertionPoint( event.target, ownerDocument )
+			) {
+				return;
+			}
+
 			throttled.cancel();
 			hideInsertionPoint();
 		},

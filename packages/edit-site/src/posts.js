@@ -65,6 +65,7 @@ export function initializePostsDashboard( id, settings ) {
 		allowRightClickOverrides: true,
 		distractionFree: false,
 		editorMode: 'visual',
+		editorTool: 'edit',
 		fixedToolbar: false,
 		focusMode: false,
 		inactivePanels: [],
@@ -72,6 +73,7 @@ export function initializePostsDashboard( id, settings ) {
 		openPanels: [ 'post-status' ],
 		showBlockBreadcrumbs: true,
 		showListViewByDefault: false,
+		enableChoosePatternModal: true,
 	} );
 
 	dispatch( editSiteStore ).updateSettings( settings );

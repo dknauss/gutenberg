@@ -24,7 +24,7 @@ import { store as editorStore } from '../../store';
  * A modal component that is displayed when a post is locked for editing by another user.
  * The modal provides information about the lock status and options to take over or exit the editor.
  *
- * @return {JSX.Element|null} The rendered PostLockedModal component.
+ * @return {React.ReactNode} The rendered PostLockedModal component.
  */
 export default function PostLockedModal() {
 	const instanceId = useInstanceId( PostLockedModal );
@@ -257,8 +257,7 @@ export default function PostLockedModal() {
 					>
 						{ ! isTakeover && (
 							<Button
-								// TODO: Switch to `true` (40px size) if possible
-								__next40pxDefaultSize={ false }
+								__next40pxDefaultSize
 								variant="tertiary"
 								href={ unlockUrl }
 							>
@@ -266,8 +265,7 @@ export default function PostLockedModal() {
 							</Button>
 						) }
 						<Button
-							// TODO: Switch to `true` (40px size) if possible
-							__next40pxDefaultSize={ false }
+							__next40pxDefaultSize
 							variant="primary"
 							href={ allPostsUrl }
 						>

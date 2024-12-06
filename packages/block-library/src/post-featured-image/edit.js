@@ -207,7 +207,7 @@ export default function PostFeaturedImageEdit( {
 						label={
 							postType?.labels.singular_name
 								? sprintf(
-										// translators: %s: Name of the post type e.g: "Page".
+										// translators: %s: Name of the post type e.g: "post".
 										__( 'Link to %s' ),
 										postType.labels.singular_name
 								  )
@@ -308,8 +308,7 @@ export default function PostFeaturedImageEdit( {
 				mediaLibraryButton={ ( { open } ) => {
 					return (
 						<Button
-							// TODO: Switch to `true` (40px size) if possible
-							__next40pxDefaultSize={ false }
+							__next40pxDefaultSize
 							icon={ upload }
 							variant="primary"
 							label={ label }

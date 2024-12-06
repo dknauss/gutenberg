@@ -10,12 +10,7 @@ import { InterfaceSkeleton, ComplementaryArea } from '@wordpress/interface';
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
-import {
-	store as blockEditorStore,
-	BlockBreadcrumb,
-	BlockToolbar,
-} from '@wordpress/block-editor';
-import { store as keyboardShortcutsStore } from '@wordpress/keyboard-shortcuts';
+import { BlockBreadcrumb, BlockToolbar } from '@wordpress/block-editor';
 import { useViewportMatch } from '@wordpress/compose';
 import { useState, useCallback } from '@wordpress/element';
 
@@ -47,7 +42,6 @@ const interfaceLabels = {
 
 export default function EditorInterface( {
 	className,
-	enableRegionNavigation,
 	styles,
 	children,
 	forceIsDirty,
@@ -58,7 +52,6 @@ export default function EditorInterface( {
 	customSavePanel,
 	forceDisableBlockTools,
 	title,
-	icon,
 	iframeProps,
 } ) {
 	const {
@@ -68,11 +61,8 @@ export default function EditorInterface( {
 		isListViewOpened,
 		isDistractionFree,
 		isPreviewMode,
-		previousShortcut,
-		nextShortcut,
 		showBlockBreadcrumbs,
 		documentLabel,
-		blockEditorMode,
 	} = useSelect( ( select ) => {
 		const { get } = select( preferencesStore );
 		const { getEditorSettings, getPostTypeLabel } = select( editorStore );
@@ -85,18 +75,11 @@ export default function EditorInterface( {
 			isInserterOpened: select( editorStore ).isInserterOpened(),
 			isListViewOpened: select( editorStore ).isListViewOpened(),
 			isDistractionFree: get( 'core', 'distractionFree' ),
-			isPreviewMode: editorSettings.__unstableIsPreviewMode,
-			previousShortcut: select(
-				keyboardShortcutsStore
-			).getAllShortcutKeyCombinations( 'core/editor/previous-region' ),
-			nextShortcut: select(
-				keyboardShortcutsStore
-			).getAllShortcutKeyCombinations( 'core/editor/next-region' ),
+			isPreviewMode: editorSettings.isPreviewMode,
 			showBlockBreadcrumbs: get( 'core', 'showBlockBreadcrumbs' ),
-			// translators: Default label for the Document in the Block Breadcrumb.
-			documentLabel: postTypeLabel || _x( 'Document', 'noun' ),
-			blockEditorMode:
-				select( blockEditorStore ).__unstableGetEditorMode(),
+			documentLabel:
+				// translators: Default label for the Document in the Block Breadcrumb.
+				postTypeLabel || _x( 'Document', 'noun, breadcrumb' ),
 		};
 	}, [] );
 	const isLargeViewport = useViewportMatch( 'medium' );
@@ -120,7 +103,6 @@ export default function EditorInterface( {
 
 	return (
 		<InterfaceSkeleton
-			enableRegionNavigation={ enableRegionNavigation }
 			isDistractionFree={ isDistractionFree }
 			className={ clsx( 'editor-editor-interface', className, {
 				'is-entity-save-view-open': !! entitiesSavedStatesCallback,
@@ -140,7 +122,6 @@ export default function EditorInterface( {
 						customSaveButton={ customSaveButton }
 						forceDisableBlockTools={ forceDisableBlockTools }
 						title={ title }
-						icon={ icon }
 					/>
 				)
 			}
@@ -207,7 +188,6 @@ export default function EditorInterface( {
 				isLargeViewport &&
 				showBlockBreadcrumbs &&
 				isRichEditingEnabled &&
-				blockEditorMode !== 'zoom-out' &&
 				mode === 'visual' && (
 					<BlockBreadcrumb rootLabelText={ documentLabel } />
 				)
@@ -230,10 +210,6 @@ export default function EditorInterface( {
 					  )
 					: undefined
 			}
-			shortcuts={ {
-				previous: previousShortcut,
-				next: nextShortcut,
-			} }
 		/>
 	);
 }

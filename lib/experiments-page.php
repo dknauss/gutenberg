@@ -69,7 +69,7 @@ function gutenberg_initialize_experiments_settings() {
 
 	add_settings_field(
 		'gutenberg-color-randomizer',
-		__( 'Color randomizer ', 'gutenberg' ),
+		__( 'Color randomizer', 'gutenberg' ),
 		'gutenberg_display_experiment_field',
 		'gutenberg-experiments',
 		'gutenberg_experiments_section',
@@ -164,6 +164,18 @@ function gutenberg_initialize_experiments_settings() {
 	);
 
 	add_settings_field(
+		'gutenberg-block-comment',
+		__( 'Block Comments', 'gutenberg' ),
+		'gutenberg_display_experiment_field',
+		'gutenberg-experiments',
+		'gutenberg_experiments_section',
+		array(
+			'label' => __( 'Enable multi-user commenting on blocks', 'gutenberg' ),
+			'id'    => 'gutenberg-block-comment',
+		)
+	);
+
+	add_settings_field(
 		'gutenberg-media-processing',
 		__( 'Client-side media processing', 'gutenberg' ),
 		'gutenberg_display_experiment_field',
@@ -176,16 +188,17 @@ function gutenberg_initialize_experiments_settings() {
 	);
 
 	add_settings_field(
-		'gutenberg-zoom-out-experiment',
-		__( 'Zoom out experiments', 'gutenberg' ),
+		'gutenberg-editor-write-mode',
+		__( 'Editor write mode', 'gutenberg' ),
 		'gutenberg_display_experiment_field',
 		'gutenberg-experiments',
 		'gutenberg_experiments_section',
 		array(
-			'label' => __( 'Enable zoom out experiments; shows zoom out in the device preview and other zoom out experiments.', 'gutenberg' ),
-			'id'    => 'gutenberg-zoom-out-experiment',
+			'label' => __( 'Enable write mode in editor.', 'gutenberg' ),
+			'id'    => 'gutenberg-editor-write-mode',
 		)
 	);
+
 	register_setting(
 		'gutenberg-experiments',
 		'gutenberg-experiments'

@@ -24,7 +24,7 @@ const meta: Meta< typeof DimensionControl > = {
 	id: 'components-dimensioncontrol',
 	argTypes: {
 		onChange: { action: 'onChange' },
-		value: { control: { type: null } },
+		value: { control: false },
 		icon: {
 			control: { type: 'select' },
 			options: [ '-', 'desktop', 'tablet', 'mobile' ],
@@ -50,6 +50,7 @@ const Template: StoryFn< typeof DimensionControl > = ( args ) => (
 export const Default = Template.bind( {} );
 Default.args = {
 	__nextHasNoMarginBottom: true,
+	__next40pxDefaultSize: true,
 	label: 'Please select a size',
 	sizes,
 };

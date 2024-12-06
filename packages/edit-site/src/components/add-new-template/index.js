@@ -107,8 +107,7 @@ function TemplateListItem( {
 } ) {
 	return (
 		<Button
-			// TODO: Switch to `true` (40px size) if possible
-			__next40pxDefaultSize={ false }
+			__next40pxDefaultSize
 			className={ className }
 			onClick={ onClick }
 			label={ description }
@@ -204,15 +203,13 @@ function NewTemplateModal( { onClose } ) {
 			);
 
 			// Navigate to the created template editor.
-			history.push( {
-				postId: newTemplate.id,
-				postType: TEMPLATE_POST_TYPE,
-				canvas: 'edit',
-			} );
+			history.navigate(
+				`/${ TEMPLATE_POST_TYPE }/${ newTemplate.id }?canvas=edit`
+			);
 
 			createSuccessNotice(
 				sprintf(
-					// translators: %s: Title of the created template e.g: "Category".
+					// translators: %s: Title of the created post or template, e.g: "Hello world".
 					__( '"%s" successfully created.' ),
 					decodeEntities( newTemplate.title?.rendered || title )
 				),

@@ -7,6 +7,7 @@
 		width: 100%;
 
 		&.editor-post-card-panel__title {
+			@include heading-medium();
 			margin: 0;
 			padding: 2px 0;
 			display: flex;
@@ -34,17 +35,9 @@
 	}
 }
 
-.editor-post-card-panel__icon.is-sync {
-	fill: var(--wp-block-synced-color);
-
-	& + .editor-post-card-panel__title {
-		color: var(--wp-block-synced-color);
-	}
-}
-
 .editor-post-card-panel__title-badge {
 	background: $gray-100;
-	color: $gray-700;
+	color: $gray-800;
 	padding: 0 $grid-unit-05;
 	border-radius: $radius-small;
 	font-size: 12px;

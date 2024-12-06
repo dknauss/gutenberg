@@ -26,15 +26,6 @@
 	}
 }
 
-.block-editor-block-switcher__toggle-text {
-	margin-left: $grid-unit-10;
-
-	// Account for double label when show-text-buttons is set.
-	.show-icon-labels & {
-		display: none;
-	}
-}
-
 .components-button.block-editor-block-switcher__no-switcher-icon {
 	display: flex;
 
@@ -52,30 +43,6 @@
 	// Since it's not clickable, though, don't show a hover state.
 	&:hover {
 		color: $gray-900;
-	}
-}
-
-// Style this the same as the block buttons in the library.
-// Needs specificity to override the icon button.
-.block-editor-block-toolbar .components-toolbar-group .components-button.block-editor-block-switcher__no-switcher-icon.has-icon.has-icon,
-.block-editor-block-toolbar .components-toolbar .components-button.block-editor-block-switcher__no-switcher-icon.has-icon.has-icon,
-.block-editor-block-toolbar .components-toolbar-group .components-button.block-editor-block-switcher__toggle.has-icon.has-icon,
-.block-editor-block-toolbar .components-toolbar .components-button.block-editor-block-switcher__toggle.has-icon.has-icon {
-	.block-editor-block-icon {
-		height: 100%;
-		position: relative;
-		margin: 0 auto;
-		display: flex;
-		align-items: center;
-		min-width: 100%;
-	}
-
-	// Position the focus style correctly.
-	&::before {
-		top: $grid-unit-10;
-		right: $grid-unit-10;
-		bottom: $grid-unit-10;
-		left: $grid-unit-10;
 	}
 }
 

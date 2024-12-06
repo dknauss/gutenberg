@@ -106,7 +106,7 @@ export type Field< Item > = {
 	/**
 	 * Callback used to render the field. Defaults to `field.getValue`.
 	 */
-	render?: ComponentType< { item: Item } >;
+	render?: ComponentType< DataViewRenderFieldProps< Item > >;
 
 	/**
 	 * Callback used to render an edit control for the field.
@@ -122,6 +122,11 @@ export type Field< Item > = {
 	 * Callback used to validate the field.
 	 */
 	isValid?: ( item: Item, context?: ValidationContext ) => boolean;
+
+	/**
+	 * Callback used to decide if a field should be displayed.
+	 */
+	isVisible?: ( item: Item ) => boolean;
 
 	/**
 	 * Whether the field is sortable.
@@ -159,7 +164,7 @@ export type NormalizedField< Item > = Field< Item > & {
 	label: string;
 	header: string | ReactElement;
 	getValue: ( args: { item: Item } ) => any;
-	render: ComponentType< { item: Item } >;
+	render: ComponentType< DataViewRenderFieldProps< Item > >;
 	Edit: ComponentType< DataFormControlProps< Item > >;
 	sort: ( a: Item, b: Item, direction: SortDirection ) => number;
 	isValid: ( item: Item, context?: ValidationContext ) => boolean;
@@ -174,19 +179,15 @@ export type Fields< Item > = Field< Item >[];
 
 export type Data< Item > = Item[];
 
-/**
- * The form configuration.
- */
-export type Form = {
-	type?: 'regular' | 'panel';
-	fields?: string[];
-};
-
 export type DataFormControlProps< Item > = {
 	data: Item;
 	field: NormalizedField< Item >;
 	onChange: ( value: Record< string, any > ) => void;
 	hideLabelFromVision?: boolean;
+};
+
+export type DataViewRenderFieldProps< Item > = {
+	item: Item;
 };
 
 /**
@@ -291,24 +292,36 @@ interface ViewBase {
 	 * The fields to render
 	 */
 	fields?: string[];
-}
-
-export interface CombinedField {
-	id: string;
-
-	label: string;
-
-	header?: string | ReactElement;
 
 	/**
-	 * The fields to use as columns.
+	 * Title field
 	 */
-	children: string[];
+	titleField?: string;
 
 	/**
-	 * The direction of the stack.
+	 * Media field
 	 */
-	direction: 'horizontal' | 'vertical';
+	mediaField?: string;
+
+	/**
+	 * Description field
+	 */
+	descriptionField?: string;
+
+	/**
+	 * Whether to show the title
+	 */
+	showTitle?: boolean;
+
+	/**
+	 * Whether to show the media
+	 */
+	showMedia?: boolean;
+
+	/**
+	 * Whether to show the description
+	 */
+	showDescription?: boolean;
 }
 
 export interface ColumnStyle {
@@ -328,41 +341,26 @@ export interface ColumnStyle {
 	minWidth?: string | number;
 }
 
+export type Density = 'compact' | 'balanced' | 'comfortable';
+
 export interface ViewTable extends ViewBase {
 	type: 'table';
 
 	layout?: {
 		/**
-		 * The field to use as the primary field.
-		 */
-		primaryField?: string;
-
-		/**
-		 * The fields to use as columns.
-		 */
-		combinedFields?: CombinedField[];
-
-		/**
 		 * The styles for the columns.
 		 */
 		styles?: Record< string, ColumnStyle >;
+
+		/**
+		 * The density of the view.
+		 */
+		density?: Density;
 	};
 }
 
 export interface ViewList extends ViewBase {
 	type: 'list';
-
-	layout?: {
-		/**
-		 * The field to use as the primary field.
-		 */
-		primaryField?: string;
-
-		/**
-		 * The field to use as the media field.
-		 */
-		mediaField?: string;
-	};
 }
 
 export interface ViewGrid extends ViewBase {
@@ -370,24 +368,14 @@ export interface ViewGrid extends ViewBase {
 
 	layout?: {
 		/**
-		 * The field to use as the primary field.
-		 */
-		primaryField?: string;
-
-		/**
-		 * The field to use as the media field.
-		 */
-		mediaField?: string;
-
-		/**
-		 * The fields to use as columns.
-		 */
-		columnFields?: string[];
-
-		/**
 		 * The fields to use as badge fields.
 		 */
 		badgeFields?: string[];
+
+		/**
+		 * The preview size of the grid.
+		 */
+		previewSize?: number;
 	};
 }
 
@@ -497,8 +485,9 @@ export interface ViewBaseProps< Item > {
 	onChangeSelection: SetSelection;
 	selection: string[];
 	setOpenedFilter: ( fieldId: string ) => void;
+	onClickItem?: ( item: Item ) => void;
+	isItemClickable: ( item: Item ) => boolean;
 	view: View;
-	density: number;
 }
 
 export interface ViewTableProps< Item > extends ViewBaseProps< Item > {
@@ -524,9 +513,41 @@ export interface SupportedLayouts {
 	table?: Omit< ViewTable, 'type' >;
 }
 
+export type SimpleFormField = {
+	id: string;
+	layout?: 'regular' | 'panel';
+	labelPosition?: 'side' | 'top' | 'none';
+};
+
+export type CombinedFormField = {
+	id: string;
+	label?: string;
+	layout?: 'regular' | 'panel';
+	labelPosition?: 'side' | 'top' | 'none';
+	children: Array< FormField | string >;
+};
+
+export type FormField = SimpleFormField | CombinedFormField;
+
+/**
+ * The form configuration.
+ */
+export type Form = {
+	type?: 'regular' | 'panel';
+	fields?: Array< FormField | string >;
+	labelPosition?: 'side' | 'top' | 'none';
+};
+
 export interface DataFormProps< Item > {
 	data: Item;
 	fields: Field< Item >[];
 	form: Form;
 	onChange: ( value: Record< string, any > ) => void;
+}
+
+export interface FieldLayoutProps< Item > {
+	data: Item;
+	field: FormField;
+	onChange: ( value: any ) => void;
+	hideLabelFromVision?: boolean;
 }

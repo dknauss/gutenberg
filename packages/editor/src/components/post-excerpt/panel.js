@@ -83,7 +83,7 @@ function ExcerptPanel() {
 /**
  * Is rendered if the post type supports excerpts and allows editing the excerpt.
  *
- * @return {JSX.Element} The rendered PostExcerptPanel component.
+ * @return {React.ReactNode} The rendered PostExcerptPanel component.
  */
 export default function PostExcerptPanel() {
 	return (
@@ -198,9 +198,7 @@ function PrivateExcerpt() {
 				ref={ setPopoverAnchor }
 				renderToggle={ ( { onToggle } ) => (
 					<Button
-						// TODO: Switch to `true` (40px size) if possible
-						__next40pxDefaultSize={ false }
-						className="editor-post-excerpt__dropdown__trigger"
+						__next40pxDefaultSize
 						onClick={ onToggle }
 						variant="link"
 					>

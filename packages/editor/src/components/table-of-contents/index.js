@@ -30,8 +30,7 @@ function TableOfContents(
 			contentClassName="table-of-contents__popover"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
-					// TODO: Switch to `true` (40px size) if possible
-					__next40pxDefaultSize={ false }
+					__next40pxDefaultSize
 					{ ...props }
 					ref={ ref }
 					onClick={ hasBlocks ? onToggle : undefined }
@@ -62,6 +61,6 @@ function TableOfContents(
  * @param {boolean}     props.repositionDropdown      Whether to reposition the dropdown.
  * @param {Element.ref} ref                           The component's ref.
  *
- * @return {JSX.Element} The rendered table of contents component.
+ * @return {React.ReactNode} The rendered table of contents component.
  */
 export default forwardRef( TableOfContents );

@@ -7,6 +7,7 @@ import {
 	store as coreStore,
 	__experimentalFetchLinkSuggestions as fetchLinkSuggestions,
 	__experimentalFetchUrlData as fetchUrlData,
+	privateApis as coreDataPrivateApis,
 } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -26,15 +27,15 @@ import { store as editorStore } from '../../store';
 import { unlock } from '../../lock-unlock';
 import { useGlobalStylesContext } from '../global-styles-provider';
 
-const EMPTY_BLOCKS_LIST = [];
 const EMPTY_OBJECT = {};
 
 function __experimentalReusableBlocksSelect( select ) {
-	return (
-		select( coreStore ).getEntityRecords( 'postType', 'wp_block', {
-			per_page: -1,
-		} ) ?? EMPTY_BLOCKS_LIST
-	);
+	const { RECEIVE_INTERMEDIATE_RESULTS } = unlock( coreDataPrivateApis );
+	const { getEntityRecords } = select( coreStore );
+	return getEntityRecords( 'postType', 'wp_block', {
+		per_page: -1,
+		[ RECEIVE_INTERMEDIATE_RESULTS ]: true,
+	} );
 }
 
 const BLOCK_EDITOR_SETTINGS = [
@@ -69,6 +70,7 @@ const BLOCK_EDITOR_SETTINGS = [
 	'imageDimensions',
 	'imageEditing',
 	'imageSizes',
+	'isPreviewMode',
 	'isRTL',
 	'locale',
 	'maxWidth',
@@ -80,7 +82,6 @@ const BLOCK_EDITOR_SETTINGS = [
 	'supportsLayout',
 	'widgetTypesToHideFromLegacyWidgetBlock',
 	'__unstableHasCustomAppender',
-	'__unstableIsPreviewMode',
 	'__unstableResolvedAssets',
 	'__unstableIsBlockBasedTheme',
 ];
@@ -327,6 +328,10 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 					: settings.template,
 			__experimentalSetIsInserterOpened: setIsInserterOpened,
 			[ sectionRootClientIdKey ]: sectionRootClientId,
+			editorTool:
+				renderingMode === 'post-only' && postType !== 'wp_template'
+					? 'edit'
+					: undefined,
 		};
 
 		return blockEditorSettings;
@@ -354,6 +359,7 @@ function useBlockEditorSettings( settings, postType, postId, renderingMode ) {
 		sectionRootClientId,
 		globalStylesData,
 		globalStylesLinksData,
+		renderingMode,
 	] );
 }
 

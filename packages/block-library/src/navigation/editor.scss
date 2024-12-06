@@ -203,6 +203,7 @@ $color-control-label-height: 20px;
 .wp-block-navigation .wp-block + .block-list-appender .block-editor-button-block-appender {
 	background-color: $gray-900;
 	color: $white;
+	height: $button-size-small;
 
 	// This needs specificity to override an inherited padding.
 	// That source padding in turn has high specificity to protect
@@ -563,7 +564,11 @@ body.editor-styles-wrapper .wp-block-navigation__responsive-container.is-menu-op
 	width: 100%;
 	background-color: $gray-100;
 	padding: 0 $grid-unit-30;
-	height: $grid-unit-40 * 2;
+
+	// Adding !important to override default 40px size.
+	// Ref - https://github.com/WordPress/gutenberg/pull/65075#discussion_r1746282734
+	height: $grid-unit-40 * 2 !important;
+
 	margin-bottom: $grid-unit-15;
 
 	&.open {

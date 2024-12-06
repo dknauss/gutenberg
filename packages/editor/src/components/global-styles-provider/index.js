@@ -46,24 +46,64 @@ export function mergeBaseAndUserConfigs( base, user ) {
 function useGlobalStylesUserConfig() {
 	const { globalStylesId, isReady, settings, styles, _links } = useSelect(
 		( select ) => {
-			const { getEditedEntityRecord, hasFinishedResolution, canUser } =
-				select( coreStore );
+			const {
+				getEntityRecord,
+				getEditedEntityRecord,
+				hasFinishedResolution,
+				canUser,
+			} = select( coreStore );
 			const _globalStylesId =
 				select( coreStore ).__experimentalGetCurrentGlobalStylesId();
 
-			const record =
+			let record;
+
+			/*
+			 * Ensure that the global styles ID request is complete by testing `_globalStylesId`,
+			 * before firing off the `canUser` OPTIONS request for user capabilities, otherwise it will
+			 * fetch `/wp/v2/global-styles` instead of `/wp/v2/global-styles/{id}`.
+			 * NOTE: Please keep in sync any preload paths sent to `block_editor_rest_api_preload()`,
+			 * or set using the `block_editor_rest_api_preload_paths` filter, if this changes.
+			 */
+			const userCanEditGlobalStyles = _globalStylesId
+				? canUser( 'update', {
+						kind: 'root',
+						name: 'globalStyles',
+						id: _globalStylesId,
+				  } )
+				: null;
+
+			if (
 				_globalStylesId &&
-				canUser( 'read', {
-					kind: 'root',
-					name: 'globalStyles',
-					id: _globalStylesId,
-				} )
-					? getEditedEntityRecord(
-							'root',
-							'globalStyles',
-							_globalStylesId
-					  )
-					: undefined;
+				/*
+				 * Test that the OPTIONS request for user capabilities is complete
+				 * before fetching the global styles entity record.
+				 * This is to avoid fetching the global styles entity unnecessarily.
+				 */
+				typeof userCanEditGlobalStyles === 'boolean'
+			) {
+				/*
+				 * Fetch the global styles entity record based on the user's capabilities.
+				 * The default context is `edit` for users who can edit global styles.
+				 * Otherwise, the context is `view`.
+				 * NOTE: There is an equivalent conditional check using `current_user_can()` in the backend
+				 * to preload the global styles entity. Please keep in sync any preload paths sent to `block_editor_rest_api_preload()`,
+				 * or set using `block_editor_rest_api_preload_paths` filter, if this changes.
+				 */
+				if ( userCanEditGlobalStyles ) {
+					record = getEditedEntityRecord(
+						'root',
+						'globalStyles',
+						_globalStylesId
+					);
+				} else {
+					record = getEntityRecord(
+						'root',
+						'globalStyles',
+						_globalStylesId,
+						{ context: 'view' }
+					);
+				}
+			}
 
 			let hasResolved = false;
 			if (
@@ -71,13 +111,22 @@ function useGlobalStylesUserConfig() {
 					'__experimentalGetCurrentGlobalStylesId'
 				)
 			) {
-				hasResolved = _globalStylesId
-					? hasFinishedResolution( 'getEditedEntityRecord', [
-							'root',
-							'globalStyles',
-							_globalStylesId,
-					  ] )
-					: true;
+				if ( _globalStylesId ) {
+					hasResolved = userCanEditGlobalStyles
+						? hasFinishedResolution( 'getEditedEntityRecord', [
+								'root',
+								'globalStyles',
+								_globalStylesId,
+						  ] )
+						: hasFinishedResolution( 'getEntityRecord', [
+								'root',
+								'globalStyles',
+								_globalStylesId,
+								{ context: 'view' },
+						  ] );
+				} else {
+					hasResolved = true;
+				}
 			}
 
 			return {
@@ -145,16 +194,11 @@ function useGlobalStylesUserConfig() {
 }
 
 function useGlobalStylesBaseConfig() {
-	const baseConfig = useSelect( ( select ) => {
-		const { __experimentalGetCurrentThemeBaseGlobalStyles, canUser } =
-			select( coreStore );
-
-		return (
-			canUser( 'read', { kind: 'root', name: 'theme' } ) &&
-			__experimentalGetCurrentThemeBaseGlobalStyles()
-		);
-	}, [] );
-
+	const baseConfig = useSelect(
+		( select ) =>
+			select( coreStore ).__experimentalGetCurrentThemeBaseGlobalStyles(),
+		[]
+	);
 	return [ !! baseConfig, baseConfig ];
 }
 

@@ -27,31 +27,9 @@ import {
 } from '../../utils/constants';
 
 export const defaultLayouts = {
-	[ LAYOUT_TABLE ]: {
-		layout: {
-			primaryField: 'title',
-			styles: {
-				'featured-image': {
-					width: '1%',
-				},
-				title: {
-					maxWidth: 300,
-				},
-			},
-		},
-	},
-	[ LAYOUT_GRID ]: {
-		layout: {
-			mediaField: 'featured-image',
-			primaryField: 'title',
-		},
-	},
-	[ LAYOUT_LIST ]: {
-		layout: {
-			primaryField: 'title',
-			mediaField: 'featured-image',
-		},
-	},
+	[ LAYOUT_TABLE ]: {},
+	[ LAYOUT_GRID ]: {},
+	[ LAYOUT_LIST ]: {},
 };
 
 const DEFAULT_POST_BASE = {
@@ -64,8 +42,10 @@ const DEFAULT_POST_BASE = {
 		field: 'date',
 		direction: 'desc',
 	},
-	fields: [ 'title', 'author', 'status' ],
-	layout: defaultLayouts[ LAYOUT_LIST ].layout,
+	titleField: 'title',
+	mediaField: 'featured_media',
+	fields: [ 'author', 'status' ],
+	...defaultLayouts[ LAYOUT_LIST ],
 };
 
 export function useDefaultViews( { postType } ) {
@@ -88,76 +68,66 @@ export function useDefaultViews( { postType } ) {
 				title: __( 'Published' ),
 				slug: 'published',
 				icon: published,
-				view: {
-					...DEFAULT_POST_BASE,
-					filters: [
-						{
-							field: 'status',
-							operator: OPERATOR_IS_ANY,
-							value: 'publish',
-						},
-					],
-				},
+				view: DEFAULT_POST_BASE,
+				filters: [
+					{
+						field: 'status',
+						operator: OPERATOR_IS_ANY,
+						value: 'publish',
+					},
+				],
 			},
 			{
 				title: __( 'Scheduled' ),
 				slug: 'future',
 				icon: scheduled,
-				view: {
-					...DEFAULT_POST_BASE,
-					filters: [
-						{
-							field: 'status',
-							operator: OPERATOR_IS_ANY,
-							value: 'future',
-						},
-					],
-				},
+				view: DEFAULT_POST_BASE,
+				filters: [
+					{
+						field: 'status',
+						operator: OPERATOR_IS_ANY,
+						value: 'future',
+					},
+				],
 			},
 			{
 				title: __( 'Drafts' ),
 				slug: 'drafts',
 				icon: drafts,
-				view: {
-					...DEFAULT_POST_BASE,
-					filters: [
-						{
-							field: 'status',
-							operator: OPERATOR_IS_ANY,
-							value: 'draft',
-						},
-					],
-				},
+				view: DEFAULT_POST_BASE,
+				filters: [
+					{
+						field: 'status',
+						operator: OPERATOR_IS_ANY,
+						value: 'draft',
+					},
+				],
 			},
 			{
 				title: __( 'Pending' ),
 				slug: 'pending',
 				icon: pending,
-				view: {
-					...DEFAULT_POST_BASE,
-					filters: [
-						{
-							field: 'status',
-							operator: OPERATOR_IS_ANY,
-							value: 'pending',
-						},
-					],
-				},
+				view: DEFAULT_POST_BASE,
+				filters: [
+					{
+						field: 'status',
+						operator: OPERATOR_IS_ANY,
+						value: 'pending',
+					},
+				],
 			},
 			{
 				title: __( 'Private' ),
 				slug: 'private',
 				icon: notAllowed,
-				view: {
-					...DEFAULT_POST_BASE,
-					filters: [
-						{
-							field: 'status',
-							operator: OPERATOR_IS_ANY,
-							value: 'private',
-						},
-					],
-				},
+				view: DEFAULT_POST_BASE,
+				filters: [
+					{
+						field: 'status',
+						operator: OPERATOR_IS_ANY,
+						value: 'private',
+					},
+				],
 			},
 			{
 				title: __( 'Trash' ),
@@ -167,14 +137,14 @@ export function useDefaultViews( { postType } ) {
 					...DEFAULT_POST_BASE,
 					type: LAYOUT_TABLE,
 					layout: defaultLayouts[ LAYOUT_TABLE ].layout,
-					filters: [
-						{
-							field: 'status',
-							operator: OPERATOR_IS_ANY,
-							value: 'trash',
-						},
-					],
 				},
+				filters: [
+					{
+						field: 'status',
+						operator: OPERATOR_IS_ANY,
+						value: 'trash',
+					},
+				],
 			},
 		];
 	}, [ labels ] );

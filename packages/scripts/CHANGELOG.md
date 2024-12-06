@@ -2,6 +2,59 @@
 
 ## Unreleased
 
+### Internal
+
+-   The bundled `sass` dependency has been updated from `^1.35.2` to `^1.50.1` ([#67572](https://github.com/WordPress/gutenberg/pull/67572)).
+-   The bundled `sass-loader` dependency has been updated from `^12.1.0` to `^16.0.3` ([#67572](https://github.com/WordPress/gutenberg/pull/67572)).
+-   The bundled `mini-css-extract-plugin` dependency has been updated from `^2.5.1` to `^2.9.2` ([#67572](https://github.com/WordPress/gutenberg/pull/67572)).
+-   The bundled `webpack` dependency has been updated from `^5.95.0` to `^5.97.0` ([#67572](https://github.com/WordPress/gutenberg/pull/67572)).
+
+### Bug Fix
+
+-   Make React Fast Refresh in the `start` command work with multiple blocks ([64924](https://github.com/WordPress/gutenberg/pull/64924)).
+
+## 30.6.0 (2024-11-27)
+
+## 30.5.1 (2024-11-18)
+
+### Bug Fix
+
+-   Revert changes from [#61121](https://github.com/WordPress/gutenberg/pull/61121) that inlined CSS files imported from other CSS files before optimization in the `build` command.
+
+## 30.5.0 (2024-11-16)
+
+### Bug Fix
+
+-   Make `start` script more resilient for developer errors ([#66752](https://github.com/WordPress/gutenberg/pull/66752)).
+
+## 30.4.0 (2024-10-30)
+
+### Enhancements
+
+-   Add BlueOak-1.0.0 the GPLv2-compatible licenses recognized by check-licenses ([#66139](https://github.com/WordPress/gutenberg/pull/66139)).
+-   Add an optional `--root-folder` argument to the `plugin-zip` command ([#61375](https://github.com/WordPress/gutenberg/pull/61375)). By default, the command will use the plugin's name as the root folder of the zip. If the change in the behavior impacted your workflow, you could pass `--no-root-folder` to remove the root folder.
+
+### Internal
+
+-   Refactor to extract license related logic to a reusable module ([#66179](https://github.com/WordPress/gutenberg/pull/66179)).
+
+## 30.3.0 (2024-10-17)
+
+### New Features
+
+-   Add new `build-blocks-manifest` command to generate a PHP file containing block metadata from all `block.json` files in a project ([#65866](https://github.com/WordPress/gutenberg/pull/65866)).
+
+## 30.2.0 (2024-10-16)
+
+## 30.1.0 (2024-10-03)
+
+## 30.0.0 (2024-09-19)
+
+### Breaking Changes
+
+-   Updated `stylelint` dependency to `^16.8.2` ([#64828](https://github.com/WordPress/gutenberg/pull/64828)).
+-   Switched default config from `@wordpress/stylelint-config/scss` to use `@wordpress/stylelint-config/scss-stylistic` to keep stylistic rules ([#64828](https://github.com/WordPress/gutenberg/pull/64828)).
+
 ## 29.0.0 (2024-09-05)
 
 ### Breaking Changes
@@ -10,7 +63,7 @@
 
 ### Enhancements
 
-- Inlines CSS files imported from other CSS files before optimization in the `build` command ([#61121](https://github.com/WordPress/gutenberg/pull/61121)).
+-   Inlines CSS files imported from other CSS files before optimization in the `build` command ([#61121](https://github.com/WordPress/gutenberg/pull/61121)).
 
 ### Bug Fixes
 

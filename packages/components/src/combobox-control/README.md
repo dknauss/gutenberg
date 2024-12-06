@@ -34,6 +34,7 @@ function MyComboboxControl() {
 	const [ filteredOptions, setFilteredOptions ] = useState( options );
 	return (
 		<ComboboxControl
+			__next40pxDefaultSize
 			__nextHasNoMarginBottom
 			label="Font Size"
 			value={ fontSize }
@@ -110,6 +111,13 @@ If the control is clicked, the dropdown will expand regardless of this prop.
 -   Type: `Boolean`
 -   Required: No
 -   Default: `true`
+
+### placeholder
+
+If passed, the combobox input will show a placeholder string if no values are present.
+
+-   Type: `string`
+-   Required: No
 
 #### __experimentalRenderItem
 

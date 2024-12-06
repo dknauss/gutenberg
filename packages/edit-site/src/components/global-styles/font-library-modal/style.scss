@@ -64,9 +64,15 @@ $footer-height: 70px;
 
 .font-library-modal__page-selection {
 	font-size: 11px;
-	text-transform: uppercase;
 	font-weight: 500;
-	color: $gray-900;
+	text-transform: uppercase;
+
+	@include break-small() {
+		.components-select-control__input {
+			font-size: 11px !important;
+			font-weight: 500;
+		}
+	}
 }
 
 // TODO: See if this can be removed after https://github.com/WordPress/gutenberg/issues/38730
@@ -94,7 +100,11 @@ $footer-height: 70px;
 .font-library-modal__font-card {
 	border: $border-width solid $gray-200;
 	width: 100%;
-	height: auto;
+
+	// Override the default 40px height set by the Button component.
+	// Ref - https://github.com/WordPress/gutenberg/pull/65258#discussion_r1756147260
+	height: auto !important;
+
 	padding: $grid-unit-20;
 	margin-top: -1px; /* To collapse the margin with the previous element */
 
@@ -120,7 +130,7 @@ $footer-height: 70px;
 		white-space: nowrap;
 		flex-shrink: 0;
 		transition: opacity 0.3s ease-in-out;
-		@include reduce-motion("transition");
+		@include reduce-motion( "transition" );
 	}
 }
 
@@ -129,15 +139,17 @@ $footer-height: 70px;
 	padding-bottom: $grid-unit-20;
 }
 
-.font-library-modal__tabs {
+.font-library-modal__tablist-container {
+	position: sticky;
+	top: 0;
+	border-bottom: 1px solid $gray-300;
+	background: $white;
+	margin: 0 #{$grid-unit-40 * -1};
+	padding: 0 $grid-unit-20;
+	z-index: 1;
+
 	[role="tablist"] {
-		position: sticky;
-		top: 0;
-		border-bottom: 1px solid $gray-300;
-		background: $white;
-		margin: 0 #{$grid-unit-40 * -1};
-		padding: 0 $grid-unit-20;
-		z-index: 1;
+		margin-bottom: -1px;
 	}
 }
 
@@ -145,7 +157,11 @@ $footer-height: 70px;
 	align-items: center;
 	display: flex;
 	justify-content: center;
-	height: $grid-unit-80 * 4; // 256px
+
+	// Override the default 40px height set by the Button component.
+	// Ref - https://github.com/WordPress/gutenberg/pull/65258#discussion_r1756155039
+	height: $grid-unit-80 * 4 !important; // 256px
+
 	width: 100%;
 }
 
@@ -189,7 +205,9 @@ button.font-library-modal__upload-area {
 }
 
 .font-library-modal__select-all {
-	padding: $grid-unit-20 $grid-unit-20 $grid-unit-20 $grid-unit-20 + $border-width;
+	padding:
+		$grid-unit-20 $grid-unit-20 $grid-unit-20 $grid-unit-20 +
+		$border-width;
 
 	.components-checkbox-control__label {
 		padding-left: $grid-unit-20;

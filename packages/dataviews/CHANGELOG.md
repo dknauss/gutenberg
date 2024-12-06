@@ -2,6 +2,44 @@
 
 ## Unreleased
 
+## Breaking Changes
+
+-   Support showing or hiding title, media and description fields ([#67477](https://github.com/WordPress/gutenberg/pull/67477)).
+-   Unify the `title`, `media` and `description` fields for the different layouts. So instead of the previous `view.layout.mediaField`, `view.layout.primaryField` and `view.layout.columnFields`, all the layouts now support these three fields with the following config ([#67477](https://github.com/WordPress/gutenberg/pull/67477)): 
+
+```js
+const view = {
+    type: 'table',
+    titleField: 'title',
+    mediaField: 'media',
+    descriptionField: 'description',
+    fields: [ 'author', 'date' ],
+}
+```
+
+## Internal
+
+-   Upgraded `@ariakit/react` (v0.4.13) and `@ariakit/test` (v0.4.5) ([#65907](https://github.com/WordPress/gutenberg/pull/65907)).
+-   Upgraded `@ariakit/react` (v0.4.15) and `@ariakit/test` (v0.4.7) ([#67404](https://github.com/WordPress/gutenberg/pull/67404)).
+
+## 4.9.0 (2024-11-27)
+
+### Bug Fixes
+
+-   Fix focus loss when removing all filters or resetting ([#67003](https://github.com/WordPress/gutenberg/pull/67003)).
+
+## 4.8.0 (2024-11-16)
+
+## 4.7.0 (2024-10-30)
+
+## 4.6.0 (2024-10-16)
+
+-   Invert the logic for which icon to show in `DataViews` when using the filter view. Icons now match the action of the button label. ([#65914](https://github.com/WordPress/gutenberg/pull/65914)).
+
+## 4.5.0 (2024-10-03)
+
+## 4.4.0 (2024-09-19)
+
 ## 4.3.0 (2024-09-05)
 
 ## 4.2.0 (2024-08-21)
@@ -13,8 +51,7 @@
 ## Internal
 
 -   The "move left/move right" controls in the table layout (popup displayed on cliking header) are always visible. ([#64646](https://github.com/WordPress/gutenberg/pull/64646)). Before this, its visibility depending on filters, enableSorting, and enableHiding.
-- Filters no longer display the elements' description. ([#64674](https://github.com/WordPress/gutenberg/pull/64674))
-
+-   Filters no longer display the elements' description. ([#64674](https://github.com/WordPress/gutenberg/pull/64674))
 
 ## Enhancements
 

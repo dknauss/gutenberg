@@ -33,7 +33,7 @@ const ExampleComponent = () => {
 _Parameters_
 
 -   _state_ `Record< string, Array< Notice > >`: Notices state.
--   _context_ Optional grouping context.
+-   _context_ `string`: Optional grouping context.
 
 _Returns_
 
@@ -83,7 +83,7 @@ const ExampleComponent = () => {
 _Parameters_
 
 -   _content_ `string`: Notice message.
--   _options_ `[NoticeOptions]`: Optional notice options.
+-   _options_ `NoticeOptions`: Optional notice options.
 
 _Returns_
 
@@ -124,7 +124,7 @@ const ExampleComponent = () => {
 _Parameters_
 
 -   _content_ `string`: Notice message.
--   _options_ `[NoticeOptions]`: Optional notice options.
+-   _options_ `NoticeOptions`: Optional notice options.
 
 _Returns_
 
@@ -158,7 +158,7 @@ _Parameters_
 
 -   _status_ Notice status ("info" if undefined is passed).
 -   _content_ `string`: Notice message.
--   _options_ `[NoticeOptions]`: Notice options.
+-   _options_ `NoticeOptions`: Optional notice options.
 
 _Returns_
 
@@ -200,7 +200,7 @@ const ExampleComponent = () => {
 _Parameters_
 
 -   _content_ `string`: Notice message.
--   _options_ `[NoticeOptions]`: Optional notice options.
+-   _options_ `NoticeOptions`: Optional notice options.
 
 _Returns_
 
@@ -246,7 +246,7 @@ const ExampleComponent = () => {
 _Parameters_
 
 -   _content_ `string`: Notice message.
--   _options_ `[NoticeOptions]`: Optional notice options.
+-   _options_ `NoticeOptions`: Optional notice options.
 
 _Returns_
 
@@ -293,7 +293,7 @@ export const ExampleComponent = () => {
 _Parameters_
 
 -   _noticeType_ The context to remove all notices from.
--   _context_ The context to remove all notices from.
+-   _context_ `string`: The optional context to remove all notices from.
 
 _Returns_
 
@@ -341,7 +341,7 @@ const ExampleComponent = () => {
 _Parameters_
 
 -   _id_ `string`: Notice unique identifier.
--   _context_ Optional context (grouping) in which the notice is intended to appear. Defaults to 'default' context.
+-   _context_ `string`: Optional context (grouping) in which the notice is intended to appear. Defaults to 'default' context.
 
 _Returns_
 
@@ -386,7 +386,7 @@ const ExampleComponent = () => {
 _Parameters_
 
 -   _ids_ `Array< string >`: List of unique notice identifiers.
--   _context_ Optional context (grouping) in which the notices are intended to appear. Defaults to 'default' context.
+-   _context_ `string`: Optional context (grouping) in which the notices are intended to appear. Defaults to 'default' context.
 
 _Returns_
 

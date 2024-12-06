@@ -9,9 +9,9 @@ let uniqueId = 0;
 /**
  * Returns an action object used in signalling that a notice is to be created.
  *
- * @param status    Notice status ("info" if undefined is passed).
- * @param content   Notice message.
- * @param [options] Notice options.
+ * @param status  Notice status ("info" if undefined is passed).
+ * @param content Notice message.
+ * @param options Optional notice options.
  *
  * @example
  * ```js
@@ -82,8 +82,8 @@ export function createNotice(
  *
  * @see createNotice
  *
- * @param content   Notice message.
- * @param [options] Optional notice options.
+ * @param content Notice message.
+ * @param options Optional notice options.
  *
  * @example
  * ```js
@@ -124,8 +124,8 @@ export function createSuccessNotice(
  *
  * @see createNotice
  *
- * @param content   Notice message.
- * @param [options] Optional notice options.
+ * @param content Notice message.
+ * @param options Optional notice options.
  *
  * @example
  * ```js
@@ -162,8 +162,8 @@ export function createInfoNotice( content: string, options?: NoticeOptions ) {
  *
  * @see createNotice
  *
- * @param content   Notice message.
- * @param [options] Optional notice options.
+ * @param content Notice message.
+ * @param options Optional notice options.
  *
  * @example
  * ```js
@@ -203,8 +203,8 @@ export function createErrorNotice( content: string, options?: NoticeOptions ) {
  *
  * @see createNotice
  *
- * @param content   Notice message.
- * @param [options] Optional notice options.
+ * @param content Notice message.
+ * @param options Optional notice options.
  *
  * @example
  * ```js
@@ -245,9 +245,9 @@ export function createWarningNotice(
 /**
  * Returns an action object used in signalling that a notice is to be removed.
  *
- * @param id        Notice unique identifier.
- * @param [context] Optional context (grouping) in which the notice is
- *                  intended to appear. Defaults to 'default' context.
+ * @param id      Notice unique identifier.
+ * @param context Optional context (grouping) in which the notice is
+ *                intended to appear. Defaults to 'default' context.
  *
  * @example
  * ```js
@@ -285,7 +285,7 @@ export function createWarningNotice(
  */
 export function removeNotice(
 	id: string,
-	context = DEFAULT_CONTEXT
+	context: string = DEFAULT_CONTEXT
 ): Extract< ReducerAction, { type: 'REMOVE_NOTICE' } > {
 	return {
 		type: 'REMOVE_NOTICE',
@@ -298,7 +298,7 @@ export function removeNotice(
  * Removes all notices from a given context. Defaults to the default context.
  *
  * @param noticeType The context to remove all notices from.
- * @param context    The context to remove all notices from.
+ * @param context    The optional context to remove all notices from.
  *
  * @example
  * ```js
@@ -342,7 +342,7 @@ export function removeNotice(
  */
 export function removeAllNotices(
 	noticeType = 'default',
-	context = DEFAULT_CONTEXT
+	context: string = DEFAULT_CONTEXT
 ): Extract< ReducerAction, { type: 'REMOVE_ALL_NOTICES' } > {
 	return {
 		type: 'REMOVE_ALL_NOTICES',
@@ -354,9 +354,9 @@ export function removeAllNotices(
 /**
  * Returns an action object used in signalling that several notices are to be removed.
  *
- * @param ids       List of unique notice identifiers.
- * @param [context] Optional context (grouping) in which the notices are
- *                  intended to appear. Defaults to 'default' context.
+ * @param ids     List of unique notice identifiers.
+ * @param context Optional context (grouping) in which the notices are
+ *                intended to appear. Defaults to 'default' context.
  * @example
  * ```js
  * import { __ } from '@wordpress/i18n';
@@ -391,7 +391,7 @@ export function removeAllNotices(
  */
 export function removeNotices(
 	ids: Array< string >,
-	context = DEFAULT_CONTEXT
+	context: string = DEFAULT_CONTEXT
 ): Extract< ReducerAction, { type: 'REMOVE_NOTICES' } > {
 	return {
 		type: 'REMOVE_NOTICES',

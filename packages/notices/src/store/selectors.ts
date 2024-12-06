@@ -18,8 +18,8 @@ const DEFAULT_NOTICES: Array< Notice > = [];
  * Returns all notices as an array, optionally for a given context. Defaults to
  * the global context.
  *
- * @param state     Notices state.
- * @param [context] Optional grouping context.
+ * @param state   Notices state.
+ * @param context Optional grouping context.
  *
  * @example
  *
@@ -43,7 +43,7 @@ const DEFAULT_NOTICES: Array< Notice > = [];
  */
 export function getNotices(
 	state: Record< string, Array< Notice > >,
-	context = DEFAULT_CONTEXT
+	context: string = DEFAULT_CONTEXT
 ) {
 	return state[ context ] || DEFAULT_NOTICES;
 }

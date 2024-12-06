@@ -2,10 +2,15 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+-   Removed the unused `__unstableMotionContext` export ([#67623](https://github.com/WordPress/gutenberg/pull/67623)).
+
 ### Enhancements
 
 -   `GradientPicker`: Add `enableAlpha` prop ([#66974](https://github.com/WordPress/gutenberg/pull/66974))
 -   `CustomGradientPicker`: Add `enableAlpha` prop ([#66974](https://github.com/WordPress/gutenberg/pull/66974))
+-   `RangeControl`: Update the design of the range control marks ([#67611](https://github.com/WordPress/gutenberg/pull/67611))
 
 ### Deprecations
 
@@ -34,7 +39,6 @@
 -   Upgraded `@ariakit/react` (v0.4.13) and `@ariakit/test` (v0.4.5) ([#65907](https://github.com/WordPress/gutenberg/pull/65907)).
 -   Upgraded `@ariakit/react` (v0.4.15) and `@ariakit/test` (v0.4.7) ([#67404](https://github.com/WordPress/gutenberg/pull/67404)).
 -   `ToolbarButton`: Set size to "compact" ([#67440](https://github.com/WordPress/gutenberg/pull/67440)).
--   Exported the `WPCompleter` type as it was being used in block-editor/autocompleters ([#67410](https://github.com/WordPress/gutenberg/pull/67410)).
 -   `SlotFill`: remove manual rerenders from the portal `Fill` component ([#67471](https://github.com/WordPress/gutenberg/pull/67471)).
 
 ### Bug Fixes

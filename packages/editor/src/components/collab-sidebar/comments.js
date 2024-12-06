@@ -2,11 +2,12 @@
  * External dependencies
  */
 import clsx from 'clsx';
+import { useFloating, autoUpdate } from '@floating-ui/react-dom';
 
 /**
  * WordPress dependencies
  */
-import { useState, RawHTML } from '@wordpress/element';
+import { useState, RawHTML, useRef, useEffect } from '@wordpress/element';
 import {
 	__experimentalHStack as HStack,
 	__experimentalVStack as VStack,
@@ -32,7 +33,7 @@ import CommentForm from './comment-form';
 import { unlock } from '../../lock-unlock';
 import { store as editorStore } from '../../store';
 
-const { useBlockElement } = unlock( blockEditorPrivateApis );
+const { useBlockElementRef } = unlock( blockEditorPrivateApis );
 
 /**
  * Renders the Comments component.
@@ -384,18 +385,28 @@ function CommentHeader( {
 }
 
 const ThreadWrapper = ( { children, clientId, classNames } ) => {
-	const selectedBlockElement = useBlockElement( clientId );
-	const selectedBlockElementRect =
-		selectedBlockElement?.getBoundingClientRect();
+	const blockRef = useRef();
+	useBlockElementRef( clientId, blockRef );
 
-	const offsetTop = selectedBlockElementRect?.top + 'px';
+	const { y, refs } = useFloating( {
+		whileElementsMounted: autoUpdate,
+	} );
 
-	// This is a temporary wrapper to handle the position of the comments.
+	useEffect( () => {
+		if ( blockRef.current ) {
+			refs.setReference( blockRef.current ); // Bind reference element
+		}
+	}, [ blockRef, refs ] );
+
 	return (
 		<VStack
+			ref={ refs.setFloating }
 			className={ classNames }
 			spacing="3"
-			style={ { top: offsetTop } }
+			style={ {
+				position: 'absolute',
+				top: y ?? 0,
+			} }
 		>
 			{ children }
 		</VStack>

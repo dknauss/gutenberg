@@ -263,6 +263,18 @@ export default function EditSiteEditor( { isPostsList = false } ) {
 			) }
 			{ isReady && (
 				<Editor
+					as={ motion.div }
+					whileHover={
+						canvas === 'view'
+							? {
+									scale: 1.005,
+									transition: {
+										duration: disableMotion ? 0 : 0.5,
+										ease: 'easeOut',
+									},
+							  }
+							: {}
+					}
 					postType={ postWithTemplate ? context.postType : postType }
 					postId={ postWithTemplate ? context.postId : postId }
 					templateId={ postWithTemplate ? postId : undefined }

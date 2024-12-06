@@ -159,7 +159,16 @@ function render_block_core_navigation_submenu( $attributes, $content, $block ) {
 		$html .= '>';
 		// End appending HTML attributes to anchor tag.
 
+		$html .= '<span class="wp-block-navigation-item__label">';
 		$html .= $label;
+		$html .= '</span>';
+
+		// Add description if available.
+		if ( ! empty( $attributes['description'] ) ) {
+			$html .= '<span class="wp-block-navigation-item__description">';
+			$html .= wp_kses_post( $attributes['description'] );
+			$html .= '</span>';
+		}
 
 		$html .= '</a>';
 		// End anchor tag content.
@@ -179,6 +188,13 @@ function render_block_core_navigation_submenu( $attributes, $content, $block ) {
 		$html .= $label;
 
 		$html .= '</span>';
+
+		// Add description if available.
+		if ( ! empty( $attributes['description'] ) ) {
+			$html .= '<span class="wp-block-navigation-item__description">';
+			$html .= wp_kses_post( $attributes['description'] );
+			$html .= '</span>';
+		}
 
 		$html .= '</button>';
 

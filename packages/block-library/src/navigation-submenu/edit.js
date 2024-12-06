@@ -461,12 +461,6 @@ export default function NavigationSubmenuEdit( {
 						aria-label={ __( 'Navigation link text' ) }
 						placeholder={ itemLabelPlaceholder }
 						withoutInteractiveFormatting
-						allowedFormats={ [
-							'core/bold',
-							'core/italic',
-							'core/image',
-							'core/strikethrough',
-						] }
 						onClick={ () => {
 							if ( ! openSubmenusOnClick && ! url ) {
 								setIsLinkOpen( true );
@@ -474,6 +468,11 @@ export default function NavigationSubmenuEdit( {
 							}
 						} }
 					/>
+					{ description && (
+						<span className="wp-block-navigation-item__description">
+							{ description }
+						</span>
+					) }
 					{ ! openSubmenusOnClick && isLinkOpen && (
 						<LinkUI
 							clientId={ clientId }

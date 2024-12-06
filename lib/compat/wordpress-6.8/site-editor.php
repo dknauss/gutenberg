@@ -116,7 +116,7 @@ add_action( 'admin_init', 'gutenberg_redirect_site_editor_deprecated_urls' );
  * @return callable The default handler or a custom handler.
  */
 function gutenberg_styles_wp_die_handler( $default_handler ) {
-	if ( ! wp_is_block_theme() && str_contains( $_SERVER['REQUEST_URI'], 'site-editor.php' ) ) {
+	if ( ! wp_is_block_theme() && str_contains( $_SERVER['REQUEST_URI'], 'site-editor.php' ) && current_user_can( 'edit_theme_options' ) ) {
 		return '__return_false';
 	}
 	return $default_handler;

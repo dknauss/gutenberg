@@ -77,7 +77,6 @@ export default function CreateTemplatePartModal( {
 			focusOnMount="firstContentElement"
 			size="medium"
 		>
-			{ /* @ts-ignore */ }
 			<CreateTemplatePartModalContents { ...restProps } />
 		</Modal>
 	);

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 22.0.0-next.0 (2024-12-07)
+
 ### Breaking Changes
 
 -   The minimum required TypeScript version changed to 5 ([#67461](https://github.com/WordPress/gutenberg/pull/67461))

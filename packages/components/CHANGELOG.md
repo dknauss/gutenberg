@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 29.0.0-next.0 (2024-12-07)
+
 ### Breaking Changes
 
 -   Removed the unused `__unstableMotionContext` export ([#67623](https://github.com/WordPress/gutenberg/pull/67623)).
